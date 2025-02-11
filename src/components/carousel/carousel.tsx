@@ -12,6 +12,24 @@ import React, {
 } from "react";
 import cn from "../../utils/cn";
 
+const DEFAULT_TRANSLATE = "translateX(8px)";
+const INITIAL_NEXT_TRANSLATE = "translateX(-74%)";
+const TRANSLATE_INCREMENT = 85;
+const DRAG_THRESHOLD = 50;
+const MIN_DRAG_DISTANCE = 5;
+
+const setSlideTransform = (
+  ref: React.RefObject<HTMLDivElement | null>,
+  transformValue: number | string
+) => {
+  if (ref.current) {
+    ref.current.style.transform =
+      typeof transformValue === "number"
+        ? `translateX(${transformValue}px)`
+        : transformValue;
+  }
+};
+
 interface CarouselContextProps {
   currentIndex: number;
   slideRef: React.RefObject<HTMLDivElement | null>;
@@ -68,42 +86,38 @@ const Carousel: React.FC<CarouselProps> = ({
     : 0;
 
   const handlePrev = () => {
-    if (onChange) onChange();
+    onChange?.();
 
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
-      if (slideRef.current) {
-        if (currentIndex === 1) {
-          slideRef.current.style.transform = `translateX(8px)`;
-        } else {
-          translateValue.current -= 85;
-          slideRef.current.style.transform = `translateX(-${translateValue.current}%)`;
-        }
-      }
+    if (currentIndex <= 0) {
+      setSlideTransform(slideRef, DEFAULT_TRANSLATE);
+      return;
+    }
+
+    setCurrentIndex((prev) => prev - 1);
+
+    if (currentIndex === 1) {
+      setSlideTransform(slideRef, DEFAULT_TRANSLATE);
     } else {
-      if (slideRef.current) {
-        slideRef.current.style.transform = `translateX(8px)`;
-      }
+      translateValue.current -= TRANSLATE_INCREMENT;
+      setSlideTransform(slideRef, `translateX(-${translateValue.current}%)`);
     }
   };
 
   const handleNext = () => {
-    if (onChange) onChange();
+    onChange?.();
 
-    if (currentIndex < itemsCount - 1) {
-      setCurrentIndex((prev) => prev + 1);
-      if (slideRef.current) {
-        if (currentIndex === 0) {
-          slideRef.current.style.transform = `translateX(-74%)`;
-        } else {
-          translateValue.current += 85;
-          slideRef.current.style.transform = `translateX(-${translateValue.current}%)`;
-        }
-      }
+    if (currentIndex >= itemsCount - 1) {
+      setSlideTransform(slideRef, `translateX(-${translateValue.current}%)`);
+      return;
+    }
+
+    setCurrentIndex((prev) => prev + 1);
+
+    if (currentIndex === 0) {
+      setSlideTransform(slideRef, INITIAL_NEXT_TRANSLATE);
     } else {
-      if (slideRef.current) {
-        slideRef.current.style.transform = `translateX(-${translateValue.current}%)`;
-      }
+      translateValue.current += TRANSLATE_INCREMENT;
+      setSlideTransform(slideRef, `translateX(-${translateValue.current}%)`);
     }
   };
 
@@ -147,108 +161,77 @@ export const SlideContainer: React.FC<SlideContainerProps> = ({
 
   const [isClick, setIsClick] = useState(false);
 
-  const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleDragStart = (clientX: number) => {
     setIsClick(true);
+
     if (slideRef.current) {
       const computedStyle = window.getComputedStyle(slideRef.current);
       const { tx } = parseMatrixTransform(
         computedStyle.transform
       ) as TransformMatrix;
+
       currentTranslateX.current = tx;
       prevTranslateX.current = tx;
     }
-    startX.current = e.clientX;
+
+    startX.current = clientX;
+    isDragging.current = false;
+  };
+
+  const handleDragMove = (clientX: number) => {
+    if (startX.current === null) return;
+
+    const deltaX = clientX - startX.current;
+
+    if (Math.abs(deltaX) > MIN_DRAG_DISTANCE) {
+      isDragging.current = true;
+    }
+
+    setSlideTransform(slideRef, currentTranslateX.current + deltaX);
+  };
+
+  const handleDragEnd = (clientX: number) => {
+    setIsClick(false);
+    if (startX.current === null) return;
+
+    const diff = clientX - startX.current;
+
+    if (diff > DRAG_THRESHOLD) {
+      handlePrev();
+    } else if (diff < -DRAG_THRESHOLD) {
+      handleNext();
+    } else {
+      setSlideTransform(slideRef, prevTranslateX.current);
+    }
+
+    setTimeout(() => {
+      isDragging.current = false;
+    }, 0);
+
+    startX.current = null;
+  };
+
+  const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    handleDragStart(e.clientX);
   };
 
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (startX.current) {
-      const deltaX = e.clientX - startX.current;
-      if (Math.abs(deltaX) > 5) {
-        isDragging.current = true;
-      }
-      if (slideRef.current) {
-        slideRef.current.style.transform = `translateX(${
-          currentTranslateX.current + deltaX
-        }px)`;
-      }
-    }
+    handleDragMove(e.clientX);
   };
 
   const onMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
-    setIsClick(false);
-    if (startX.current) {
-      const diff = e.clientX - startX.current;
-      const threshold = 50;
-      if (diff > threshold) {
-        handlePrev();
-      } else if (diff < -threshold) {
-        handleNext();
-      } else {
-        if (slideRef.current) {
-          slideRef.current.style.transform = `translateX(${prevTranslateX.current}px)`;
-        }
-      }
-
-      setTimeout(() => {
-        isDragging.current = false;
-      }, 0);
-
-      startX.current = null;
-    }
+    handleDragEnd(e.clientX);
   };
-
   const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    setIsClick(true);
-
-    if (slideRef.current) {
-      const computedStyle = window.getComputedStyle(slideRef.current);
-      const { tx } = parseMatrixTransform(
-        computedStyle.transform
-      ) as TransformMatrix;
-      currentTranslateX.current = tx;
-      prevTranslateX.current = tx;
-    }
-
-    isDragging.current = false;
-    startX.current = e.touches[0].clientX;
+    handleDragStart(e.touches[0].clientX);
   };
 
   const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (startX.current) {
-      const deltaX = e.touches[0].clientX - startX.current;
-      if (Math.abs(deltaX) > 5) {
-        isDragging.current = true;
-      }
-
-      if (slideRef.current) {
-        slideRef.current.style.transform = `translateX(${
-          currentTranslateX.current + deltaX
-        }px)`;
-      }
-    }
+    handleDragMove(e.touches[0].clientX);
   };
 
   const onTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
-    setIsClick(false);
-    if (startX.current) {
-      const diff = e.changedTouches[0].clientX - startX.current;
-      const threshold = 50;
-      if (diff > threshold) {
-        handlePrev();
-      } else if (diff < -threshold) {
-        handleNext();
-      } else {
-        if (slideRef.current) {
-          slideRef.current.style.transform = `translateX(${prevTranslateX.current}px)`;
-        }
-      }
-
-      setTimeout(() => {
-        isDragging.current = false;
-      }, 0);
-
-      startX.current = null;
-    }
+    handleDragEnd(e.changedTouches[0].clientX);
   };
 
   return (
