@@ -10,8 +10,11 @@ import { BsGeoAlt, BsSearch } from "react-icons/bs";
 import AroundSearchButton from "./components/around-search-button";
 import AroundSearchList from "./components/around-search-list";
 import GpsButton from "./components/gps-button";
-import Image from "next/image";
-import MarkerDetail from "./components/marker-detail";
+import {
+  type MarkerDetailExtras,
+  mockDetailDataWithExtras,
+} from "./pullup/[id]/pullup-page-client";
+import MarkerDetail from "@/app/layout/marker-detail";
 
 export type Marker = {
   latitude: number;
@@ -132,6 +135,9 @@ const HomePageClient = () => {
 
   const [cachedImage, setCachedImage] = useState<string | null>(null);
   const [viewMarkerDetail, setViewMarkerDetail] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  const [detailData, setDetailData] = useState<MarkerDetailExtras | null>(null);
 
   useEffect(() => {
     if (isFirstVisit) return;
@@ -150,8 +156,12 @@ const HomePageClient = () => {
     setCachedImage(img);
   };
 
-  const openDetail = () => {
+  const openDetail = async () => {
     setViewMarkerDetail(true);
+    setDetailLoading(true);
+    await wait(500);
+    setDetailData(mockDetailDataWithExtras);
+    setDetailLoading(false);
   };
 
   const closeDetail = () => {
@@ -161,12 +171,13 @@ const HomePageClient = () => {
   return (
     <div className="relative w-full h-full p-2">
       <MarkerDetail
+        markerData={detailData}
         viewMarkerDetail={viewMarkerDetail}
         imageUrl={cachedImage}
         imageCache={handleImageCache}
         closeDetail={closeDetail}
+        isLoading={detailLoading}
       />
-
       <div className="relative z-20">
         <button className="absolute top-0 left-0 w-full h-full z-10" />
         <Input
@@ -179,6 +190,7 @@ const HomePageClient = () => {
           ref={inputRef}
         />
       </div>
+
       <div
         className={cn(
           "absolute bottom-6 right-2 flex gap-2 z-10 transition-all duration-100",
@@ -192,6 +204,7 @@ const HomePageClient = () => {
         />
         <GpsButton />
       </div>
+
       <div
         className={cn(
           "absolute bottom-2 left-0 z-10 w-full opacity-0",

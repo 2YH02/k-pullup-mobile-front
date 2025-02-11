@@ -2,10 +2,12 @@ import Carousel, {
   SlideContainer,
   SlideItem,
 } from "@/components/carousel/carousel";
+import Skeleton from "@/components/skeleton/skeleton";
+import useIsDarkMode from "@/hooks/use-is-dark-mode";
+import cn from "@/utils/cn";
+import Image from "next/image";
 import { useRef } from "react";
 import { Marker } from "../home-page-client";
-import Image from "next/image";
-import cn from "@/utils/cn";
 
 const AroundSearchList = ({
   data,
@@ -20,6 +22,8 @@ const AroundSearchList = ({
   imageCache: (img: string) => void;
   openDetail: VoidFunction;
 }) => {
+  const isDarkMode = useIsDarkMode();
+
   const isDragging = useRef(false);
   const startY = useRef<number | null>(null);
 
@@ -80,17 +84,46 @@ const AroundSearchList = ({
       setTimeout(() => {
         isDragging.current = false;
       }, 0);
-      
+
       startY.current = null;
     }
   };
 
   if (isLoading) {
-    return <div className="h-48 bg-blue">로딩중</div>;
+    return (
+      <div className="flex gap-[5%] h-48 ml-2">
+        <Skeleton className="w-[80%] h-full shrink-0 rounded-lg" />
+        <Skeleton className="w-[80%] h-full shrink-0 rounded-lg" />
+      </div>
+    );
   }
 
   if (data.length === 0) {
-    return <div className="h-48 bg-primary">없음</div>;
+    return (
+      <div
+        className="h-48 p-2"
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
+        <div className="flex flex-col justify-center w-full h-full rounded-lg bg-white shadow-md dark:bg-black">
+          <div className="relative mx-auto w-64 h-32">
+            <Image
+              src={isDarkMode ? "/main-c-dark.png" : "/main-c.png"}
+              fill
+              alt="not found"
+              draggable={false}
+            />
+          </div>
+          <div className="text-center font-bold">
+            현재 주변에 운동 기구가 없어요...
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

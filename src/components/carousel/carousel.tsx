@@ -179,7 +179,7 @@ export const SlideContainer: React.FC<SlideContainerProps> = ({
   };
 
   const handleDragMove = (clientX: number) => {
-    if (startX.current === null) return;
+    if (!startX.current) return;
 
     const deltaX = clientX - startX.current;
 
@@ -192,7 +192,7 @@ export const SlideContainer: React.FC<SlideContainerProps> = ({
 
   const handleDragEnd = (clientX: number) => {
     setIsClick(false);
-    if (startX.current === null) return;
+    if (!startX.current) return;
 
     const diff = clientX - startX.current;
 
