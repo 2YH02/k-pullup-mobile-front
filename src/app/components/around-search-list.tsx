@@ -72,7 +72,7 @@ const AroundSearchList = ({
   const onTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
     if (startY.current !== null) {
       const diff = e.changedTouches[0].clientY - startY.current;
-      const threshold = 30;
+      const threshold = 45;
       if (diff > threshold) {
         closeSlide();
       }

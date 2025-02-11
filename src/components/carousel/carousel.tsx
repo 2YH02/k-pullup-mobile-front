@@ -1,3 +1,6 @@
+import parseMatrixTransform, {
+  TransformMatrix,
+} from "@/utils/parse-matrix-transform";
 import React, {
   ButtonHTMLAttributes,
   createContext,
@@ -77,6 +80,10 @@ const Carousel: React.FC<CarouselProps> = ({
           slideRef.current.style.transform = `translateX(-${translateValue.current}%)`;
         }
       }
+    } else {
+      if (slideRef.current) {
+        slideRef.current.style.transform = `translateX(8px)`;
+      }
     }
   };
 
@@ -92,6 +99,10 @@ const Carousel: React.FC<CarouselProps> = ({
           translateValue.current += 85;
           slideRef.current.style.transform = `translateX(-${translateValue.current}%)`;
         }
+      }
+    } else {
+      if (slideRef.current) {
+        slideRef.current.style.transform = `translateX(-${translateValue.current}%)`;
       }
     }
   };
@@ -131,8 +142,21 @@ export const SlideContainer: React.FC<SlideContainerProps> = ({
   const { slideRef, isDragging, handlePrev, handleNext } = useCarousel();
 
   const startX = useRef<number | null>(null);
+  const currentTranslateX = useRef(0);
+  const prevTranslateX = useRef(0);
+
+  const [isClick, setIsClick] = useState(false);
 
   const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    setIsClick(true);
+    if (slideRef.current) {
+      const computedStyle = window.getComputedStyle(slideRef.current);
+      const { tx } = parseMatrixTransform(
+        computedStyle.transform
+      ) as TransformMatrix;
+      currentTranslateX.current = tx;
+      prevTranslateX.current = tx;
+    }
     startX.current = e.clientX;
   };
 
@@ -142,10 +166,16 @@ export const SlideContainer: React.FC<SlideContainerProps> = ({
       if (Math.abs(deltaX) > 5) {
         isDragging.current = true;
       }
+      if (slideRef.current) {
+        slideRef.current.style.transform = `translateX(${
+          currentTranslateX.current + deltaX
+        }px)`;
+      }
     }
   };
 
   const onMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    setIsClick(false);
     if (startX.current) {
       const diff = e.clientX - startX.current;
       const threshold = 50;
@@ -153,6 +183,10 @@ export const SlideContainer: React.FC<SlideContainerProps> = ({
         handlePrev();
       } else if (diff < -threshold) {
         handleNext();
+      } else {
+        if (slideRef.current) {
+          slideRef.current.style.transform = `translateX(${prevTranslateX.current}px)`;
+        }
       }
 
       setTimeout(() => {
@@ -164,6 +198,17 @@ export const SlideContainer: React.FC<SlideContainerProps> = ({
   };
 
   const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    setIsClick(true);
+
+    if (slideRef.current) {
+      const computedStyle = window.getComputedStyle(slideRef.current);
+      const { tx } = parseMatrixTransform(
+        computedStyle.transform
+      ) as TransformMatrix;
+      currentTranslateX.current = tx;
+      prevTranslateX.current = tx;
+    }
+
     isDragging.current = false;
     startX.current = e.touches[0].clientX;
   };
@@ -174,10 +219,17 @@ export const SlideContainer: React.FC<SlideContainerProps> = ({
       if (Math.abs(deltaX) > 5) {
         isDragging.current = true;
       }
+
+      if (slideRef.current) {
+        slideRef.current.style.transform = `translateX(${
+          currentTranslateX.current + deltaX
+        }px)`;
+      }
     }
   };
 
   const onTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    setIsClick(false);
     if (startX.current) {
       const diff = e.changedTouches[0].clientX - startX.current;
       const threshold = 50;
@@ -185,6 +237,10 @@ export const SlideContainer: React.FC<SlideContainerProps> = ({
         handlePrev();
       } else if (diff < -threshold) {
         handleNext();
+      } else {
+        if (slideRef.current) {
+          slideRef.current.style.transform = `translateX(${prevTranslateX.current}px)`;
+        }
       }
 
       setTimeout(() => {
@@ -199,7 +255,8 @@ export const SlideContainer: React.FC<SlideContainerProps> = ({
     <div
       ref={slideRef}
       className={cn(
-        "flex gap-[5%] h-full transition-transform duration-500 ease-in-out",
+        "flex gap-[5%] h-full",
+        !isClick && "transition-transform duration-500 ease-in-out",
         className
       )}
       style={{ transform: `translateX(8px)` }}
