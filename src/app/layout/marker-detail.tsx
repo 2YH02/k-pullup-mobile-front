@@ -1,11 +1,12 @@
 import { type MarkerDetailExtras } from "@/app/pullup/[id]/pullup-page-client";
-import Badge from "@/components/badge/badge";
+import { Badge } from "@/components/badge/badge";
 import { Button } from "@/components/button/button";
-import { KakaoMap } from "@/types/kakao-map.types";
+import Main from "@/components/main/main";
+import { type KakaoMap } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
 import { formatDate } from "@/utils/format-date";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import {
   BsArrowLeftShort,
   BsBookmark,
@@ -17,12 +18,6 @@ import Slider from "react-slick";
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
-
-const DRAG_THRESHOLD = 40;
-const CLOSE_OPACITY_THRESHOLD = 0.4;
-const MIN_OPACITY = 0.3;
-const OPACITY_STEP = 0.005;
-const RESET_OPACITY_DELAY = 250;
 
 interface MarkerDetailProps {
   imageUrl?: string | null;
@@ -41,70 +36,6 @@ const MarkerDetail = ({
   closeDetail,
   imageCache,
 }: MarkerDetailProps) => {
-  const startY = useRef<number | null>(null);
-  const isDragging = useRef(false);
-
-  const [translateY, setTranslateY] = useState(0);
-  const [opacity, setOpacity] = useState(1);
-
-  const handleDragStart = (clientY: number) => {
-    isDragging.current = true;
-    startY.current = clientY;
-  };
-
-  const handleDragMove = (clientY: number) => {
-    if (startY.current) {
-      const deltaY = clientY - startY.current;
-      const newOpacity = Math.max(
-        MIN_OPACITY,
-        1 - Math.abs(deltaY) * OPACITY_STEP
-      );
-      if (Math.abs(deltaY) > DRAG_THRESHOLD) {
-        setTranslateY(deltaY);
-        setOpacity(newOpacity);
-      }
-    }
-  };
-
-  const handleDragEnd = () => {
-    if (startY.current) {
-      if (opacity < CLOSE_OPACITY_THRESHOLD) {
-        closeDetail?.();
-        setOpacity(0);
-        setTimeout(() => setOpacity(1), RESET_OPACITY_DELAY);
-      } else {
-        setTranslateY(0);
-        setOpacity(1);
-      }
-      isDragging.current = false;
-      startY.current = null;
-    }
-  };
-
-  const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    handleDragStart(e.clientY);
-  };
-
-  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    handleDragMove(e.clientY);
-  };
-
-  const onMouseUp = () => {
-    handleDragEnd();
-  };
-
-  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    handleDragStart(e.touches[0].clientY);
-  };
-
-  const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    handleDragMove(e.touches[0].clientY);
-  };
-
-  const onTouchEnd = () => {
-    handleDragEnd();
-  };
-
   const slideSettings = {
     accessibility: false,
     dots: false,
@@ -117,30 +48,8 @@ const MarkerDetail = ({
     autoplaySpeed: 3000,
   };
 
-  const computedTransform = viewMarkerDetail
-    ? isDragging.current
-      ? `translateY(${translateY}px) translateX(-50%)`
-      : `translateY(0) translateX(-50%)`
-    : `translateY(100%) translateX(-50%)`;
-
   return (
-    <div
-      className={cn(
-        "fixed top-0 left-1/2 w-full h-full bg-white z-30 max-w-[480px] dark:bg-black overflow-auto overflow-x-hidden",
-        viewMarkerDetail ? "translate-y-0" : "translate-y-full",
-        !isDragging.current ? "duration-200" : "duration-0 scale-50"
-      )}
-      style={{
-        transform: computedTransform,
-        opacity: opacity,
-      }}
-      onMouseDown={onMouseDown}
-      onMouseMove={onMouseMove}
-      onMouseUp={onMouseUp}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
+    <Main isView={viewMarkerDetail} close={closeDetail}>
       <div>
         <Button
           icon={<BsArrowLeftShort size={26} />}
@@ -171,7 +80,7 @@ const MarkerDetail = ({
                   <img
                     src={data.photoUrl}
                     alt={`Slide ${index + 1}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover block"
                   />
                 </div>
               ))}
@@ -268,7 +177,7 @@ const MarkerDetail = ({
           </Section>
         </>
       )}
-    </div>
+    </Main>
   );
 };
 

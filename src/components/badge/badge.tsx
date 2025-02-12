@@ -24,7 +24,7 @@ interface BadgeProps {
   children: React.ReactNode;
 }
 
-const Badge: React.FC<BadgeProps> = ({
+export const Badge: React.FC<BadgeProps> = ({
   size = "sm",
   variant = "default",
   className,
@@ -46,5 +46,3 @@ const Badge: React.FC<BadgeProps> = ({
     </span>
   );
 };
-
-export default Badge;
