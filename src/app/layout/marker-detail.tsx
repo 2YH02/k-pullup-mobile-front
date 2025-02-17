@@ -2,6 +2,7 @@ import { type MarkerDetailExtras } from "@/app/pullup/[id]/pullup-page-client";
 import { Badge } from "@/components/badge/badge";
 import { Button } from "@/components/button/button";
 import Main from "@/components/main/main";
+import Section from "@/components/section/section";
 import { type KakaoMap } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
 import { formatDate } from "@/utils/format-date";
@@ -9,6 +10,7 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import {
   BsArrowLeftShort,
+  BsArrowsFullscreen,
   BsBookmark,
   BsFillPinMapFill,
   BsFillShareFill,
@@ -92,7 +94,7 @@ const MarkerDetail = ({
         <div>로딩중...</div>
       ) : (
         <>
-          <Section className="flex flex-wrap gap-2 pb-0">
+          <Section className="flex flex-wrap gap-2 pt-2 pb-0">
             {markerData.facilities[0].quantity > 0 && (
               <MarkerDetailBadge>
                 철봉 {markerData.facilities[0].quantity} 개
@@ -118,7 +120,7 @@ const MarkerDetail = ({
               </MarkerDetailBadge>
             )}
           </Section>
-          <Section className="pb-0">
+          <Section className="pb-0 pt-2">
             <h1 className="text-xl ">{markerData.address}</h1>
             <p className="text-sm font-bold mb-2">{markerData.description}</p>
             <p className="text-xs text-grey mb-2">
@@ -172,22 +174,16 @@ const MarkerDetail = ({
             </Button>
           </Section>
           <div className="w-gull h-4 bg-grey-light" />
-          <Section>
+          <Section title="이미지">
+            <div className="h-64">...내용</div>
+          </Section>
+          <Section title="댓글">
             <div className="h-64">...내용</div>
           </Section>
         </>
       )}
     </Main>
   );
-};
-
-const Section = ({
-  className,
-  children,
-}: React.PropsWithChildren<{
-  className?: React.ComponentProps<"div">["className"];
-}>) => {
-  return <div className={cn("px-2 py-4", className)}>{children}</div>;
 };
 
 const MarkerDetailBadge = ({ children }: React.PropsWithChildren) => {
@@ -340,6 +336,7 @@ const Map = () => {
     const mapContainer = document.getElementById("detail-map");
     const mapOption = {
       center: new window.kakao.maps.LatLng(37.566535, 126.9779692),
+      draggable: false,
       level: 3,
     };
 
@@ -350,14 +347,20 @@ const Map = () => {
   return (
     <div
       id="detail-map"
-      className={cn(" w-full h-full z-0")}
+      className={cn("relative w-full h-full z-0")}
       onMouseDown={(e) => e.stopPropagation()}
       onMouseMove={(e) => e.stopPropagation()}
       onMouseUp={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
       onTouchEnd={(e) => e.stopPropagation()}
-    />
+    >
+      <Button
+        className="absolute right-2 bottom-2 z-10 rounded-full bg-primary"
+        icon={<BsArrowsFullscreen />}
+        clickAction
+      />
+    </div>
   );
 };
 
