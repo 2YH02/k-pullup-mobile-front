@@ -2,8 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  overscroll-behavior: none;
+}
+
 body {
   @apply bg-gray-300 text-gray-800 dark:bg-gray-800 dark:text-white;
-  user-select: none; /* 표준 */
-  -webkit-user-select: none; /* Chrome, Safari, Opera */
+  user-select: none;
+  -webkit-user-select: none;
 }
