@@ -320,9 +320,7 @@ const MarkerDetailImages = ({ images }: { images: Photo[] | null }) => {
 };
 
 const MarkerComments = () => {
-  const [commentsData, setCommentData] = useState<CommentData | null>(
-    commentMockData
-  );
+  const commentsData = commentMockData;
 
   if (!commentsData) {
     return (
@@ -350,7 +348,9 @@ const MarkerComments = () => {
             >
               <div>
                 <div className="font-bold">{comment.commentText}</div>
-                <div className="text-sm text-grey">{formatDate(comment.postedAt)}</div>
+                <div className="text-sm text-grey">
+                  {formatDate(comment.postedAt)}
+                </div>
               </div>
               <div>{comment.username}</div>
             </div>

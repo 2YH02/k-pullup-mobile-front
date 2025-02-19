@@ -1,6 +1,11 @@
-import type { MarkerRes } from "@api/marker/get-all-marker";
 import type { CustomOverlay } from "./custom-overlay.types";
 import type { KakaoMarker } from "./kakao-map.types";
+import type { Marker } from "./marker.types";
+
+export type MarkerRes = Pick<
+  Marker,
+  "markerId" | "latitude" | "longitude" | "address" | "hasPhoto"
+>;
 
 export interface MarkerClusterer {
   /**
