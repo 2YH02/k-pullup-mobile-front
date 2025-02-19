@@ -5,7 +5,7 @@ import MarkerDetail from "@/app/layout/marker-detail";
 import { useSessionStore } from "@/store/use-session-store";
 import { useEffect } from "react";
 
-type Photo = {
+export type Photo = {
   uploadedAt: string;
   photoId: number;
   markerId: number;

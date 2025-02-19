@@ -1,4 +1,7 @@
-import { type MarkerDetailExtras } from "@/app/pullup/[id]/pullup-page-client";
+import type {
+  MarkerDetailExtras,
+  Photo,
+} from "@/app/pullup/[id]/pullup-page-client";
 import { Badge } from "@/components/badge/badge";
 import { Button } from "@/components/button/button";
 import Main from "@/components/main/main";
@@ -7,7 +10,7 @@ import { type KakaoMap } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
 import { formatDate } from "@/utils/format-date";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BsArrowLeftShort,
   BsArrowsFullscreen,
@@ -15,11 +18,64 @@ import {
   BsFillPinMapFill,
   BsFillShareFill,
   BsPersonBoundingBox,
+  BsTrash3,
 } from "react-icons/bs";
 import Slider from "react-slick";
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
+
+type Comment = {
+  commentId: number;
+  markerId: number;
+  userId: number;
+  postedAt: string; // ISO 8601 형식의 날짜 문자열
+  updatedAt: string; // ISO 8601 형식의 날짜 문자열
+  commentText: string;
+  username: string;
+};
+
+type CommentData = {
+  comments: Comment[];
+  currentPage: number;
+  totalPages: number;
+  totalComments: number;
+};
+
+const commentMockData: CommentData = {
+  comments: [
+    {
+      commentId: 279,
+      markerId: 5647,
+      userId: 1,
+      postedAt: "2025-01-08T04:08:31Z",
+      updatedAt: "2025-01-08T04:08:31Z",
+      commentText: "좋아요\n",
+      username: "k-pullup",
+    },
+    {
+      commentId: 361,
+      markerId: 5647,
+      userId: 12,
+      postedAt: "2025-02-19T03:47:25Z",
+      updatedAt: "2025-02-19T03:47:25Z",
+      commentText: "test2",
+      username: "감자",
+    },
+    {
+      commentId: 360,
+      markerId: 5647,
+      userId: 12,
+      postedAt: "2025-02-19T03:47:21Z",
+      updatedAt: "2025-02-19T03:47:21Z",
+      commentText: "test",
+      username: "감자",
+    },
+  ],
+  currentPage: 1,
+  totalPages: 1,
+  totalComments: 3,
+};
 
 interface MarkerDetailProps {
   imageUrl?: string | null;
@@ -38,6 +94,8 @@ const MarkerDetail = ({
   closeDetail,
   imageCache,
 }: MarkerDetailProps) => {
+  const [curImageIndex, setCurImageIndex] = useState(0);
+
   const slideSettings = {
     accessibility: false,
     dots: false,
@@ -48,6 +106,9 @@ const MarkerDetail = ({
     swipe: true,
     autoplay: true,
     autoplaySpeed: 3000,
+    beforeChange: (_: number, newIndex: number) => {
+      setCurImageIndex(newIndex);
+    },
   };
 
   return (
@@ -63,7 +124,7 @@ const MarkerDetail = ({
           }}
         />
 
-        <div className="w-full h-52">
+        <div className="relative w-full h-52">
           {imageUrl && isLoading ? (
             <div className="w-full h-52">
               <img
@@ -73,7 +134,7 @@ const MarkerDetail = ({
               />
             </div>
           ) : (
-            <Slider {...slideSettings} className="">
+            <Slider {...slideSettings}>
               {markerData?.photos.map((data, index) => (
                 <div
                   key={data.photoId}
@@ -87,6 +148,11 @@ const MarkerDetail = ({
                 </div>
               ))}
             </Slider>
+          )}
+          {markerData && (
+            <div className="absolute right-3 bottom-3 bg-[rgba(0,0,0,0.5)] text-white text-xs px-3 py-[2px] rounded-md">
+              {`${curImageIndex + 1} / ${markerData.photos.length}`}
+            </div>
           )}
         </div>
       </div>
@@ -175,10 +241,10 @@ const MarkerDetail = ({
           </Section>
           <div className="w-gull h-4 bg-grey-light" />
           <Section title="이미지">
-            <div className="h-64">...내용</div>
+            <MarkerDetailImages images={null} />
           </Section>
-          <Section title="댓글">
-            <div className="h-64">...내용</div>
+          <Section title="리뷰">
+            <MarkerComments />
           </Section>
         </>
       )}
@@ -194,6 +260,181 @@ const MarkerDetailBadge = ({ children }: React.PropsWithChildren) => {
     >
       {children}
     </Badge>
+  );
+};
+
+const MarkerDetailImages = ({ images }: { images: Photo[] | null }) => {
+  if (!images) {
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <div className="relative w-28 h-16">
+          <Image src="/main-c.png" fill alt="not found" />
+          <div className="absolute w-full h-full top-0 left-0 bg-[rgba(255,255,255,0.5)]" />
+        </div>
+        <div className="font-bold mt-1">우와, 사진이 하나도 없네요 ㅠㅠ</div>
+      </div>
+    );
+  }
+  return (
+    <div className="flex">
+      <div className="w-1/2 h-32 mr-1">
+        {images.map((image, index) => {
+          if (index % 2 === 1) return;
+          return (
+            <button
+              key={image.photoId}
+              className="relative w-full h-full"
+              onClick={() => {}}
+            >
+              <Image
+                src={image.photoUrl}
+                fill
+                alt="상세"
+                className="rounded-md"
+              />
+            </button>
+          );
+        })}
+      </div>
+      <div className="w-1/2 h-32 ml-1">
+        {images.map((image, index) => {
+          if (index % 2 !== 1) return;
+          return (
+            <button
+              key={image.photoId}
+              className="relative w-full h-full"
+              onClick={() => {}}
+            >
+              <Image
+                src={image.photoUrl}
+                fill
+                alt="상세"
+                className="rounded-md"
+              />
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const MarkerComments = () => {
+  const [commentsData, setCommentData] = useState<CommentData | null>(
+    commentMockData
+  );
+
+  if (!commentsData) {
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <div className="relative w-28 h-16">
+          <Image src="/main-c.png" fill alt="not found" />
+          <div className="absolute w-full h-full top-0 left-0 bg-[rgba(255,255,255,0.3)]" />
+        </div>
+        <div className="font-bold mt-1">우와, 리뷰가 하나도 없네요 ㅠㅠ</div>
+        <button className="underline text-sm active:text-primary">
+          리뷰 작성하기
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {commentsData.comments.map((comment, index) => {
+        if (comment.username === "k-pullup") {
+          return (
+            <div
+              key={comment.commentId}
+              className="bg-white shadow-full p-4 rounded-md flex justify-between items-center"
+            >
+              <div>
+                <div className="font-bold">{comment.commentText}</div>
+                <div className="text-sm text-grey">{formatDate(comment.postedAt)}</div>
+              </div>
+              <div>{comment.username}</div>
+            </div>
+          );
+        } else {
+          return (
+            <div
+              key={comment.commentId}
+              className={cn(
+                "py-2",
+                (index !== commentsData.comments.length - 1 ||
+                  commentsData.comments.length === 1) &&
+                  "border-b border-solid border-[#ccc]"
+              )}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <div className="font-bold">{comment.username}</div>
+                <Button
+                  icon={<BsTrash3 color="#777" />}
+                  appearance="borderless"
+                  clickAction
+                />
+              </div>
+              <div className="mb-1 break-words">{comment.commentText}</div>
+              <div className="text-sm text-grey">
+                {formatDate(comment.postedAt)}
+              </div>
+            </div>
+          );
+        }
+      })}
+    </div>
+  );
+};
+
+const IconButton = ({
+  icon,
+  children,
+}: React.PropsWithChildren<{ icon: React.ReactNode }>) => {
+  return (
+    <Button
+      className="flex flex-col gap-1 grow text-sm"
+      icon={icon}
+      appearance="borderless"
+      clickAction
+    >
+      {children}
+    </Button>
+  );
+};
+
+const Map = () => {
+  const mapRef = useRef<KakaoMap>(null);
+
+  useEffect(() => {
+    if (mapRef.current) return;
+    const mapContainer = document.getElementById("detail-map");
+    const mapOption = {
+      center: new window.kakao.maps.LatLng(37.566535, 126.9779692),
+      draggable: false,
+      level: 3,
+    };
+
+    const map = new window.kakao.maps.Map(mapContainer, mapOption);
+    mapRef.current = map;
+  }, []);
+
+  return (
+    <div
+      id="detail-map"
+      className={cn("relative w-full h-full z-0")}
+      onMouseDown={(e) => e.stopPropagation()}
+      onMouseMove={(e) => e.stopPropagation()}
+      onMouseUp={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+    >
+      <Button
+        className="absolute right-2 bottom-2 z-10 rounded-full bg-primary"
+        icon={<BsArrowsFullscreen />}
+        clickAction
+      />
+    </div>
   );
 };
 
@@ -309,58 +550,6 @@ const StarIcon = () => {
         </g>
       </g>
     </svg>
-  );
-};
-
-const IconButton = ({
-  icon,
-  children,
-}: React.PropsWithChildren<{ icon: React.ReactNode }>) => {
-  return (
-    <Button
-      className="flex flex-col gap-1 grow text-sm"
-      icon={icon}
-      appearance="borderless"
-      clickAction
-    >
-      {children}
-    </Button>
-  );
-};
-
-const Map = () => {
-  const mapRef = useRef<KakaoMap>(null);
-
-  useEffect(() => {
-    if (mapRef.current) return;
-    const mapContainer = document.getElementById("detail-map");
-    const mapOption = {
-      center: new window.kakao.maps.LatLng(37.566535, 126.9779692),
-      draggable: false,
-      level: 3,
-    };
-
-    const map = new window.kakao.maps.Map(mapContainer, mapOption);
-    mapRef.current = map;
-  }, []);
-
-  return (
-    <div
-      id="detail-map"
-      className={cn("relative w-full h-full z-0")}
-      onMouseDown={(e) => e.stopPropagation()}
-      onMouseMove={(e) => e.stopPropagation()}
-      onMouseUp={(e) => e.stopPropagation()}
-      onTouchStart={(e) => e.stopPropagation()}
-      onTouchMove={(e) => e.stopPropagation()}
-      onTouchEnd={(e) => e.stopPropagation()}
-    >
-      <Button
-        className="absolute right-2 bottom-2 z-10 rounded-full bg-primary"
-        icon={<BsArrowsFullscreen />}
-        clickAction
-      />
-    </div>
   );
 };
 
