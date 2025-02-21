@@ -26,6 +26,7 @@ import Slider from "react-slick";
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
+import NotFoundImage from "@/components/not-found-image/not-found-image";
 
 type Comment = {
   commentId: number;
@@ -202,7 +203,7 @@ const MarkerDetail = ({
                 <span>정보 제공자: {markerData.username}</span>
               </span>
             </div>
-            <div className="flex h-16 border-t border-solid border-[#ccc]">
+            <div className="flex h-16 border-t border-solid border-[#ccc] py-1">
               {/* <BsBookmarkFill /> */}
               <IconButton
                 icon={<BsBookmark size={20} className="fill-primary" />}
@@ -231,7 +232,7 @@ const MarkerDetail = ({
               </IconButton>
             </div>
           </Section>
-          <div className="w-gull h-4 bg-grey-light" />
+          <div className="w-full h-4 bg-grey-light dark:bg-[#111]" />
           <Section>
             <div className="relative w-full h-48 rounded-lg overflow-hidden mb-3">
               <div className={cn("absolute w-full h-full z-20")} />
@@ -241,7 +242,7 @@ const MarkerDetail = ({
               길찾기
             </Button>
           </Section>
-          <div className="w-gull h-4 bg-grey-light" />
+          <div className="w-full h-4 bg-grey-light dark:bg-[#111]" />
           <Section
             title="이미지"
             subTitle="정보 수정 제안"
@@ -279,7 +280,7 @@ const DetailSkeletons = () => {
           </div>
         </div>
       </Section>
-      <div className="w-gull h-4 bg-grey-light" />
+      <div className="w-gull h-4 bg-grey-light dark:bg-[#111]" />
       <Section>
         <Skeleton className="w-full h-48 rounded-lg" />
       </Section>
@@ -300,15 +301,7 @@ const MarkerDetailBadge = ({ children }: React.PropsWithChildren) => {
 
 const MarkerDetailImages = ({ images }: { images: Photo[] | null }) => {
   if (!images) {
-    return (
-      <div className="flex flex-col items-center justify-center">
-        <div className="relative w-28 h-16">
-          <Image src="/main-c.png" fill alt="not found" />
-          <div className="absolute w-full h-full top-0 left-0 bg-[rgba(255,255,255,0.5)]" />
-        </div>
-        <div className="font-bold mt-1">우와, 사진이 하나도 없네요 ㅠㅠ</div>
-      </div>
-    );
+    return <NotFoundImage text="우와, 사진이 하나도 없네요 ㅠㅠ" />;
   }
   return (
     <div className="flex">
@@ -356,17 +349,14 @@ const MarkerDetailImages = ({ images }: { images: Photo[] | null }) => {
 
 const MarkerComments = () => {
   const { show } = useBottomSheetStore();
+
   const commentsData = commentMockData;
 
   if (!commentsData) {
     return (
       <Section title="리뷰" className="pb-20">
         <div className="flex flex-col items-center justify-center">
-          <div className="relative w-28 h-16">
-            <Image src="/main-c.png" fill alt="not found" />
-            <div className="absolute w-full h-full top-0 left-0 bg-[rgba(255,255,255,0.3)]" />
-          </div>
-          <div className="font-bold mt-1">우와, 리뷰가 하나도 없네요 ㅠㅠ</div>
+          <NotFoundImage text="우와, 리뷰가 하나도 없네요 ㅠㅠ" />
           <button
             className="underline text-sm active:text-primary"
             onClick={show}
@@ -391,7 +381,7 @@ const MarkerComments = () => {
             return (
               <div
                 key={comment.commentId}
-                className="bg-white shadow-full p-4 rounded-md flex justify-between items-center mb-2"
+                className="bg-white dark:bg-black-light shadow-full p-4 rounded-md flex justify-between items-center mb-2"
               >
                 <div>
                   <div className="font-bold">{comment.commentText}</div>
@@ -410,12 +400,13 @@ const MarkerComments = () => {
                   "p-3",
                   (index !== commentsData.comments.length - 1 ||
                     commentsData.comments.length === 1) &&
-                    "border-b border-solid border-grey-light"
+                    "border-b border-solid border-grey-light dark:border-grey-dark"
                 )}
               >
                 <div className="flex items-center justify-between">
                   <div className="font-bold">{comment.username}</div>
                   <Button
+                    className="bg-white dark:bg-black"
                     icon={<BsTrash3 color="#777" />}
                     appearance="borderless"
                     clickAction
@@ -448,7 +439,7 @@ const MarkerCommentsForm = () => {
 
   return (
     <BottomSheet title="리뷰 작성" className="pb-10">
-      <div className="w-full p-4 mb-4 shadow-inner-full rounded-xl">
+      <div className="w-full p-4 mb-4 shadow-inner-full rounded-xl border border-solid border-grey-dark">
         <textarea
           value={inputValue}
           onChange={handleChange}
@@ -474,7 +465,7 @@ const IconButton = ({
 }: React.PropsWithChildren<{ icon: React.ReactNode }>) => {
   return (
     <Button
-      className="flex flex-col gap-1 grow text-sm"
+      className="flex flex-col gap-1 grow text-sm dark:bg-black dark:text-white"
       icon={icon}
       appearance="borderless"
       clickAction
