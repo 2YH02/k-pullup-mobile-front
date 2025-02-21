@@ -47,7 +47,7 @@ const BottomSheet = ({
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-4">
           <div className="text-xl font-semibold">{title}</div>
           <Button
             icon={<BsX size={26} />}

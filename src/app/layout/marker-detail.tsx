@@ -12,10 +12,9 @@ import { type KakaoMap } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
 import { formatDate } from "@/utils/format-date";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   BsArrowLeftShort,
-  BsArrowsFullscreen,
   BsBookmark,
   BsFillPinMapFill,
   BsFillShareFill,
@@ -234,8 +233,9 @@ const MarkerDetail = ({
           </Section>
           <div className="w-gull h-4 bg-grey-light" />
           <Section>
-            <div className="w-full h-48 rounded-lg overflow-hidden mb-3">
-              <Map />
+            <div className="relative w-full h-48 rounded-lg overflow-hidden mb-3">
+              <div className="absolute w-full h-full z-20" />
+              <Map lat={markerData.latitude} lng={markerData.longitude} />
             </div>
             <Button fullWidth clickAction className="bg-primary">
               길찾기
@@ -361,7 +361,7 @@ const MarkerComments = () => {
             return (
               <div
                 key={comment.commentId}
-                className="bg-white shadow-full p-4 rounded-md flex justify-between items-center mb-6"
+                className="bg-white shadow-full p-4 rounded-md flex justify-between items-center mb-2"
               >
                 <div>
                   <div className="font-bold">{comment.commentText}</div>
@@ -383,7 +383,7 @@ const MarkerComments = () => {
                     "border-b border-solid border-grey-light"
                 )}
               >
-                <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center justify-between">
                   <div className="font-bold">{comment.username}</div>
                   <Button
                     icon={<BsTrash3 color="#777" />}
@@ -391,7 +391,7 @@ const MarkerComments = () => {
                     clickAction
                   />
                 </div>
-                <div className="mb-1 break-words">{comment.commentText}</div>
+                <div className="break-words">{comment.commentText}</div>
                 <div className="text-sm text-grey">
                   {formatDate(comment.postedAt)}
                 </div>
@@ -405,9 +405,35 @@ const MarkerComments = () => {
 };
 
 const MarkerCommentsForm = () => {
+  const [inputValue, setInputValue] = useState("");
+
+  const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleClick = () => {
+    if (inputValue.length <= 0) return;
+    console.log(inputValue);
+  };
+
   return (
-    <BottomSheet title="리뷰 작성">
-      <div>폼임니다.</div>
+    <BottomSheet title="리뷰 작성" className="pb-10">
+      <div className="w-full p-4 mb-4 shadow-inner-full rounded-xl">
+        <textarea
+          value={inputValue}
+          onChange={handleChange}
+          maxLength={40}
+          placeholder="다른 사람에게 불쾌감을 주는 욕설, 혐오, 비하의 표현은 주의해주세요."
+          className="w-full resize-none bg-transparent outline-none"
+        />
+      </div>
+      <div className="flex items-center">
+        <Button className="w-3/4 bg-primary" onClick={handleClick} clickAction>
+          등록하기
+        </Button>
+        <div className="grow" />
+        <div className="mr-2">{inputValue.length}/40</div>
+      </div>
     </BottomSheet>
   );
 };
@@ -428,14 +454,14 @@ const IconButton = ({
   );
 };
 
-const Map = () => {
+const Map = ({ lat, lng }: { lat: number; lng: number }) => {
   const mapRef = useRef<KakaoMap>(null);
 
   useEffect(() => {
     if (mapRef.current) return;
     const mapContainer = document.getElementById("detail-map");
     const mapOption = {
-      center: new window.kakao.maps.LatLng(37.566535, 126.9779692),
+      center: new window.kakao.maps.LatLng(lat, lng),
       draggable: false,
       level: 3,
     };
@@ -444,24 +470,7 @@ const Map = () => {
     mapRef.current = map;
   }, []);
 
-  return (
-    <div
-      id="detail-map"
-      className={cn("relative w-full h-full z-0")}
-      onMouseDown={(e) => e.stopPropagation()}
-      onMouseMove={(e) => e.stopPropagation()}
-      onMouseUp={(e) => e.stopPropagation()}
-      onTouchStart={(e) => e.stopPropagation()}
-      onTouchMove={(e) => e.stopPropagation()}
-      onTouchEnd={(e) => e.stopPropagation()}
-    >
-      <Button
-        className="absolute right-2 bottom-2 z-10 rounded-full bg-primary"
-        icon={<BsArrowsFullscreen />}
-        clickAction
-      />
-    </div>
-  );
+  return <div id="detail-map" className={cn("relative w-full h-full z-10")} />;
 };
 
 const StarIcon = () => {

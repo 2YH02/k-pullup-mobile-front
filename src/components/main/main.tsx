@@ -13,12 +13,14 @@ interface MainProps {
   isView?: boolean;
   slideType?: "vertical" | "horizontal";
   close?: VoidFunction;
+  className?: React.ComponentProps<"div">["className"];
 }
 
 const Main = ({
   isView,
   slideType = "vertical",
   close,
+  className,
   children,
 }: React.PropsWithChildren<MainProps>) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -150,7 +152,8 @@ const Main = ({
         slideType === "vertical" ? "left-1/2" : "left-0",
         isView ? "translate-y-0" : "translate-y-full",
         !isDragging.current ? "duration-200" : "duration-0",
-        scrollTop < OVERSCROLL_LIMIT ? "overscroll-none" : ""
+        scrollTop < OVERSCROLL_LIMIT ? "overscroll-none" : "",
+        className
       )}
       style={{
         transform:
