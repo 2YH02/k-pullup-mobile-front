@@ -1,12 +1,15 @@
-import useIsTop from "@/hooks/use-is-top";
+import useScroll from "@/hooks/use-scroll";
 import cn from "@/utils/cn";
 import { useEffect, useRef, useState } from "react";
+
+// TODO: overscroll-behavior: none; 확인하기 (class="overscroll-none")
 
 const DRAG_THRESHOLD = 30;
 const CLOSE_OPACITY_THRESHOLD = 0.4;
 const MIN_OPACITY = 0.3;
 const OPACITY_STEP = 0.005;
 const RESET_OPACITY_DELAY = 250;
+const OVERSCROLL_LIMIT = 100;
 
 interface MainProps {
   isView?: boolean;
@@ -19,7 +22,7 @@ const Main = ({
   children,
 }: React.PropsWithChildren<MainProps>) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const isTop = useIsTop(containerRef.current);
+  const { isTop, scrollTop } = useScroll(containerRef.current);
 
   const startY = useRef<number | null>(null);
   const isDragging = useRef(false);
@@ -110,7 +113,8 @@ const Main = ({
       className={cn(
         "fixed top-0 left-1/2 w-full h-full bg-white z-30 max-w-[480px] dark:bg-black overflow-auto overflow-x-hidden",
         isView ? "translate-y-0" : "translate-y-full",
-        !isDragging.current ? "duration-200" : "duration-0"
+        !isDragging.current ? "duration-200" : "duration-0",
+        scrollTop < OVERSCROLL_LIMIT ? "overscroll-none" : ""
       )}
       style={{
         transform: computedTransform,

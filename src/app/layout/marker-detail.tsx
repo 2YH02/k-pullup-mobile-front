@@ -243,7 +243,7 @@ const MarkerDetail = ({
           <Section title="이미지">
             <MarkerDetailImages images={null} />
           </Section>
-          <Section title="리뷰">
+          <Section title="리뷰" className="pb-20">
             <MarkerComments />
           </Section>
         </>
@@ -344,7 +344,7 @@ const MarkerComments = () => {
           return (
             <div
               key={comment.commentId}
-              className="bg-white shadow-full p-4 rounded-md flex justify-between items-center"
+              className="bg-white shadow-full p-4 rounded-md flex justify-between items-center mb-6"
             >
               <div>
                 <div className="font-bold">{comment.commentText}</div>
@@ -360,10 +360,10 @@ const MarkerComments = () => {
             <div
               key={comment.commentId}
               className={cn(
-                "py-2",
+                "py-3",
                 (index !== commentsData.comments.length - 1 ||
                   commentsData.comments.length === 1) &&
-                  "border-b border-solid border-[#ccc]"
+                  "border-b border-solid border-grey-light"
               )}
             >
               <div className="flex items-center justify-between mb-1">
