@@ -2,8 +2,6 @@ import useScroll from "@/hooks/use-scroll";
 import cn from "@/utils/cn";
 import { useEffect, useRef, useState } from "react";
 
-// TODO: overscroll-behavior: none; 확인하기 (class="overscroll-none")
-
 const DRAG_THRESHOLD = 30;
 const CLOSE_OPACITY_THRESHOLD = 0.4;
 const MIN_OPACITY = 0.3;
@@ -13,21 +11,27 @@ const OVERSCROLL_LIMIT = 100;
 
 interface MainProps {
   isView?: boolean;
+  slideType?: "vertical" | "horizontal";
   close?: VoidFunction;
 }
 
 const Main = ({
   isView,
+  slideType = "vertical",
   close,
   children,
 }: React.PropsWithChildren<MainProps>) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { isTop, scrollTop } = useScroll(containerRef.current);
 
-  const startY = useRef<number | null>(null);
   const isDragging = useRef(false);
 
+  const startY = useRef<number | null>(null);
+  const startX = useRef<number | null>(null);
+
   const [translateY, setTranslateY] = useState(0);
+  const [translateX, setTranslateX] = useState(0);
+
   const [opacity, setOpacity] = useState(1);
 
   useEffect(() => {
@@ -40,15 +44,19 @@ const Main = ({
     }
   }, [translateY]);
 
-  const handleDragStart = (clientY: number) => {
-    if (!isTop) return;
+  const handleDragStart = (clientY: number, clientX: number) => {
     isDragging.current = true;
-    startY.current = clientY;
+    if (slideType === "vertical") {
+      if (!isTop) return;
+      startY.current = clientY;
+    } else {
+      startX.current = clientX;
+    }
   };
 
-  const handleDragMove = (clientY: number) => {
-    if (!isTop) return;
-    if (startY.current) {
+  const handleDragMove = (clientY: number, clientX: number) => {
+    if (startY.current && slideType === "vertical") {
+      if (!isTop) return;
       const deltaY = clientY - startY.current;
       const newOpacity = Math.max(
         MIN_OPACITY,
@@ -58,12 +66,21 @@ const Main = ({
         setTranslateY(Math.floor(deltaY - DRAG_THRESHOLD));
         setOpacity(newOpacity);
       }
+    } else if (startX.current && slideType === "horizontal") {
+      const deltaX = clientX - startX.current;
+      const newOpacity = Math.max(
+        MIN_OPACITY,
+        1 - Math.abs(deltaX) * OPACITY_STEP
+      );
+      if (deltaX - DRAG_THRESHOLD >= 0 && Math.abs(deltaX) > DRAG_THRESHOLD) {
+        setTranslateX(Math.floor(deltaX - DRAG_THRESHOLD));
+        setOpacity(newOpacity);
+      }
     }
   };
 
   const handleDragEnd = () => {
-    if (!isTop) return;
-    if (startY.current) {
+    if (startY.current && slideType === "vertical" && isTop) {
       if (opacity < CLOSE_OPACITY_THRESHOLD) {
         close?.();
         setOpacity(0);
@@ -71,18 +88,30 @@ const Main = ({
       } else {
         setOpacity(1);
       }
+
       setTranslateY(0);
-      isDragging.current = false;
       startY.current = null;
+    } else {
+      if (opacity < CLOSE_OPACITY_THRESHOLD) {
+        close?.();
+        setOpacity(0);
+        setTimeout(() => setOpacity(1), RESET_OPACITY_DELAY);
+      } else {
+        setOpacity(1);
+      }
+
+      setTranslateX(0);
+      startX.current = null;
     }
+    isDragging.current = false;
   };
 
   const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    handleDragStart(e.clientY);
+    handleDragStart(e.clientY, e.clientX);
   };
 
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    handleDragMove(e.clientY);
+    handleDragMove(e.clientY, e.clientX);
   };
 
   const onMouseUp = () => {
@@ -90,34 +119,42 @@ const Main = ({
   };
 
   const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    handleDragStart(e.touches[0].clientY);
+    handleDragStart(e.touches[0].clientY, e.touches[0].clientX);
   };
 
   const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    handleDragMove(e.touches[0].clientY);
+    handleDragMove(e.touches[0].clientY, e.touches[0].clientX);
   };
 
   const onTouchEnd = () => {
     handleDragEnd();
   };
 
-  const computedTransform = isView
+  const computedTransformY = isView
     ? isDragging.current
       ? `translateY(${translateY}px) translateX(-50%)`
       : `translateY(0) translateX(-50%)`
     : `translateY(100%) translateX(-50%)`;
 
+  const computedTransformX = isView
+    ? isDragging.current
+      ? `translateX(${translateX}px)`
+      : `translateX(0)`
+    : `translateX(100%)`;
+
   return (
     <div
       ref={containerRef}
       className={cn(
-        "fixed top-0 left-1/2 w-full h-full bg-white z-30 max-w-[480px] dark:bg-black overflow-auto overflow-x-hidden",
+        "fixed top-0 w-full h-full bg-white z-30 max-w-[480px] dark:bg-black overflow-auto overflow-x-hidden",
+        slideType === "vertical" ? "left-1/2" : "left-0",
         isView ? "translate-y-0" : "translate-y-full",
         !isDragging.current ? "duration-200" : "duration-0",
         scrollTop < OVERSCROLL_LIMIT ? "overscroll-none" : ""
       )}
       style={{
-        transform: computedTransform,
+        transform:
+          slideType === "vertical" ? computedTransformY : computedTransformX,
         opacity: opacity,
       }}
       onMouseDown={onMouseDown}
