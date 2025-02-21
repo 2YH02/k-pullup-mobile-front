@@ -41,7 +41,7 @@ const BottomSheet = ({
     <Dimmed onClick={hide}>
       <div
         className={cn(
-          "absolute bottom-0 left-0 w-full bg-white dark:bg-black z-40 p-4 rounded-t-3xl duration-100",
+          "absolute bottom-0 left-0 w-full bg-white dark:bg-black z-50 p-4 rounded-t-3xl duration-100",
           active ? "translate-y-0" : "translate-y-full",
           className
         )}

@@ -5,9 +5,9 @@ import type {
 import { Badge } from "@/components/badge/badge";
 import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
 import { Button } from "@/components/button/button";
-import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Section from "@/components/section/section";
 import Skeleton from "@/components/skeleton/skeleton";
+import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
 import { type KakaoMap } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
@@ -24,9 +24,9 @@ import {
 } from "react-icons/bs";
 import Slider from "react-slick";
 
+import NotFoundImage from "@/components/not-found-image/not-found-image";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
-import NotFoundImage from "@/components/not-found-image/not-found-image";
 
 type Comment = {
   commentId: number;
@@ -97,7 +97,38 @@ const MarkerDetail = ({
   closeDetail,
   imageCache,
 }: MarkerDetailProps) => {
+  const headerObserverRef = useRef<HTMLDivElement>(null);
+
   const [curImageIndex, setCurImageIndex] = useState(0);
+  const [viewHeader, setViewHeader] = useState(false);
+
+  useEffect(() => {
+    if (!viewMarkerDetail) setViewHeader(false);
+  }, [viewMarkerDetail]);
+
+  useEffect(() => {
+    if (!viewMarkerDetail) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setViewHeader(false);
+        } else {
+          setViewHeader(true);
+        }
+      },
+      { threshold: 0.6 }
+    );
+
+    if (headerObserverRef.current) {
+      observer.observe(headerObserverRef.current);
+    }
+
+    return () => {
+      if (headerObserverRef.current) {
+        observer.unobserve(headerObserverRef.current);
+      }
+    };
+  }, [headerObserverRef.current, viewMarkerDetail]);
 
   const slideSettings = {
     accessibility: false,
@@ -115,146 +146,170 @@ const MarkerDetail = ({
   };
 
   return (
-    <SwipeClosePage isView={viewMarkerDetail} close={closeDetail}>
-      <Button
-        icon={<BsArrowLeftShort size={26} />}
-        clickAction
-        className="absolute top-2 left-2 z-40 rounded-full bg-[rgba(255,255,255,0.7)] text-black p-1"
-        onClick={() => {
-          closeDetail?.();
-          imageCache?.(null);
-        }}
-      />
-      <div>
-        <div className="relative w-full h-52">
-          {imageUrl && isLoading ? (
-            <div className="w-full h-52">
-              <img
-                src={imageUrl}
-                alt="thumbnail"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          ) : (
-            <Slider {...slideSettings}>
-              {markerData?.photos.map((data, index) => (
-                <div
-                  key={data.photoId}
-                  className="w-full h-52 focus:outline-none"
-                >
-                  <img
-                    src={data.photoUrl}
-                    alt={`Slide ${index + 1}`}
-                    className="w-full h-full object-cover block"
-                  />
-                </div>
-              ))}
-            </Slider>
+    <>
+      {viewMarkerDetail && !isLoading && (
+        <div
+          className={cn(
+            "fixed top-0 left-0 w-full h-12 z-40 flex items-center px-2 duration-300",
+            viewHeader
+              ? "bg-white dark:bg-black"
+              : "bg-transparent dark:bg-transparent"
           )}
-          {markerData && (
-            <div className="absolute right-3 bottom-3 bg-[rgba(0,0,0,0.5)] text-white text-xs px-3 py-[2px] rounded-md">
-              {`${curImageIndex + 1} / ${markerData.photos.length}`}
+        >
+          <Button
+            icon={<BsArrowLeftShort size={26} />}
+            clickAction
+            className="rounded-full bg-[rgba(255,255,255,0.7)] dark:bg-[rgba(35,35,35,0.7)] text-black dark:text-white p-1 mr-2"
+            onClick={() => {
+              closeDetail?.();
+              imageCache?.(null);
+            }}
+          />
+          {viewHeader && (
+            <div className="truncate">
+              {markerData?.address || "주소 정보 없음"}
             </div>
           )}
         </div>
-      </div>
-      {isLoading || !markerData ? (
-        <DetailSkeletons />
-      ) : (
-        <>
-          <Section className="flex flex-wrap gap-2 pt-2 pb-0">
-            {markerData.facilities[0].quantity > 0 && (
-              <MarkerDetailBadge>
-                철봉 {markerData.facilities[0].quantity} 개
-              </MarkerDetailBadge>
-            )}
-            {markerData.facilities[1].quantity > 0 && (
-              <MarkerDetailBadge>
-                평행봉 {markerData.facilities[1].quantity} 개
-              </MarkerDetailBadge>
-            )}
-            {markerData.weather && (
-              <MarkerDetailBadge>
-                <div className="relative w-5 h-5 shrink-0">
-                  <Image
-                    src={markerData.weather.iconImage}
-                    fill
-                    alt={markerData.weather.desc}
+      )}
+
+      <SwipeClosePage isView={viewMarkerDetail} close={closeDetail}>
+        {viewMarkerDetail && (
+          <div>
+            <div className="relative w-full h-52">
+              {imageUrl && isLoading ? (
+                <div className="w-full h-52">
+                  <img
+                    src={imageUrl}
+                    alt="thumbnail"
+                    className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="shrink-0">
-                  {markerData.weather.temperature} °C
+              ) : (
+                <Slider {...slideSettings}>
+                  {markerData?.photos.map((data, index) => (
+                    <div
+                      key={data.photoId}
+                      className="w-full h-52 focus:outline-none"
+                    >
+                      <img
+                        src={data.photoUrl}
+                        alt={`Slide ${index + 1}`}
+                        className="w-full h-full object-cover block"
+                      />
+                    </div>
+                  ))}
+                </Slider>
+              )}
+              {markerData && (
+                <div className="absolute right-3 bottom-3 bg-[rgba(0,0,0,0.5)] text-white text-xs px-3 py-[2px] rounded-md">
+                  {`${curImageIndex + 1} / ${markerData.photos.length}`}
                 </div>
-              </MarkerDetailBadge>
-            )}
-          </Section>
-          <Section className="pb-0 pt-2">
-            <h1 className="text-xl ">{markerData.address}</h1>
-            <p className="text-sm font-bold mb-2">{markerData.description}</p>
-            <p className="text-xs text-grey mb-2">
-              최종 수정일: {formatDate(markerData.updatedAt)}
-            </p>
-            <div className="flex justify-between text-xs mb-4">
-              <button className="underline">정보 수정 요청</button>
-              <span className="flex items-center">
-                <span className="mr-1">
-                  <StarIcon />
+              )}
+            </div>
+          </div>
+        )}
+
+        {isLoading || !markerData ? (
+          <DetailSkeletons />
+        ) : (
+          <>
+            <Section className="flex flex-wrap gap-2 pt-2 pb-0">
+              {markerData.facilities[0].quantity > 0 && (
+                <MarkerDetailBadge>
+                  철봉 {markerData.facilities[0].quantity} 개
+                </MarkerDetailBadge>
+              )}
+              {markerData.facilities[1].quantity > 0 && (
+                <MarkerDetailBadge>
+                  평행봉 {markerData.facilities[1].quantity} 개
+                </MarkerDetailBadge>
+              )}
+              {markerData.weather && (
+                <MarkerDetailBadge>
+                  <div className="relative w-5 h-5 shrink-0">
+                    <Image
+                      src={markerData.weather.iconImage}
+                      fill
+                      alt={markerData.weather.desc}
+                    />
+                  </div>
+                  <div className="shrink-0">
+                    {markerData.weather.temperature} °C
+                  </div>
+                </MarkerDetailBadge>
+              )}
+            </Section>
+            <Section className="pb-0 pt-2">
+              <h1 ref={headerObserverRef} className="text-xl">
+                {markerData.address}
+              </h1>
+              <p className="text-sm font-bold mb-2">{markerData.description}</p>
+              <p className="text-xs text-grey mb-2">
+                최종 수정일: {formatDate(markerData.updatedAt)}
+              </p>
+              <div className="flex justify-between text-xs mb-4">
+                <button className="underline">정보 수정 요청</button>
+                <span className="flex items-center">
+                  <span className="mr-1">
+                    <StarIcon />
+                  </span>
+                  <span>정보 제공자: {markerData.username}</span>
                 </span>
-                <span>정보 제공자: {markerData.username}</span>
-              </span>
-            </div>
-            <div className="flex h-16 border-t border-solid border-[#ccc] py-1">
-              {/* <BsBookmarkFill /> */}
-              <IconButton
-                icon={<BsBookmark size={20} className="fill-primary" />}
-              >
-                북마크
-              </IconButton>
-              <div className="h-11 my-auto border-r border-solid border-[#ccc]" />
-              <IconButton
-                icon={<BsFillPinMapFill size={20} className="fill-primary" />}
-              >
-                거리뷰
-              </IconButton>
-              <div className="h-11 my-auto border-r border-solid border-[#ccc]" />
-              <IconButton
-                icon={
-                  <BsPersonBoundingBox size={20} className="fill-primary" />
-                }
-              >
-                모먼트
-              </IconButton>
-              <div className="h-11 my-auto border-r border-solid border-[#ccc]" />
-              <IconButton
-                icon={<BsFillShareFill size={20} className="fill-primary" />}
-              >
-                공유
-              </IconButton>
-            </div>
-          </Section>
-          <div className="w-full h-4 bg-grey-light dark:bg-[#111]" />
-          <Section>
-            <div className="relative w-full h-48 rounded-lg overflow-hidden mb-3">
-              <div className={cn("absolute w-full h-full z-20")} />
-              <Map lat={markerData.latitude} lng={markerData.longitude} />
-            </div>
-            <Button fullWidth clickAction className="bg-primary">
-              길찾기
-            </Button>
-          </Section>
-          <div className="w-full h-4 bg-grey-light dark:bg-[#111]" />
-          <Section
-            title="이미지"
-            subTitle="정보 수정 제안"
-            subTitleClick={() => {}}
-          >
-            <MarkerDetailImages images={markerData.photos} />
-          </Section>
-          <MarkerComments />
-        </>
-      )}
-      <MarkerCommentsForm />
-    </SwipeClosePage>
+              </div>
+              <div className="flex h-16 border-t border-solid border-[#ccc] py-1">
+                {/* <BsBookmarkFill /> */}
+                <IconButton
+                  icon={<BsBookmark size={20} className="fill-primary" />}
+                >
+                  북마크
+                </IconButton>
+                <div className="h-11 my-auto border-r border-solid border-[#ccc]" />
+                <IconButton
+                  icon={<BsFillPinMapFill size={20} className="fill-primary" />}
+                >
+                  거리뷰
+                </IconButton>
+                <div className="h-11 my-auto border-r border-solid border-[#ccc]" />
+                <IconButton
+                  icon={
+                    <BsPersonBoundingBox size={20} className="fill-primary" />
+                  }
+                >
+                  모먼트
+                </IconButton>
+                <div className="h-11 my-auto border-r border-solid border-[#ccc]" />
+                <IconButton
+                  icon={<BsFillShareFill size={20} className="fill-primary" />}
+                >
+                  공유
+                </IconButton>
+              </div>
+            </Section>
+            <div className="w-full h-4 bg-grey-light dark:bg-[#111]" />
+            <Section>
+              <div className="relative w-full h-48 rounded-lg overflow-hidden mb-3">
+                <div className={cn("absolute w-full h-full z-20")} />
+                <Map lat={markerData.latitude} lng={markerData.longitude} />
+              </div>
+              <Button fullWidth clickAction className="bg-primary">
+                길찾기
+              </Button>
+            </Section>
+            <div className="w-full h-4 bg-grey-light dark:bg-[#111]" />
+            <Section
+              title="이미지"
+              subTitle="정보 수정 제안"
+              subTitleClick={() => {}}
+            >
+              <MarkerDetailImages images={markerData.photos} />
+            </Section>
+            <MarkerComments />
+          </>
+        )}
+        <MarkerCommentsForm />
+      </SwipeClosePage>
+    </>
   );
 };
 
@@ -439,7 +494,7 @@ const MarkerCommentsForm = () => {
 
   return (
     <BottomSheet title="리뷰 작성" className="pb-10">
-      <div className="w-full p-4 mb-4 shadow-inner-full rounded-xl border border-solid border-grey-dark">
+      <div className="w-full p-4 mb-4 shadow-inner-full rounded-xl dark:border dark:border-solid dark:border-grey-dark">
         <textarea
           value={inputValue}
           onChange={handleChange}
