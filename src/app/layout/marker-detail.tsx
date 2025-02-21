@@ -29,8 +29,8 @@ type Comment = {
   commentId: number;
   markerId: number;
   userId: number;
-  postedAt: string; // ISO 8601 형식의 날짜 문자열
-  updatedAt: string; // ISO 8601 형식의 날짜 문자열
+  postedAt: string;
+  updatedAt: string;
   commentText: string;
   username: string;
 };
@@ -240,12 +240,14 @@ const MarkerDetail = ({
             </Button>
           </Section>
           <div className="w-gull h-4 bg-grey-light" />
-          <Section title="이미지">
-            <MarkerDetailImages images={null} />
+          <Section
+            title="이미지"
+            subTitle="정보 수정 제안"
+            subTitleClick={() => {}}
+          >
+            <MarkerDetailImages images={markerData.photos} />
           </Section>
-          <Section title="리뷰" className="pb-20">
-            <MarkerComments />
-          </Section>
+          <MarkerComments />
         </>
       )}
     </Main>
@@ -324,65 +326,74 @@ const MarkerComments = () => {
 
   if (!commentsData) {
     return (
-      <div className="flex flex-col items-center justify-center">
-        <div className="relative w-28 h-16">
-          <Image src="/main-c.png" fill alt="not found" />
-          <div className="absolute w-full h-full top-0 left-0 bg-[rgba(255,255,255,0.3)]" />
+      <Section title="리뷰" className="pb-20">
+        <div className="flex flex-col items-center justify-center">
+          <div className="relative w-28 h-16">
+            <Image src="/main-c.png" fill alt="not found" />
+            <div className="absolute w-full h-full top-0 left-0 bg-[rgba(255,255,255,0.3)]" />
+          </div>
+          <div className="font-bold mt-1">우와, 리뷰가 하나도 없네요 ㅠㅠ</div>
+          <button className="underline text-sm active:text-primary">
+            리뷰 작성하기
+          </button>
         </div>
-        <div className="font-bold mt-1">우와, 리뷰가 하나도 없네요 ㅠㅠ</div>
-        <button className="underline text-sm active:text-primary">
-          리뷰 작성하기
-        </button>
-      </div>
+      </Section>
     );
   }
 
   return (
-    <div>
-      {commentsData.comments.map((comment, index) => {
-        if (comment.username === "k-pullup") {
-          return (
-            <div
-              key={comment.commentId}
-              className="bg-white shadow-full p-4 rounded-md flex justify-between items-center mb-6"
-            >
-              <div>
-                <div className="font-bold">{comment.commentText}</div>
+    <Section
+      title="리뷰"
+      className="pb-20"
+      subTitle="리뷰 작성하기"
+      subTitleClick={() => {}}
+    >
+      <div>
+        {commentsData.comments.map((comment, index) => {
+          if (comment.username === "k-pullup") {
+            return (
+              <div
+                key={comment.commentId}
+                className="bg-white shadow-full p-4 rounded-md flex justify-between items-center mb-6"
+              >
+                <div>
+                  <div className="font-bold">{comment.commentText}</div>
+                  <div className="text-sm text-grey">
+                    {formatDate(comment.postedAt)}
+                  </div>
+                </div>
+                <div>{comment.username}</div>
+              </div>
+            );
+          } else {
+            return (
+              <div
+                key={comment.commentId}
+                className={cn(
+                  "p-3",
+                  (index !== commentsData.comments.length - 1 ||
+                    commentsData.comments.length === 1) &&
+                    "border-b border-solid border-grey-light"
+                )}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <div className="font-bold">{comment.username}</div>
+                  <Button
+                    icon={<BsTrash3 color="#777" />}
+                    appearance="borderless"
+                    clickAction
+                  />
+                </div>
+                <div className="mb-1 break-words">{comment.commentText}</div>
                 <div className="text-sm text-grey">
                   {formatDate(comment.postedAt)}
                 </div>
               </div>
-              <div>{comment.username}</div>
-            </div>
-          );
-        } else {
-          return (
-            <div
-              key={comment.commentId}
-              className={cn(
-                "py-3",
-                (index !== commentsData.comments.length - 1 ||
-                  commentsData.comments.length === 1) &&
-                  "border-b border-solid border-grey-light"
-              )}
-            >
-              <div className="flex items-center justify-between mb-1">
-                <div className="font-bold">{comment.username}</div>
-                <Button
-                  icon={<BsTrash3 color="#777" />}
-                  appearance="borderless"
-                  clickAction
-                />
-              </div>
-              <div className="mb-1 break-words">{comment.commentText}</div>
-              <div className="text-sm text-grey">
-                {formatDate(comment.postedAt)}
-              </div>
-            </div>
-          );
-        }
-      })}
-    </div>
+            );
+          }
+        })}
+      </div>
+    </Section>
   );
 };
 
