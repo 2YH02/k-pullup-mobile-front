@@ -1,6 +1,7 @@
 "use client";
 
 import BottomNavigation from "@/components/bottom-navigation/bottom-navigation";
+import Header from "@/components/header/header";
 import Map from "@/components/map/map";
 import {
   PageAnimation,
@@ -28,6 +29,7 @@ const PageTransitionProvider = ({
       }}
     >
       <div className="flex flex-col h-full">
+        <Header />
         <div className={cn("relative grow", className, animationClass)}>
           {children}
           <Map />

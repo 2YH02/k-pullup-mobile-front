@@ -1,7 +1,9 @@
 "use client";
 
+import MarkerDetail from "@/app/layout/marker-detail";
 import Input from "@/components/input/input";
 import usePageTransition from "@/hooks/use-page-transition";
+import { useHeaderStore } from "@/store/use-header-store";
 import { useSessionStore } from "@/store/use-session-store";
 import cn from "@/utils/cn";
 import wait from "@/utils/wait";
@@ -14,7 +16,6 @@ import {
   type MarkerDetailExtras,
   mockDetailDataWithExtras,
 } from "./pullup/[id]/pullup-page-client";
-import MarkerDetail from "@/app/layout/marker-detail";
 
 export type Marker = {
   latitude: number;
@@ -123,6 +124,7 @@ const mockData = [
 const HomePageClient = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const { setTitle } = useHeaderStore();
   const { isFirstVisit } = useSessionStore();
   const { slideIn } = usePageTransition();
 
@@ -140,6 +142,7 @@ const HomePageClient = () => {
   const [detailData, setDetailData] = useState<MarkerDetailExtras | null>(null);
 
   useEffect(() => {
+    setTitle(null);
     if (isFirstVisit) return;
     slideIn();
   }, []);

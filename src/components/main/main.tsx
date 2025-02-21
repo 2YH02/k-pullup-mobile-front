@@ -1,175 +1,18 @@
-import useScroll from "@/hooks/use-scroll";
+import useIsMounted from "@/hooks/use-is-mounted";
+import { useHeaderStore } from "@/store/use-header-store";
 import cn from "@/utils/cn";
-import { useEffect, useRef, useState } from "react";
 
-const DRAG_THRESHOLD = 30;
-const CLOSE_OPACITY_THRESHOLD = 0.4;
-const MIN_OPACITY = 0.3;
-const OPACITY_STEP = 0.005;
-const RESET_OPACITY_DELAY = 250;
-const OVERSCROLL_LIMIT = 100;
+const Main = ({ children }: React.PropsWithChildren) => {
+  const { title } = useHeaderStore();
+  const isMounted = useIsMounted();
 
-interface MainProps {
-  isView?: boolean;
-  slideType?: "vertical" | "horizontal";
-  close?: VoidFunction;
-  className?: React.ComponentProps<"div">["className"];
-}
+  if (!isMounted) return null;
 
-const Main = ({
-  isView,
-  slideType = "vertical",
-  close,
-  className,
-  children,
-}: React.PropsWithChildren<MainProps>) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { isTop, scrollTop } = useScroll(containerRef.current);
+  const headerHeight = title
+    ? "h-[calc(100dvh-48px-64px)]"
+    : "h-[calc(100dvh-64px)]";
 
-  const isDragging = useRef(false);
-
-  const startY = useRef<number | null>(null);
-  const startX = useRef<number | null>(null);
-
-  const [translateY, setTranslateY] = useState(0);
-  const [translateX, setTranslateX] = useState(0);
-
-  const [opacity, setOpacity] = useState(1);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    if (translateY > DRAG_THRESHOLD) {
-      containerRef.current.style.overflow = "hidden";
-    } else {
-      containerRef.current.style.overflow = "auto";
-      containerRef.current.style.overflowX = "hidden";
-    }
-  }, [translateY]);
-
-  const handleDragStart = (clientY: number, clientX: number) => {
-    isDragging.current = true;
-    if (slideType === "vertical") {
-      if (!isTop) return;
-      startY.current = clientY;
-    } else {
-      startX.current = clientX;
-    }
-  };
-
-  const handleDragMove = (clientY: number, clientX: number) => {
-    if (startY.current && slideType === "vertical") {
-      if (!isTop) return;
-      const deltaY = clientY - startY.current;
-      const newOpacity = Math.max(
-        MIN_OPACITY,
-        1 - Math.abs(deltaY) * OPACITY_STEP
-      );
-      if (deltaY - DRAG_THRESHOLD >= 0 && Math.abs(deltaY) > DRAG_THRESHOLD) {
-        setTranslateY(Math.floor(deltaY - DRAG_THRESHOLD));
-        setOpacity(newOpacity);
-      }
-    } else if (startX.current && slideType === "horizontal") {
-      const deltaX = clientX - startX.current;
-      const newOpacity = Math.max(
-        MIN_OPACITY,
-        1 - Math.abs(deltaX) * OPACITY_STEP
-      );
-      if (deltaX - DRAG_THRESHOLD >= 0 && Math.abs(deltaX) > DRAG_THRESHOLD) {
-        setTranslateX(Math.floor(deltaX - DRAG_THRESHOLD));
-        setOpacity(newOpacity);
-      }
-    }
-  };
-
-  const handleDragEnd = () => {
-    if (startY.current && slideType === "vertical" && isTop) {
-      if (opacity < CLOSE_OPACITY_THRESHOLD) {
-        close?.();
-        setOpacity(0);
-        setTimeout(() => setOpacity(1), RESET_OPACITY_DELAY);
-      } else {
-        setOpacity(1);
-      }
-
-      setTranslateY(0);
-      startY.current = null;
-    } else {
-      if (opacity < CLOSE_OPACITY_THRESHOLD) {
-        close?.();
-        setOpacity(0);
-        setTimeout(() => setOpacity(1), RESET_OPACITY_DELAY);
-      } else {
-        setOpacity(1);
-      }
-
-      setTranslateX(0);
-      startX.current = null;
-    }
-    isDragging.current = false;
-  };
-
-  const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    handleDragStart(e.clientY, e.clientX);
-  };
-
-  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    handleDragMove(e.clientY, e.clientX);
-  };
-
-  const onMouseUp = () => {
-    handleDragEnd();
-  };
-
-  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    handleDragStart(e.touches[0].clientY, e.touches[0].clientX);
-  };
-
-  const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    handleDragMove(e.touches[0].clientY, e.touches[0].clientX);
-  };
-
-  const onTouchEnd = () => {
-    handleDragEnd();
-  };
-
-  const computedTransformY = isView
-    ? isDragging.current
-      ? `translateY(${translateY}px) translateX(-50%)`
-      : `translateY(0) translateX(-50%)`
-    : `translateY(100%) translateX(-50%)`;
-
-  const computedTransformX = isView
-    ? isDragging.current
-      ? `translateX(${translateX}px)`
-      : `translateX(0)`
-    : `translateX(100%)`;
-
-  return (
-    <div
-      ref={containerRef}
-      className={cn(
-        "fixed top-0 w-full h-full bg-white z-30 max-w-[480px] dark:bg-black overflow-auto overflow-x-hidden",
-        slideType === "vertical" ? "left-1/2" : "left-0",
-        isView ? "translate-y-0" : "translate-y-full",
-        !isDragging.current ? "duration-200" : "duration-0",
-        scrollTop < OVERSCROLL_LIMIT ? "overscroll-none" : "",
-        className
-      )}
-      style={{
-        transform:
-          slideType === "vertical" ? computedTransformY : computedTransformX,
-        opacity: opacity,
-      }}
-      onMouseDown={onMouseDown}
-      onMouseMove={onMouseMove}
-      onMouseUp={onMouseUp}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
-      {children}
-    </div>
-  );
+  return <div className={cn("overflow-auto", headerHeight)}>{children}</div>;
 };
 
 export default Main;

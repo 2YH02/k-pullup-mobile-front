@@ -5,7 +5,7 @@ import type {
 import { Badge } from "@/components/badge/badge";
 import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
 import { Button } from "@/components/button/button";
-import Main from "@/components/main/main";
+import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Section from "@/components/section/section";
 import Skeleton from "@/components/skeleton/skeleton";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
@@ -114,18 +114,17 @@ const MarkerDetail = ({
   };
 
   return (
-    <Main isView={viewMarkerDetail} close={closeDetail}>
+    <SwipeClosePage isView={viewMarkerDetail} close={closeDetail}>
+      <Button
+        icon={<BsArrowLeftShort size={26} />}
+        clickAction
+        className="absolute top-2 left-2 z-40 rounded-full bg-[rgba(255,255,255,0.7)] text-black p-1"
+        onClick={() => {
+          closeDetail?.();
+          imageCache?.(null);
+        }}
+      />
       <div>
-        <Button
-          icon={<BsArrowLeftShort size={26} />}
-          clickAction
-          className="absolute top-2 left-2 z-40 rounded-full bg-[rgba(255,255,255,0.7)] text-black p-1"
-          onClick={() => {
-            closeDetail?.();
-            imageCache?.(null);
-          }}
-        />
-
         <div className="relative w-full h-52">
           {imageUrl && isLoading ? (
             <div className="w-full h-52">
@@ -254,7 +253,7 @@ const MarkerDetail = ({
         </>
       )}
       <MarkerCommentsForm />
-    </Main>
+    </SwipeClosePage>
   );
 };
 

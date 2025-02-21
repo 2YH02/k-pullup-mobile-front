@@ -1,6 +1,7 @@
 "use client";
 
 import usePageTransition from "@/hooks/use-page-transition";
+import { useHeaderStore } from "@/store/use-header-store";
 import cn from "@/utils/cn";
 import { usePathname, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -67,6 +68,7 @@ const NavigationButton = ({
   const pathname = usePathname();
 
   const { slideLeft, slideRight } = usePageTransition();
+  const { setTitle } = useHeaderStore();
 
   const [loading, setLoading] = useState(false);
 
@@ -91,6 +93,9 @@ const NavigationButton = ({
   };
 
   const handleClick = () => {
+    if (url !== "/") {
+      setTitle(text);
+    }
     const clickIndex = LINK_LIST.findIndex((link) => link === url);
 
     if (clickIndex === curIndex) return;
