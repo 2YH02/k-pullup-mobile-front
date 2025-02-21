@@ -7,6 +7,7 @@ import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
 import { Button } from "@/components/button/button";
 import Main from "@/components/main/main";
 import Section from "@/components/section/section";
+import Skeleton from "@/components/skeleton/skeleton";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
 import { type KakaoMap } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
@@ -158,7 +159,7 @@ const MarkerDetail = ({
         </div>
       </div>
       {isLoading || !markerData ? (
-        <div>로딩중...</div>
+        <DetailSkeletons />
       ) : (
         <>
           <Section className="flex flex-wrap gap-2 pt-2 pb-0">
@@ -234,7 +235,7 @@ const MarkerDetail = ({
           <div className="w-gull h-4 bg-grey-light" />
           <Section>
             <div className="relative w-full h-48 rounded-lg overflow-hidden mb-3">
-              <div className="absolute w-full h-full z-20" />
+              <div className={cn("absolute w-full h-full z-20")} />
               <Map lat={markerData.latitude} lng={markerData.longitude} />
             </div>
             <Button fullWidth clickAction className="bg-primary">
@@ -254,6 +255,36 @@ const MarkerDetail = ({
       )}
       <MarkerCommentsForm />
     </Main>
+  );
+};
+
+const DetailSkeletons = () => {
+  return (
+    <div className="overflow-hidden">
+      <Section className="flex flex-wrap gap-2 pt-2 pb-0">
+        <div className="flex gap-2">
+          <Skeleton className="w-24 h-7 rounded-full" />
+          <Skeleton className="w-24 h-7 rounded-full" />
+        </div>
+      </Section>
+      <Section className="pt-2">
+        <div className="flex flex-col gap-2">
+          <Skeleton className="w-5/6 h-7" />
+          <Skeleton className="w-32 h-4 mb-1" />
+          <div className="flex justify-between mb-4">
+            <Skeleton className="w-20 h-4" />
+            <Skeleton className="w-20 h-4" />
+          </div>
+          <div>
+            <Skeleton className="w-full h-16" />
+          </div>
+        </div>
+      </Section>
+      <div className="w-gull h-4 bg-grey-light" />
+      <Section>
+        <Skeleton className="w-full h-48 rounded-lg" />
+      </Section>
+    </div>
   );
 };
 
@@ -460,13 +491,30 @@ const Map = ({ lat, lng }: { lat: number; lng: number }) => {
   useEffect(() => {
     if (mapRef.current) return;
     const mapContainer = document.getElementById("detail-map");
+    const centerPosition = new window.kakao.maps.LatLng(lat, lng);
     const mapOption = {
-      center: new window.kakao.maps.LatLng(lat, lng),
-      draggable: false,
+      center: centerPosition,
       level: 3,
     };
 
     const map = new window.kakao.maps.Map(mapContainer, mapOption);
+
+    const imageSize = new window.kakao.maps.Size(35, 50);
+    const imageOption = { offset: new window.kakao.maps.Point(5, 32) };
+    const imageUrl = "/active-selected.png";
+
+    const pin = new window.kakao.maps.MarkerImage(
+      imageUrl,
+      imageSize,
+      imageOption
+    );
+
+    const marker = new window.kakao.maps.Marker({
+      position: centerPosition,
+      image: pin,
+    });
+
+    marker.setMap(map);
     mapRef.current = map;
   }, []);
 
