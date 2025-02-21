@@ -4,6 +4,7 @@
 
 :root {
   overscroll-behavior: none;
+  overflow: hidden;
 }
 
 body {

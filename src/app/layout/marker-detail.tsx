@@ -3,9 +3,11 @@ import type {
   Photo,
 } from "@/app/pullup/[id]/pullup-page-client";
 import { Badge } from "@/components/badge/badge";
+import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
 import { Button } from "@/components/button/button";
 import Main from "@/components/main/main";
 import Section from "@/components/section/section";
+import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
 import { type KakaoMap } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
 import { formatDate } from "@/utils/format-date";
@@ -250,6 +252,7 @@ const MarkerDetail = ({
           <MarkerComments />
         </>
       )}
+      <MarkerCommentsForm />
     </Main>
   );
 };
@@ -322,6 +325,7 @@ const MarkerDetailImages = ({ images }: { images: Photo[] | null }) => {
 };
 
 const MarkerComments = () => {
+  const { show } = useBottomSheetStore();
   const commentsData = commentMockData;
 
   if (!commentsData) {
@@ -333,7 +337,10 @@ const MarkerComments = () => {
             <div className="absolute w-full h-full top-0 left-0 bg-[rgba(255,255,255,0.3)]" />
           </div>
           <div className="font-bold mt-1">우와, 리뷰가 하나도 없네요 ㅠㅠ</div>
-          <button className="underline text-sm active:text-primary">
+          <button
+            className="underline text-sm active:text-primary"
+            onClick={show}
+          >
             리뷰 작성하기
           </button>
         </div>
@@ -346,7 +353,7 @@ const MarkerComments = () => {
       title="리뷰"
       className="pb-20"
       subTitle="리뷰 작성하기"
-      subTitleClick={() => {}}
+      subTitleClick={show}
     >
       <div>
         {commentsData.comments.map((comment, index) => {
@@ -394,6 +401,14 @@ const MarkerComments = () => {
         })}
       </div>
     </Section>
+  );
+};
+
+const MarkerCommentsForm = () => {
+  return (
+    <BottomSheet title="리뷰 작성">
+      <div>폼임니다.</div>
+    </BottomSheet>
   );
 };
 
