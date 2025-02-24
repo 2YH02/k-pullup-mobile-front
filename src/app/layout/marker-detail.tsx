@@ -1,10 +1,12 @@
-import type {
-  MarkerDetailExtras,
-  Photo,
+import {
+  mockDetailDataWithExtras,
+  type MarkerDetailExtras,
+  type Photo,
 } from "@/app/pullup/[id]/pullup-page-client";
 import { Badge } from "@/components/badge/badge";
 import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
 import { Button } from "@/components/button/button";
+import NotFoundImage from "@/components/not-found-image/not-found-image";
 import Section from "@/components/section/section";
 import Skeleton from "@/components/skeleton/skeleton";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
@@ -12,6 +14,7 @@ import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
 import { type KakaoMap } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
 import { formatDate } from "@/utils/format-date";
+import wait from "@/utils/wait";
 import Image from "next/image";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
@@ -24,9 +27,10 @@ import {
 } from "react-icons/bs";
 import Slider from "react-slick";
 
-import NotFoundImage from "@/components/not-found-image/not-found-image";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
+
+// TODO: 웹뷰 헤더 상태바 적용 스타일 확인
 
 type Comment = {
   commentId: number;
@@ -82,32 +86,50 @@ const commentMockData: CommentData = {
 
 interface MarkerDetailProps {
   imageUrl?: string | null;
-  viewMarkerDetail?: boolean;
-  isLoading?: boolean;
-  markerData: MarkerDetailExtras | null;
+  markerId: number;
   closeDetail?: VoidFunction;
   imageCache?: (img: string | null) => void;
 }
 
 const MarkerDetail = ({
-  markerData,
+  markerId,
   imageUrl,
-  viewMarkerDetail = true,
-  isLoading,
   closeDetail,
   imageCache,
 }: MarkerDetailProps) => {
-  const headerObserverRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
 
   const [curImageIndex, setCurImageIndex] = useState(0);
   const [viewHeader, setViewHeader] = useState(false);
 
+  const [active, setActive] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [detailData, setDetailData] = useState<MarkerDetailExtras | null>(null);
+
+  // fetch and page active
   useEffect(() => {
-    if (!viewMarkerDetail) setViewHeader(false);
-  }, [viewMarkerDetail]);
+    const fetch = async () => {
+      await wait(2000);
+      console.log("markerId: " + markerId);
+      setDetailData(mockDetailDataWithExtras);
+      setIsLoading(false);
+    };
+
+    fetch();
+
+    const timeout = setTimeout(() => {
+      setActive(true);
+    }, 0);
+
+    if (active) {
+      clearTimeout(timeout);
+    }
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   useEffect(() => {
-    if (!viewMarkerDetail) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -119,16 +141,18 @@ const MarkerDetail = ({
       { threshold: 0.6 }
     );
 
-    if (headerObserverRef.current) {
-      observer.observe(headerObserverRef.current);
+    if (titleRef.current) {
+      observer.observe(titleRef.current);
     }
 
     return () => {
-      if (headerObserverRef.current) {
-        observer.unobserve(headerObserverRef.current);
+      if (titleRef.current) {
+        observer.unobserve(titleRef.current);
       }
     };
-  }, [headerObserverRef.current, viewMarkerDetail]);
+  }, [titleRef.current]);
+
+  if (!isLoading && !detailData) return;
 
   const slideSettings = {
     accessibility: false,
@@ -146,48 +170,51 @@ const MarkerDetail = ({
   };
 
   return (
-    <>
-      {viewMarkerDetail && !isLoading && (
-        <div
-          className={cn(
-            "fixed top-0 left-0 w-full h-12 z-40 flex items-center px-2 duration-300",
-            viewHeader
-              ? "bg-white dark:bg-black"
-              : "bg-transparent dark:bg-transparent"
-          )}
-        >
-          <Button
-            icon={<BsArrowLeftShort size={26} />}
-            clickAction
-            className="rounded-full bg-[rgba(255,255,255,0.7)] dark:bg-[rgba(35,35,35,0.7)] text-black dark:text-white p-1 mr-2"
-            onClick={() => {
-              closeDetail?.();
-              imageCache?.(null);
-            }}
-          />
-          {viewHeader && (
-            <div className="truncate">
-              {markerData?.address || "주소 정보 없음"}
-            </div>
-          )}
-        </div>
-      )}
-
-      <SwipeClosePage isView={viewMarkerDetail} close={closeDetail}>
-        {viewMarkerDetail && (
-          <div>
-            <div className="relative w-full h-52">
-              {imageUrl && isLoading ? (
-                <div className="w-full h-52">
-                  <img
-                    src={imageUrl}
-                    alt="thumbnail"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ) : (
+    <div>
+      <div
+        className={cn(
+          "fixed top-0 left-1/2 -translate-x-1/2 w-full h-12 z-40 flex items-center px-2 duration-300 max-w-[480px]",
+          viewHeader
+            ? "bg-white dark:bg-black"
+            : "bg-transparent dark:bg-transparent"
+        )}
+      >
+        <Button
+          icon={<BsArrowLeftShort size={26} />}
+          clickAction
+          className="rounded-full bg-[rgba(255,255,255,0.7)] dark:bg-[rgba(35,35,35,0.7)] text-black dark:text-white p-1 mr-2"
+          onClick={() => {
+            closeDetail?.();
+            imageCache?.(null);
+          }}
+        />
+        {viewHeader && (
+          <div className="truncate">
+            {detailData?.address || "주소 정보 없음"}
+          </div>
+        )}
+      </div>
+      <SwipeClosePage isView={active} close={closeDetail}>
+        {isLoading || !detailData ? (
+          <>
+            {imageUrl && (
+              <div className="w-full h-52">
+                <img
+                  src={imageUrl}
+                  alt="thumbnail"
+                  className="w-full h-full object-cover"
+                  draggable={false}
+                />
+              </div>
+            )}
+            <DetailSkeletons />
+          </>
+        ) : (
+          <>
+            <div>
+              <div className="relative w-full h-52">
                 <Slider {...slideSettings}>
-                  {markerData?.photos.map((data, index) => (
+                  {detailData.photos.map((data, index) => (
                     <div
                       key={data.photoId}
                       className="w-full h-52 focus:outline-none"
@@ -200,53 +227,46 @@ const MarkerDetail = ({
                     </div>
                   ))}
                 </Slider>
-              )}
-              {markerData && (
-                <div className="absolute right-3 bottom-3 bg-[rgba(0,0,0,0.5)] text-white text-xs px-3 py-[2px] rounded-md">
-                  {`${curImageIndex + 1} / ${markerData.photos.length}`}
-                </div>
-              )}
+                {detailData && (
+                  <div className="absolute right-3 bottom-3 bg-[rgba(0,0,0,0.5)] text-white text-xs px-3 py-[2px] rounded-md">
+                    {`${curImageIndex + 1} / ${detailData.photos.length}`}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
-
-        {isLoading || !markerData ? (
-          <DetailSkeletons />
-        ) : (
-          <>
             <Section className="flex flex-wrap gap-2 pt-2 pb-0">
-              {markerData.facilities[0].quantity > 0 && (
+              {detailData.facilities[0].quantity > 0 && (
                 <MarkerDetailBadge>
-                  철봉 {markerData.facilities[0].quantity} 개
+                  철봉 {detailData.facilities[0].quantity} 개
                 </MarkerDetailBadge>
               )}
-              {markerData.facilities[1].quantity > 0 && (
+              {detailData.facilities[1].quantity > 0 && (
                 <MarkerDetailBadge>
-                  평행봉 {markerData.facilities[1].quantity} 개
+                  평행봉 {detailData.facilities[1].quantity} 개
                 </MarkerDetailBadge>
               )}
-              {markerData.weather && (
+              {detailData.weather && (
                 <MarkerDetailBadge>
                   <div className="relative w-5 h-5 shrink-0">
                     <Image
-                      src={markerData.weather.iconImage}
+                      src={detailData.weather.iconImage}
                       fill
-                      alt={markerData.weather.desc}
+                      alt={detailData.weather.desc}
                     />
                   </div>
                   <div className="shrink-0">
-                    {markerData.weather.temperature} °C
+                    {detailData.weather.temperature} °C
                   </div>
                 </MarkerDetailBadge>
               )}
             </Section>
             <Section className="pb-0 pt-2">
-              <h1 ref={headerObserverRef} className="text-xl">
-                {markerData.address}
+              <h1 ref={titleRef} className="text-xl">
+                {detailData.address}
               </h1>
-              <p className="text-sm font-bold mb-2">{markerData.description}</p>
+              <p className="text-sm font-bold mb-2">{detailData.description}</p>
               <p className="text-xs text-grey mb-2">
-                최종 수정일: {formatDate(markerData.updatedAt)}
+                최종 수정일: {formatDate(detailData.updatedAt)}
               </p>
               <div className="flex justify-between text-xs mb-4">
                 <button className="underline">정보 수정 요청</button>
@@ -254,7 +274,7 @@ const MarkerDetail = ({
                   <span className="mr-1">
                     <StarIcon />
                   </span>
-                  <span>정보 제공자: {markerData.username}</span>
+                  <span>정보 제공자: {detailData.username}</span>
                 </span>
               </div>
               <div className="flex h-16 border-t border-solid border-[#ccc] py-1">
@@ -290,7 +310,7 @@ const MarkerDetail = ({
             <Section>
               <div className="relative w-full h-48 rounded-lg overflow-hidden mb-3">
                 <div className={cn("absolute w-full h-full z-20")} />
-                <Map lat={markerData.latitude} lng={markerData.longitude} />
+                <Map lat={detailData.latitude} lng={detailData.longitude} />
               </div>
               <Button fullWidth clickAction className="bg-primary">
                 길찾기
@@ -302,14 +322,14 @@ const MarkerDetail = ({
               subTitle="정보 수정 제안"
               subTitleClick={() => {}}
             >
-              <MarkerDetailImages images={markerData.photos} />
+              <MarkerDetailImages images={detailData.photos} />
             </Section>
             <MarkerComments />
+            <MarkerCommentsForm />
           </>
         )}
-        <MarkerCommentsForm />
       </SwipeClosePage>
-    </>
+    </div>
   );
 };
 

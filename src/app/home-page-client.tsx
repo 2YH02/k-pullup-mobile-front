@@ -12,10 +12,6 @@ import { BsGeoAlt, BsSearch } from "react-icons/bs";
 import AroundSearchButton from "./components/around-search-button";
 import AroundSearchList from "./components/around-search-list";
 import GpsButton from "./components/gps-button";
-import {
-  type MarkerDetailExtras,
-  mockDetailDataWithExtras,
-} from "./pullup/[id]/pullup-page-client";
 
 export type Marker = {
   latitude: number;
@@ -137,9 +133,6 @@ const HomePageClient = () => {
 
   const [cachedImage, setCachedImage] = useState<string | null>(null);
   const [viewMarkerDetail, setViewMarkerDetail] = useState(false);
-  const [detailLoading, setDetailLoading] = useState(false);
-
-  const [detailData, setDetailData] = useState<MarkerDetailExtras | null>(null);
 
   useEffect(() => {
     setTitle(null);
@@ -159,12 +152,8 @@ const HomePageClient = () => {
     setCachedImage(img);
   };
 
-  const openDetail = async () => {
+  const openDetail = () => {
     setViewMarkerDetail(true);
-    setDetailLoading(true);
-    await wait(500);
-    setDetailData(mockDetailDataWithExtras);
-    setDetailLoading(false);
   };
 
   const closeDetail = () => {
@@ -173,14 +162,15 @@ const HomePageClient = () => {
 
   return (
     <div className="relative w-full h-full p-2">
-      <MarkerDetail
-        markerData={detailData}
-        viewMarkerDetail={viewMarkerDetail}
-        imageUrl={cachedImage}
-        imageCache={handleImageCache}
-        closeDetail={closeDetail}
-        isLoading={detailLoading}
-      />
+      {viewMarkerDetail && (
+        <MarkerDetail
+          markerId={24}
+          imageUrl={cachedImage}
+          imageCache={handleImageCache}
+          closeDetail={closeDetail}
+        />
+      )}
+
       <div className="relative z-20">
         <button className="absolute top-0 left-0 w-full h-full z-10" />
         <Input

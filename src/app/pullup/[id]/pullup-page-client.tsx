@@ -114,7 +114,7 @@ const PullupPageClient = () => {
     slideIn();
   }, []);
 
-  return <MarkerDetail markerData={mockDetailDataWithExtras} />;
+  return <MarkerDetail markerId={12} />;
 };
 
 export default PullupPageClient;
