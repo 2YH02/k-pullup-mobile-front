@@ -159,6 +159,7 @@ const HomePageClient = ({ os }: { os: string }) => {
 
   return (
     <div className="relative w-full h-full p-4 overflow-hidden">
+      {/* 위치 상세 모달 */}
       {viewMarkerDetail && (
         <MarkerDetail
           os={os}
@@ -169,6 +170,7 @@ const HomePageClient = ({ os }: { os: string }) => {
         />
       )}
 
+      {/* 검색 버튼 */}
       <div className={cn("relative z-20", os === "iOS" ? "mt-10" : "")}>
         <button className="absolute top-0 left-0 w-full h-full z-10" />
         <Input
@@ -181,10 +183,12 @@ const HomePageClient = ({ os }: { os: string }) => {
           ref={inputRef}
         />
       </div>
+
+      {/* 주변 검색, GPS 버튼 */}
       <div
         className={cn(
           "absolute bottom-6 right-2 flex gap-2 z-10 transition-all duration-100",
-          viewAroundSearchList ? "bottom-56" : ""
+          viewAroundSearchList ? "bottom-52" : ""
         )}
       >
         <AroundSearchButton
@@ -195,6 +199,7 @@ const HomePageClient = ({ os }: { os: string }) => {
         <GpsButton />
       </div>
 
+      {/* 위치 데이터 */}
       {viewAroundSearchList && (
         <div className={cn("absolute bottom-2 left-0 z-10 w-full")}>
           <AroundSearchList

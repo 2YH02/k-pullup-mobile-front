@@ -16,7 +16,6 @@ import cn from "@/utils/cn";
 import { formatDate } from "@/utils/format-date";
 import wait from "@/utils/wait";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   BsArrowLeftShort,
@@ -25,13 +24,14 @@ import {
   BsFillShareFill,
   BsPersonBoundingBox,
   BsTrash3,
+  BsX,
 } from "react-icons/bs";
 import Slider from "react-slick";
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 
-// TODO: 웹뷰 헤더 상태바 적용 스타일 확인
+// TODO 로드뷰 지도 중복 문제
 
 type Comment = {
   commentId: number;
@@ -103,12 +103,14 @@ const MarkerDetail = ({
   const titleRef = useRef<HTMLDivElement>(null);
 
   const [curImageIndex, setCurImageIndex] = useState(0);
+
   const [viewHeader, setViewHeader] = useState(false);
 
-  const [active, setActive] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const [detailData, setDetailData] = useState<MarkerDetailExtras | null>(null);
+
+  const [roadviewMap, setRoadviewMap] = useState(false);
 
   // fetch and page active
   useEffect(() => {
@@ -120,16 +122,6 @@ const MarkerDetail = ({
     };
 
     fetch();
-
-    const timeout = setTimeout(() => {
-      setActive(true);
-    }, 0);
-
-    if (active) {
-      clearTimeout(timeout);
-    }
-
-    return () => clearTimeout(timeout);
   }, []);
 
   useEffect(() => {
@@ -155,6 +147,14 @@ const MarkerDetail = ({
     };
   }, [titleRef.current]);
 
+  const openRoadview = () => {
+    setRoadviewMap(true);
+  };
+
+  const closeRoadview = () => {
+    setRoadviewMap(false);
+  };
+
   if (!isLoading && !detailData) return;
 
   const slideSettings = {
@@ -174,9 +174,43 @@ const MarkerDetail = ({
 
   return (
     <div>
+      {/* 로드뷰 지도 모달 */}
+      {roadviewMap && (
+        <SwipeClosePage
+          close={closeRoadview}
+          className="z-[33]"
+          slideType="horizontal"
+          dragClose={false}
+        >
+          <div className="relative w-full h-2/3 shadow-lg z-20 border-b border-solid border-grey">
+            <Button
+              icon={<BsX size={26} />}
+              clickAction
+              className={`absolute top-4 right-4 rounded-full z-20
+                bg-[rgba(255,255,255,0.7)] dark:bg-[rgba(35,35,35,0.7)] text-black dark:text-white p-1 mr-2`}
+              onClick={closeRoadview}
+            />
+            <RoadView
+              id="detail-roadview"
+              lat={detailData?.latitude}
+              lng={detailData?.longitude}
+            />
+          </div>
+          <div className="relative w-full h-1/3 z-10">
+            <Map
+              id="roadview-map"
+              lat={detailData?.latitude}
+              lng={detailData?.longitude}
+              withPin={false}
+            />
+          </div>
+        </SwipeClosePage>
+      )}
+
+      {/* 헤더 */}
       <div
         className={cn(
-          "fixed top-0 left-1/2 -translate-x-1/2 w-full z-40 flex items-center px-2 duration-300 max-w-[480px]",
+          "fixed top-0 left-1/2 -translate-x-1/2 w-full z-[32] flex items-center px-2 duration-300 max-w-[480px]",
           os === "iOS" ? "h-24 pt-8" : "h-12",
           viewHeader
             ? "bg-white dark:bg-black"
@@ -198,7 +232,8 @@ const MarkerDetail = ({
           </div>
         )}
       </div>
-      <SwipeClosePage isView={active} close={closeDetail}>
+
+      <SwipeClosePage close={closeDetail}>
         {isLoading || !detailData ? (
           <>
             {imageUrl && (
@@ -215,6 +250,7 @@ const MarkerDetail = ({
           </>
         ) : (
           <>
+            {/* 이미지 슬라이드 */}
             <div>
               <div className="relative w-full h-72">
                 <Slider {...slideSettings}>
@@ -238,6 +274,8 @@ const MarkerDetail = ({
                 )}
               </div>
             </div>
+
+            {/* 기구 개수 정보 */}
             <Section className="flex flex-wrap gap-2 pt-2 pb-0">
               {detailData.facilities[0].quantity > 0 && (
                 <MarkerDetailBadge>
@@ -264,6 +302,8 @@ const MarkerDetail = ({
                 </MarkerDetailBadge>
               )}
             </Section>
+
+            {/* 정보 및 버튼 버튼 */}
             <Section className="pb-0 pt-2">
               <h1 ref={titleRef} className="text-xl">
                 {detailData.address}
@@ -291,8 +331,9 @@ const MarkerDetail = ({
                 <div className="h-11 my-auto border-r border-solid border-[#ccc]" />
                 <IconButton
                   icon={<BsFillPinMapFill size={20} className="fill-primary" />}
+                  onClick={() => setRoadviewMap(true)}
                 >
-                  거리뷰
+                  길찾기
                 </IconButton>
                 <div className="h-11 my-auto border-r border-solid border-[#ccc]" />
                 <IconButton
@@ -310,17 +351,32 @@ const MarkerDetail = ({
                 </IconButton>
               </div>
             </Section>
+
             <div className="w-full h-4 bg-grey-light dark:bg-[#111]" />
+
+            {/* 지도 및 길찾기 */}
             <Section>
               <div className="relative w-full h-48 rounded-lg overflow-hidden mb-3">
                 <div className={cn("absolute w-full h-full z-20")} />
-                <Map lat={detailData.latitude} lng={detailData.longitude} />
+                <Map
+                  id="detail-map"
+                  lat={detailData.latitude}
+                  lng={detailData.longitude}
+                />
               </div>
-              <Button fullWidth clickAction className="bg-primary">
-                길찾기
+              <Button
+                fullWidth
+                clickAction
+                className="bg-primary active:scale-90"
+                onClick={openRoadview}
+              >
+                거리뷰
               </Button>
             </Section>
+
             <div className="w-full h-4 bg-grey-light dark:bg-[#111]" />
+
+            {/* 이미지 */}
             <Section
               title="이미지"
               subTitle="정보 수정 제안"
@@ -328,6 +384,8 @@ const MarkerDetail = ({
             >
               <MarkerDetailImages images={detailData.photos} />
             </Section>
+
+            {/* 리뷰 */}
             <MarkerComments />
             <MarkerCommentsForm />
           </>
@@ -540,13 +598,18 @@ const MarkerCommentsForm = () => {
 
 const IconButton = ({
   icon,
+  onClick,
   children,
-}: React.PropsWithChildren<{ icon: React.ReactNode }>) => {
+}: React.PropsWithChildren<{
+  icon: React.ReactNode;
+  onClick?: VoidFunction;
+}>) => {
   return (
     <Button
-      className="flex flex-col gap-1 grow text-sm dark:bg-black dark:text-white"
+      className="flex flex-col gap-[6px] grow text-xs dark:bg-black dark:text-white"
       icon={icon}
       appearance="borderless"
+      onClick={onClick}
       clickAction
     >
       {children}
@@ -554,12 +617,23 @@ const IconButton = ({
   );
 };
 
-const Map = ({ lat, lng }: { lat: number; lng: number }) => {
+const Map = ({
+  lat,
+  lng,
+  id,
+  withPin = true,
+}: {
+  lat?: number;
+  lng?: number;
+  id: string;
+  withPin?: boolean;
+}) => {
   const mapRef = useRef<KakaoMap>(null);
 
   useEffect(() => {
-    if (mapRef.current) return;
-    const mapContainer = document.getElementById("detail-map");
+    if (!lat || !lng || mapRef.current) return;
+
+    const mapContainer = document.getElementById(id);
     const centerPosition = new window.kakao.maps.LatLng(lat, lng);
     const mapOption = {
       center: centerPosition,
@@ -567,6 +641,8 @@ const Map = ({ lat, lng }: { lat: number; lng: number }) => {
     };
 
     const map = new window.kakao.maps.Map(mapContainer, mapOption);
+
+    if (!withPin) return;
 
     const imageSize = new window.kakao.maps.Size(35, 50);
     const imageOption = { offset: new window.kakao.maps.Point(5, 32) };
@@ -587,7 +663,44 @@ const Map = ({ lat, lng }: { lat: number; lng: number }) => {
     mapRef.current = map;
   }, []);
 
-  return <div id="detail-map" className={cn("relative w-full h-full z-10")} />;
+  return <div id={id} className={cn("relative w-full h-full z-10")} />;
+};
+
+const RoadView = ({
+  lat,
+  lng,
+  id,
+}: {
+  lat?: number;
+  lng?: number;
+  id: string;
+}) => {
+  const roadviewRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!roadviewRef.current) return;
+
+    const roadview = new window.kakao.maps.Roadview(roadviewRef.current);
+    const roadviewClient = new window.kakao.maps.RoadviewClient();
+
+    const position = new window.kakao.maps.LatLng(lat, lng);
+
+    roadviewClient.getNearestPanoId(position, 50, (panoId: number) => {
+      if (panoId === null) {
+        console.log("로드뷰 지원 안됨");
+      } else {
+        console.log(panoId, position);
+        roadview.setPanoId(panoId, position);
+      }
+    });
+  }, []);
+
+  return (
+    <div
+      ref={roadviewRef}
+      className="relative w-full h-full z-10"
+    />
+  );
 };
 
 const StarIcon = () => {

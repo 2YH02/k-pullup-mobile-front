@@ -10,16 +10,16 @@ const RESET_OPACITY_DELAY = 250;
 const OVERSCROLL_LIMIT = 100;
 
 interface SwipeClosePageProps {
-  isView?: boolean;
   slideType?: "vertical" | "horizontal";
   close?: VoidFunction;
+  dragClose?: boolean;
   className?: React.ComponentProps<"div">["className"];
 }
 
 const SwipeClosePage = ({
-  isView,
   slideType = "vertical",
   close,
+  dragClose = true,
   className,
   children,
 }: React.PropsWithChildren<SwipeClosePageProps>) => {
@@ -36,6 +36,16 @@ const SwipeClosePage = ({
 
   const [opacity, setOpacity] = useState(1);
 
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setActive(true);
+    }, 0);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
   useEffect(() => {
     if (!containerRef.current) return;
     if (translateY > DRAG_THRESHOLD) {
@@ -47,6 +57,7 @@ const SwipeClosePage = ({
   }, [translateY]);
 
   const handleDragStart = (clientY: number, clientX: number) => {
+    if (!dragClose) return;
     isDragging.current = true;
     if (slideType === "vertical") {
       if (!isTop) return;
@@ -57,6 +68,8 @@ const SwipeClosePage = ({
   };
 
   const handleDragMove = (clientY: number, clientX: number) => {
+    if (!dragClose) return;
+
     if (startY.current && slideType === "vertical") {
       if (!isTop) return;
       const deltaY = clientY - startY.current;
@@ -82,6 +95,8 @@ const SwipeClosePage = ({
   };
 
   const handleDragEnd = () => {
+    if (!dragClose) return;
+
     if (startY.current && slideType === "vertical" && isTop) {
       if (opacity < CLOSE_OPACITY_THRESHOLD) {
         close?.();
@@ -132,13 +147,13 @@ const SwipeClosePage = ({
     handleDragEnd();
   };
 
-  const computedTransformY = isView
+  const computedTransformY = active
     ? isDragging.current
       ? `translateY(${translateY}px) translateX(-50%)`
       : `translateY(0) translateX(-50%)`
     : `translateY(100%) translateX(-50%)`;
 
-  const computedTransformX = isView
+  const computedTransformX = active
     ? isDragging.current
       ? `translateX(${translateX}px)`
       : `translateX(0)`
@@ -150,7 +165,7 @@ const SwipeClosePage = ({
       className={cn(
         "fixed top-0 w-full h-full bg-white z-30 max-w-[480px] dark:bg-black overflow-auto overflow-x-hidden",
         slideType === "vertical" ? "left-1/2" : "left-0",
-        isView ? "translate-y-0" : "translate-y-full",
+        active ? "translate-y-0" : "translate-y-full",
         !isDragging.current ? "duration-200" : "duration-0",
         scrollTop < OVERSCROLL_LIMIT ? "overscroll-none" : "",
         className
