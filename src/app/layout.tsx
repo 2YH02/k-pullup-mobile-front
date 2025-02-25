@@ -6,6 +6,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { headers } from "next/headers";
 import getOs from "@/utils/get-os";
+import { ToastContainer, Zoom } from "react-toastify";
 
 declare global {
   interface Window {
@@ -102,6 +103,18 @@ export default async function RootLayout({
             </div>
           </CheckFirstVisitProvider>
         </MapProvider>
+        <ToastContainer
+          position="top-center"
+          autoClose={1000}
+          hideProgressBar
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover={false}
+          transition={Zoom}
+        />
       </body>
     </html>
   );

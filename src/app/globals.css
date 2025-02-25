@@ -5,6 +5,9 @@
 :root {
   overscroll-behavior: none;
   overflow: hidden;
+
+  --toastify-color-light: #fff;
+  --toastify-color-dark: #121212;
 }
 
 body {

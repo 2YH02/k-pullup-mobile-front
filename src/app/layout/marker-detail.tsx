@@ -10,6 +10,7 @@ import NotFoundImage from "@/components/not-found-image/not-found-image";
 import Section from "@/components/section/section";
 import Skeleton from "@/components/skeleton/skeleton";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
+import useIsDarkMode from "@/hooks/use-is-dark-mode";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
 import { type KakaoMap } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
@@ -28,6 +29,7 @@ import {
   BsX,
 } from "react-icons/bs";
 import Slider from "react-slick";
+import { toast } from "react-toastify";
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
@@ -100,6 +102,7 @@ const MarkerDetail = ({
   imageCache,
 }: MarkerDetailProps) => {
   const titleRef = useRef<HTMLDivElement>(null);
+
   const [map, setMap] = useState<null | KakaoMap>(null);
 
   const [curImageIndex, setCurImageIndex] = useState(0);
@@ -111,6 +114,7 @@ const MarkerDetail = ({
   const [detailData, setDetailData] = useState<MarkerDetailExtras | null>(null);
 
   const [roadviewMap, setRoadviewMap] = useState(false);
+  const [activeRoadview, setActiveRoadview] = useState(true);
 
   // fetch and page active
   useEffect(() => {
@@ -147,12 +151,24 @@ const MarkerDetail = ({
     };
   }, [titleRef.current]);
 
+  useEffect(() => {
+    if (!detailData || !map) return;
+    const position = new window.kakao.maps.LatLng(
+      detailData.latitude,
+      detailData.longitude
+    );
+    map.relayout();
+    map.setCenter(position);
+  }, [activeRoadview]);
+
   const openRoadview = () => {
     setRoadviewMap(true);
+    setActiveRoadview(true);
   };
 
   const closeRoadview = () => {
     setRoadviewMap(false);
+    setMap(null);
   };
 
   if (!isLoading && !detailData) return;
@@ -182,27 +198,37 @@ const MarkerDetail = ({
           slideType="horizontal"
           dragClose={false}
         >
-          <div className="relative w-full h-2/3 shadow-lg z-20 border-b border-solid border-grey">
-            <Button
-              icon={<BsX size={26} />}
-              clickAction
-              className={`absolute top-4 right-4 rounded-full z-20
+          <Button
+            icon={<BsX size={26} />}
+            clickAction
+            className={`absolute top-4 right-4 rounded-full z-30
                 bg-[rgba(255,255,255,0.7)] dark:bg-[rgba(35,35,35,0.7)] text-black dark:text-white p-1 mr-2`}
-              onClick={closeRoadview}
-            />
-            <RoadView
-              id="detail-roadview"
-              lat={detailData?.latitude}
-              lng={detailData?.longitude}
-              map={map}
-            />
-          </div>
-          <div className="relative w-full h-1/3 z-10">
+            onClick={closeRoadview}
+          />
+          {activeRoadview && (
+            <div className="relative w-full h-2/3 shadow-lg z-20 border-b border-solid border-grey">
+              <RoadView
+                id="detail-roadview"
+                lat={detailData?.latitude}
+                lng={detailData?.longitude}
+                isView={activeRoadview}
+                close={() => setActiveRoadview(false)}
+                map={map}
+              />
+            </div>
+          )}
+
+          <div
+            className={cn(
+              "relative w-full z-10",
+              activeRoadview ? "h-1/3" : "h-full"
+            )}
+          >
             <Map
               id="roadview-map"
               lat={detailData?.latitude}
               lng={detailData?.longitude}
-              type="ROADVIEW"
+              type={"ROADVIEW"}
               setMap={setMap}
             />
           </div>
@@ -684,16 +710,21 @@ const RoadView = ({
   lng,
   map,
   id,
+  isView = true,
+  close,
 }: {
   lat?: number;
   lng?: number;
   map?: KakaoMap | null;
   id: string;
+  isView?: boolean;
+  close?: VoidFunction;
 }) => {
+  const isDarkMode = useIsDarkMode();
   const roadviewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!roadviewRef.current || !map) return;
+    if (!roadviewRef.current || !map || !isView) return;
     map.setZoomable(false);
 
     const roadview = new window.kakao.maps.Roadview(roadviewRef.current);
@@ -703,7 +734,14 @@ const RoadView = ({
 
     roadviewClient.getNearestPanoId(position, 50, (panoId: number) => {
       if (panoId === null) {
-        // console.log("로드뷰 지원 안됨");
+        if (isDarkMode) {
+          toast.dark("로드뷰가 지원되지 않는 위치입니다.");
+        } else {
+          toast("로드뷰가 지원되지 않는 위치입니다.");
+        }
+        map.addOverlayMapTypeId(window.kakao.maps.MapTypeId.ROADMAP);
+        map.setZoomable(true);
+        close?.();
       } else {
         roadview.setPanoId(panoId, position);
       }

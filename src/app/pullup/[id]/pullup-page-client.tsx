@@ -29,6 +29,8 @@ type Marker = {
 };
 
 const mockDetailData: Marker = {
+  // latitude: 36.286033,
+  // longitude: 127.24406399999998,
   latitude: 36.274151,
   longitude: 127.25040400000002,
   createdAt: "2024-05-14T01:43:44Z",
