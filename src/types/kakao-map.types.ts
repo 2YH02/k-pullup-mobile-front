@@ -23,6 +23,7 @@ export interface KakaoMap {
   addOverlayMapTypeId: (data: any) => void;
   getProjection: () => any;
   setDraggable: (draggable: boolean) => void;
+  setZoomable: (zoomable: boolean) => void;
 }
 
 export interface KakaoMarker {

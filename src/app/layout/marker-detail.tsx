@@ -14,6 +14,7 @@ import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
 import { type KakaoMap } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
 import { formatDate } from "@/utils/format-date";
+import MapWalker from "@/utils/map-walker";
 import wait from "@/utils/wait";
 import Image from "next/image";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
@@ -30,8 +31,6 @@ import Slider from "react-slick";
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
-
-// TODO 로드뷰 지도 중복 문제
 
 type Comment = {
   commentId: number;
@@ -101,6 +100,7 @@ const MarkerDetail = ({
   imageCache,
 }: MarkerDetailProps) => {
   const titleRef = useRef<HTMLDivElement>(null);
+  const [map, setMap] = useState<null | KakaoMap>(null);
 
   const [curImageIndex, setCurImageIndex] = useState(0);
 
@@ -194,6 +194,7 @@ const MarkerDetail = ({
               id="detail-roadview"
               lat={detailData?.latitude}
               lng={detailData?.longitude}
+              map={map}
             />
           </div>
           <div className="relative w-full h-1/3 z-10">
@@ -201,7 +202,8 @@ const MarkerDetail = ({
               id="roadview-map"
               lat={detailData?.latitude}
               lng={detailData?.longitude}
-              withPin={false}
+              type="ROADVIEW"
+              setMap={setMap}
             />
           </div>
         </SwipeClosePage>
@@ -331,7 +333,6 @@ const MarkerDetail = ({
                 <div className="h-11 my-auto border-r border-solid border-[#ccc]" />
                 <IconButton
                   icon={<BsFillPinMapFill size={20} className="fill-primary" />}
-                  onClick={() => setRoadviewMap(true)}
                 >
                   길찾기
                 </IconButton>
@@ -622,10 +623,14 @@ const Map = ({
   lng,
   id,
   withPin = true,
+  type = "ROADMAP",
+  setMap,
 }: {
   lat?: number;
   lng?: number;
   id: string;
+  type?: "ROADVIEW" | "ROADMAP";
+  setMap?: React.Dispatch<React.SetStateAction<KakaoMap | null>>;
   withPin?: boolean;
 }) => {
   const mapRef = useRef<KakaoMap>(null);
@@ -641,25 +646,33 @@ const Map = ({
     };
 
     const map = new window.kakao.maps.Map(mapContainer, mapOption);
+    if (type === "ROADVIEW") {
+      map.addOverlayMapTypeId(window.kakao.maps.MapTypeId.ROADVIEW);
+    } else {
+      map.addOverlayMapTypeId(window.kakao.maps.MapTypeId.ROADMAP);
+    }
 
-    if (!withPin) return;
+    if (setMap) setMap(map);
 
-    const imageSize = new window.kakao.maps.Size(35, 50);
-    const imageOption = { offset: new window.kakao.maps.Point(5, 32) };
-    const imageUrl = "/active-selected.png";
+    if (withPin) {
+      const imageSize = new window.kakao.maps.Size(35, 50);
+      const imageOption = { offset: new window.kakao.maps.Point(5, 32) };
+      const imageUrl = "/active-selected.png";
 
-    const pin = new window.kakao.maps.MarkerImage(
-      imageUrl,
-      imageSize,
-      imageOption
-    );
+      const pin = new window.kakao.maps.MarkerImage(
+        imageUrl,
+        imageSize,
+        imageOption
+      );
 
-    const marker = new window.kakao.maps.Marker({
-      position: centerPosition,
-      image: pin,
-    });
+      const marker = new window.kakao.maps.Marker({
+        position: centerPosition,
+        image: pin,
+      });
 
-    marker.setMap(map);
+      marker.setMap(map);
+    }
+
     mapRef.current = map;
   }, []);
 
@@ -669,16 +682,19 @@ const Map = ({
 const RoadView = ({
   lat,
   lng,
+  map,
   id,
 }: {
   lat?: number;
   lng?: number;
+  map?: KakaoMap | null;
   id: string;
 }) => {
   const roadviewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!roadviewRef.current) return;
+    if (!roadviewRef.current || !map) return;
+    map.setZoomable(false);
 
     const roadview = new window.kakao.maps.Roadview(roadviewRef.current);
     const roadviewClient = new window.kakao.maps.RoadviewClient();
@@ -687,19 +703,111 @@ const RoadView = ({
 
     roadviewClient.getNearestPanoId(position, 50, (panoId: number) => {
       if (panoId === null) {
-        console.log("로드뷰 지원 안됨");
+        // console.log("로드뷰 지원 안됨");
       } else {
-        console.log(panoId, position);
         roadview.setPanoId(panoId, position);
       }
     });
-  }, []);
+
+    let mapWalker: any = null;
+
+    const handleViewpintChanged = () => {
+      const viewpoint = roadview.getViewpoint();
+      mapWalker.setAngle(viewpoint.pan);
+    };
+
+    const handlePositionChanged = () => {
+      const position = roadview.getPosition();
+      mapWalker.setPosition(position);
+      map.setCenter(position);
+    };
+
+    const handleMapCenterChanged = () => {
+      const position = map.getCenter();
+      mapWalker.setPosition(position);
+    };
+
+    const handleMapDragend = () => {
+      mapWalker.toggleRoadview();
+    };
+
+    const handleMapDragstart = () => {
+      const position = map.getCenter();
+      mapWalker.setPrevPosition(position);
+    };
+
+    const handleInit = () => {
+      const rMarker = new window.kakao.maps.Marker({
+        position: position,
+        map: roadview,
+      });
+
+      const projection = roadview.getProjection();
+
+      const viewpoint = projection.viewpointFromCoords(
+        rMarker.getPosition(),
+        rMarker.getAltitude()
+      );
+      roadview.setViewpoint(viewpoint);
+
+      mapWalker = new MapWalker(position, map, roadview, roadviewClient);
+      mapWalker.setMap();
+
+      window.kakao.maps.event.addListener(
+        roadview,
+        "viewpoint_changed",
+        handleViewpintChanged
+      );
+
+      window.kakao.maps.event.addListener(
+        roadview,
+        "position_changed",
+        handlePositionChanged
+      );
+
+      window.kakao.maps.event.addListener(
+        map,
+        "center_changed",
+        handleMapCenterChanged
+      );
+
+      window.kakao.maps.event.addListener(map, "dragend", handleMapDragend);
+      window.kakao.maps.event.addListener(map, "dragstart", handleMapDragstart);
+    };
+
+    window.kakao.maps.event.addListener(roadview, "init", handleInit);
+
+    return () => {
+      window.kakao.maps.event.removeListener(roadview, "init", handleInit);
+      window.kakao.maps.event.removeListener(
+        roadview,
+        "viewpoint_changed",
+        handleViewpintChanged
+      );
+
+      window.kakao.maps.event.removeListener(
+        roadview,
+        "position_changed",
+        handlePositionChanged
+      );
+
+      window.kakao.maps.event.removeListener(
+        map,
+        "center_changed",
+        handleMapCenterChanged
+      );
+
+      window.kakao.maps.event.removeListener(map, "dragend", handleMapDragend);
+      window.kakao.maps.event.removeListener(
+        map,
+        "dragstart",
+        handleMapDragstart
+      );
+    };
+  }, [map]);
 
   return (
-    <div
-      ref={roadviewRef}
-      className="relative w-full h-full z-10"
-    />
+    <div id={id} ref={roadviewRef} className="relative w-full h-full z-10" />
   );
 };
 

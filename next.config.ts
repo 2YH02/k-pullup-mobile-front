@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
     domains: ["chulbong-kr.s3.amazonaws.com", "t1.daumcdn.net"],
     unoptimized: true,
   },
+  reactStrictMode: false,
 };
 
 export default nextConfig;
