@@ -42,8 +42,8 @@ class MapWalker {
     this.roadviewClient = roadviewClient;
     this.roadview = roadview;
 
-    this.newPos;
-    this.prevPos;
+    this.newPos = position;
+    this.prevPos = position;
 
     this.onMouseUp = this.onMouseUp.bind(this);
     this.toggleRoadview = this.toggleRoadview.bind(this);
