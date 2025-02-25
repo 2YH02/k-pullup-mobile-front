@@ -155,16 +155,15 @@ const SwipeClosePage = ({
 
   const computedTransformX = active
     ? isDragging.current
-      ? `translateX(${translateX}px)`
-      : `translateX(0)`
+      ? `translateX(calc(-50% + ${translateX}px))`
+      : `translateX(-50%)`
     : `translateX(100%)`;
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        "fixed top-0 w-full h-full bg-white z-30 max-w-[480px] dark:bg-black overflow-auto overflow-x-hidden",
-        slideType === "vertical" ? "left-1/2" : "left-0",
+        "fixed top-0 w-full h-full left-1/2 bg-white z-30 max-w-[480px] dark:bg-black overflow-auto overflow-x-hidden",
         active ? "translate-y-0" : "translate-y-full",
         !isDragging.current ? "duration-200" : "duration-0",
         scrollTop < OVERSCROLL_LIMIT ? "overscroll-none" : "",
