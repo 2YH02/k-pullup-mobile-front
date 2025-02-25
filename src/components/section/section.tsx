@@ -17,7 +17,7 @@ const Section = ({
   const Subtitle = subTitleClick ? "p" : "button";
 
   return (
-    <section className={cn("px-2 py-4", className)}>
+    <section className={cn("p-4", className)}>
       {title && (
         <div className="mb-2 select-none flex items-center justify-between">
           <p className="font-bold text-lg">{title}</p>

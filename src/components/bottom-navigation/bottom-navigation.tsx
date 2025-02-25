@@ -1,7 +1,6 @@
 "use client";
 
 import usePageTransition from "@/hooks/use-page-transition";
-import { useHeaderStore } from "@/store/use-header-store";
 import cn from "@/utils/cn";
 import { usePathname, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -16,11 +15,12 @@ import { Button } from "../button/button";
 
 const LINK_LIST = ["/", "/social", "/challenge", "/me"];
 
-const BottomNavigation = () => {
+const BottomNavigation = ({ os }: { os: string }) => {
   return (
     <div
       className={cn(
-        "w-full h-16 border-t border-solid flex z-20 bg-white dark:bg-black dark:border-grey"
+        "w-full border-t border-solid flex z-20 bg-white dark:bg-black dark:border-grey box-border",
+        os === "iOS" ? "h-20 pb-4" : " h-16"
       )}
     >
       <NavigationButton
@@ -33,7 +33,7 @@ const BottomNavigation = () => {
         text="소셜"
         url="/social"
       />
-      <div className="flex items-center justify-center grow">
+      <div className="flex items-center justify-center">
         <Button
           className="rounded-full p-2 bg-primary dark:bg-primary"
           clickAction
@@ -68,7 +68,6 @@ const NavigationButton = ({
   const pathname = usePathname();
 
   const { slideLeft, slideRight } = usePageTransition();
-  const { setTitle } = useHeaderStore();
 
   const [loading, setLoading] = useState(false);
 
@@ -93,9 +92,6 @@ const NavigationButton = ({
   };
 
   const handleClick = () => {
-    if (url !== "/") {
-      setTitle(text);
-    }
     const clickIndex = LINK_LIST.findIndex((link) => link === url);
 
     if (clickIndex === curIndex) return;
@@ -108,21 +104,21 @@ const NavigationButton = ({
   };
 
   return (
-    <Button
-      disabled={loading}
-      icon={icon}
-      appearance="borderless"
+    <button
       className={cn(
-        "flex flex-col shrink-0 justify-between items-center text-xs grow bg-white dark:bg-black",
+        "flex flex-col shrink-0 justify-center items-center gap-2 text-xs grow bg-white dark:bg-black active:scale-90",
         pathname === url
           ? "text-primary-dark dark:text-primary-dark"
           : "text-[#aaa] dark:text-[#aaa]"
       )}
-      onClick={handleClick}
-      clickAction
+      onClick={() => {
+        if (loading) return;
+        handleClick();
+      }}
     >
-      {text}
-    </Button>
+      <span>{icon}</span>
+      <span>{text}</span>
+    </button>
   );
 };
 

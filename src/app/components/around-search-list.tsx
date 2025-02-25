@@ -91,7 +91,7 @@ const AroundSearchList = ({
 
   if (isLoading) {
     return (
-      <div className="flex gap-[5%] h-48 ml-2">
+      <div className="flex gap-[5%] h-48 p-2 ml-2">
         <Skeleton className="w-[80%] h-full shrink-0 rounded-lg" />
         <Skeleton className="w-[80%] h-full shrink-0 rounded-lg" />
       </div>
@@ -109,8 +109,8 @@ const AroundSearchList = ({
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        <div className="flex flex-col justify-center w-full h-full rounded-lg bg-white shadow-md dark:bg-black">
-          <div className="relative mx-auto w-64 h-32">
+        <div className="flex flex-col justify-center w-full h-full rounded-lg bg-white shadow-md dark:bg-black p-4">
+          <div className="relative mx-auto w-52 h-[180px]">
             <Image
               src={isDarkMode ? "/main-c-dark.png" : "/main-c.png"}
               fill
@@ -128,7 +128,7 @@ const AroundSearchList = ({
 
   return (
     <Carousel
-      className="h-48"
+      className="h-48 p-2"
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
@@ -156,7 +156,7 @@ const AroundSearchList = ({
                 openDetail();
               }}
             >
-              <div className="relative w-full h-28">
+              <div className="relative w-full h-24">
                 <Image
                   src={value.thumbnail || "/metaimg.webp"}
                   fill

@@ -4,6 +4,8 @@ import PageTransitionProvider from "@/provider/page-transition-provider";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { headers } from "next/headers";
+import getOs from "@/utils/get-os";
 
 declare global {
   interface Window {
@@ -78,18 +80,25 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = headers();
+  const userAgent = (await headersList).get("user-agent");
+
+  const os = getOs(userAgent || "");
+
   return (
     <html lang="ko" className={`${pretendard.className}`}>
       <body>
         <MapProvider>
           <CheckFirstVisitProvider>
             <div className="relative h-dvh bg-white max-w-[480px] mx-auto overflow-hidden">
-              <PageTransitionProvider>{children}</PageTransitionProvider>
+              <PageTransitionProvider os={os}>
+                {children}
+              </PageTransitionProvider>
             </div>
           </CheckFirstVisitProvider>
         </MapProvider>

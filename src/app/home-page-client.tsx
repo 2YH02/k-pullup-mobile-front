@@ -3,7 +3,6 @@
 import MarkerDetail from "@/app/layout/marker-detail";
 import Input from "@/components/input/input";
 import usePageTransition from "@/hooks/use-page-transition";
-import { useHeaderStore } from "@/store/use-header-store";
 import { useSessionStore } from "@/store/use-session-store";
 import cn from "@/utils/cn";
 import wait from "@/utils/wait";
@@ -117,10 +116,9 @@ const mockData = [
   },
 ];
 
-const HomePageClient = () => {
+const HomePageClient = ({ os }: { os: string }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { setTitle } = useHeaderStore();
   const { isFirstVisit } = useSessionStore();
   const { slideIn } = usePageTransition();
 
@@ -135,7 +133,6 @@ const HomePageClient = () => {
   const [viewMarkerDetail, setViewMarkerDetail] = useState(false);
 
   useEffect(() => {
-    setTitle(null);
     if (isFirstVisit) return;
     slideIn();
   }, []);
@@ -161,9 +158,10 @@ const HomePageClient = () => {
   };
 
   return (
-    <div className="relative w-full h-full p-2">
+    <div className="relative w-full h-full p-4 overflow-hidden">
       {viewMarkerDetail && (
         <MarkerDetail
+          os={os}
           markerId={24}
           imageUrl={cachedImage}
           imageCache={handleImageCache}
@@ -171,7 +169,7 @@ const HomePageClient = () => {
         />
       )}
 
-      <div className="relative z-20">
+      <div className={cn("relative z-20", os === "iOS" ? "mt-10" : "")}>
         <button className="absolute top-0 left-0 w-full h-full z-10" />
         <Input
           iconLeft={<BsGeoAlt size={20} />}
@@ -183,11 +181,10 @@ const HomePageClient = () => {
           ref={inputRef}
         />
       </div>
-
       <div
         className={cn(
           "absolute bottom-6 right-2 flex gap-2 z-10 transition-all duration-100",
-          viewAroundSearchList ? "-translate-y-48" : ""
+          viewAroundSearchList ? "bottom-56" : ""
         )}
       >
         <AroundSearchButton
@@ -198,22 +195,17 @@ const HomePageClient = () => {
         <GpsButton />
       </div>
 
-      <div
-        className={cn(
-          "absolute bottom-2 left-0 z-10 w-full opacity-0",
-          viewAroundSearchList
-            ? "translate-y-0 opacity-100"
-            : "translate-y-full"
-        )}
-      >
-        <AroundSearchList
-          data={aroundSearchList}
-          isLoading={aroundSearchLoading}
-          closeSlide={() => setViewAroundSearchList(false)}
-          imageCache={handleImageCache}
-          openDetail={openDetail}
-        />
-      </div>
+      {viewAroundSearchList && (
+        <div className={cn("absolute bottom-2 left-0 z-10 w-full")}>
+          <AroundSearchList
+            data={aroundSearchList}
+            isLoading={aroundSearchLoading}
+            closeSlide={() => setViewAroundSearchList(false)}
+            imageCache={handleImageCache}
+            openDetail={openDetail}
+          />
+        </div>
+      )}
     </div>
   );
 };

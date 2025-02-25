@@ -1,7 +1,6 @@
 "use client";
 
 import BottomNavigation from "@/components/bottom-navigation/bottom-navigation";
-import Header from "@/components/header/header";
 import Map from "@/components/map/map";
 import {
   PageAnimation,
@@ -11,9 +10,11 @@ import cn from "@/utils/cn";
 import { useRef, useState } from "react";
 
 const PageTransitionProvider = ({
+  os,
   className,
   children,
 }: React.PropsWithChildren<{
+  os: string;
   className?: React.ComponentProps<"div">["className"];
 }>) => {
   const [animationClass, setAnimationClass] = useState("");
@@ -29,12 +30,11 @@ const PageTransitionProvider = ({
       }}
     >
       <div className="flex flex-col h-full">
-        <Header />
         <div className={cn("relative grow", className, animationClass)}>
           {children}
           <Map />
         </div>
-        <BottomNavigation />
+        <BottomNavigation os={os} />
       </div>
     </PageTransitionContext.Provider>
   );

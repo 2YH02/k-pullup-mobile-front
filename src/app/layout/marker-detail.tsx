@@ -16,6 +16,7 @@ import cn from "@/utils/cn";
 import { formatDate } from "@/utils/format-date";
 import wait from "@/utils/wait";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   BsArrowLeftShort,
@@ -87,6 +88,7 @@ const commentMockData: CommentData = {
 interface MarkerDetailProps {
   imageUrl?: string | null;
   markerId: number;
+  os?: string;
   closeDetail?: VoidFunction;
   imageCache?: (img: string | null) => void;
 }
@@ -94,6 +96,7 @@ interface MarkerDetailProps {
 const MarkerDetail = ({
   markerId,
   imageUrl,
+  os = "Windows",
   closeDetail,
   imageCache,
 }: MarkerDetailProps) => {
@@ -173,7 +176,8 @@ const MarkerDetail = ({
     <div>
       <div
         className={cn(
-          "fixed top-0 left-1/2 -translate-x-1/2 w-full h-12 z-40 flex items-center px-2 duration-300 max-w-[480px]",
+          "fixed top-0 left-1/2 -translate-x-1/2 w-full z-40 flex items-center px-2 duration-300 max-w-[480px]",
+          os === "iOS" ? "h-24 pt-8" : "h-12",
           viewHeader
             ? "bg-white dark:bg-black"
             : "bg-transparent dark:bg-transparent"
@@ -198,7 +202,7 @@ const MarkerDetail = ({
         {isLoading || !detailData ? (
           <>
             {imageUrl && (
-              <div className="w-full h-52">
+              <div className="w-full h-72">
                 <img
                   src={imageUrl}
                   alt="thumbnail"
@@ -212,12 +216,12 @@ const MarkerDetail = ({
         ) : (
           <>
             <div>
-              <div className="relative w-full h-52">
+              <div className="relative w-full h-72">
                 <Slider {...slideSettings}>
                   {detailData.photos.map((data, index) => (
                     <div
                       key={data.photoId}
-                      className="w-full h-52 focus:outline-none"
+                      className="w-full h-72 focus:outline-none"
                     >
                       <img
                         src={data.photoUrl}

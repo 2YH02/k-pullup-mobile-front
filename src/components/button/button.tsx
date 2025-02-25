@@ -83,7 +83,7 @@ export const Button: React.FC<ButtonProps> = ({
         withIconStyle,
         clickActionStyle,
         clickActionStyle,
-        className,
+        className
       )}
       {...props}
     >
