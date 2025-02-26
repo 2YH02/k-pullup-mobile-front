@@ -1,6 +1,7 @@
 import useScroll from "@/hooks/use-scroll";
 import cn from "@/utils/cn";
 import { useEffect, useRef, useState } from "react";
+import { BsArrowLeftShort } from "react-icons/bs";
 
 const DRAG_THRESHOLD = 30;
 const CLOSE_OPACITY_THRESHOLD = 0.4;
@@ -13,6 +14,7 @@ interface SwipeClosePageProps {
   slideType?: "vertical" | "horizontal";
   close?: VoidFunction;
   dragClose?: boolean;
+  headerTitle?: string;
   className?: React.ComponentProps<"div">["className"];
 }
 
@@ -20,6 +22,7 @@ const SwipeClosePage = ({
   slideType = "vertical",
   close,
   dragClose = true,
+  headerTitle,
   className,
   children,
 }: React.PropsWithChildren<SwipeClosePageProps>) => {
@@ -181,6 +184,18 @@ const SwipeClosePage = ({
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
+      {headerTitle && (
+        <header
+          className={`p-3 sticky top-0 left-0 w-full bg-white shadow-sm flex items-center border
+        dark:bg-black dark:border-b dark:border-solid dark:border-grey-dark`}
+        >
+          <button className="mr-4" onClick={close}>
+            <BsArrowLeftShort size={26} />
+          </button>
+          <span className="truncate">{headerTitle}</span>
+        </header>
+      )}
+
       {children}
     </div>
   );

@@ -35,6 +35,7 @@ import { toast } from "react-toastify";
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
+import Moment from "./moment";
 
 type Comment = {
   commentId: number;
@@ -120,6 +121,8 @@ const MarkerDetail = ({
   const [roadviewMap, setRoadviewMap] = useState(false);
   const [activeRoadview, setActiveRoadview] = useState(true);
 
+  const [viewMoment, setViewMoment] = useState(false);
+
   // fetch and page active
   useEffect(() => {
     const fetch = async () => {
@@ -169,10 +172,16 @@ const MarkerDetail = ({
     setRoadviewMap(true);
     setActiveRoadview(true);
   };
-
   const closeRoadview = () => {
     setRoadviewMap(false);
     setMap(null);
+  };
+
+  const openMoment = () => {
+    setViewMoment(true);
+  };
+  const closeMoment = () => {
+    setViewMoment(false);
   };
 
   if (!isLoading && !detailData) return;
@@ -241,6 +250,9 @@ const MarkerDetail = ({
           </div>
         </SwipeClosePage>
       )}
+
+      {/*  모먼트 페이지 모달 */}
+      {viewMoment && <Moment close={closeMoment} className="z-[33]" />}
 
       {/* 헤더 */}
       <div
@@ -374,6 +386,7 @@ const MarkerDetail = ({
                   icon={
                     <BsPersonBoundingBox size={20} className="fill-primary" />
                   }
+                  onClick={openMoment}
                 >
                   모먼트
                 </IconButton>
