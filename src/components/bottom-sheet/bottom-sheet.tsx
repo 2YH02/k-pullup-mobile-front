@@ -1,24 +1,26 @@
 import useIsMounted from "@/hooks/use-is-mounted";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
 import cn from "@/utils/cn";
-import { createPortal } from "react-dom";
-import { Button } from "../button/button";
-import { BsX } from "react-icons/bs";
-import Dimmed from "../dimmed/dimmed";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { BsX } from "react-icons/bs";
+import { Button } from "../button/button";
+import Dimmed from "../dimmed/dimmed";
 
 interface BottomSheetProps {
   title: string;
+  id: string;
   className?: React.ComponentProps<"div">["className"];
 }
 
 const BottomSheet = ({
   title,
+  id,
   className,
   children,
 }: React.PropsWithChildren<BottomSheetProps>) => {
   const isMounted = useIsMounted();
-  const { isView, hide } = useBottomSheetStore();
+  const { isView, hide, id: modalId } = useBottomSheetStore();
 
   const [active, setActive] = useState(false);
 
@@ -35,7 +37,7 @@ const BottomSheet = ({
     return () => clearTimeout(timeout);
   }, [isView]);
 
-  if (!isMounted || !isView) return null;
+  if (!isMounted || !isView || id !== modalId) return null;
 
   return createPortal(
     <Dimmed onClick={hide}>

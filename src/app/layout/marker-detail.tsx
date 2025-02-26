@@ -22,6 +22,8 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   BsArrowLeftShort,
   BsBookmark,
+  BsCloudDownload,
+  BsCopy,
   BsFillPinMapFill,
   BsFillShareFill,
   BsPersonBoundingBox,
@@ -33,8 +35,6 @@ import { toast } from "react-toastify";
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
-// TODO: 로드뷰 지도 모달 모바일 IOS 헤더 높이 수정 및 확인
-// TODO: 안드로이드 하단 scoll바 표시되는 오류
 
 type Comment = {
   commentId: number;
@@ -103,6 +103,8 @@ const MarkerDetail = ({
   closeDetail,
   imageCache,
 }: MarkerDetailProps) => {
+  const { show } = useBottomSheetStore();
+
   const titleRef = useRef<HTMLDivElement>(null);
 
   const [map, setMap] = useState<null | KakaoMap>(null);
@@ -229,13 +231,13 @@ const MarkerDetail = ({
               activeRoadview ? "h-1/3" : "h-full"
             )}
           >
-            {/* <Map
+            <Map
               id="roadview-map"
               lat={detailData?.latitude}
               lng={detailData?.longitude}
               type={"ROADVIEW"}
               setMap={setMap}
-            /> */}
+            />
           </div>
         </SwipeClosePage>
       )}
@@ -378,6 +380,7 @@ const MarkerDetail = ({
                 <div className="h-11 my-auto border-r border-solid border-[#ccc]" />
                 <IconButton
                   icon={<BsFillShareFill size={20} className="fill-primary" />}
+                  onClick={() => show("share")}
                 >
                   공유
                 </IconButton>
@@ -420,6 +423,9 @@ const MarkerDetail = ({
             {/* 리뷰 */}
             <MarkerComments />
             <MarkerCommentsForm />
+
+            {/* 공유 모달 */}
+            <ShareModal />
           </>
         )}
       </SwipeClosePage>
@@ -516,6 +522,40 @@ const MarkerDetailImages = ({ images }: { images: Photo[] | null }) => {
   );
 };
 
+const ShareModal = () => {
+  return (
+    <BottomSheet title="공유" id="share" className="pb-10">
+      <div
+        role="button"
+        className="p-3 flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg"
+      >
+        <span className="mr-4 p-2 rounded-full bg-[rgba(0,0,0,0.2)] dark:bg-[rgba(255,255,255,0.2)] text-white">
+          <BsCopy size={22} />
+        </span>
+        <span>주소 복사</span>
+      </div>
+      <div
+        role="button"
+        className="p-3 flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg"
+      >
+        <span className="mr-4 p-2 rounded-full bg-[rgba(0,0,0,0.2)] dark:bg-[rgba(255,255,255,0.2)] text-white">
+          <BsCopy size={22} />
+        </span>
+        <span>링크 복사</span>
+      </div>
+      <div
+        role="button"
+        className="p-3 flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg"
+      >
+        <span className="mr-4 p-2 rounded-full bg-[rgba(0,0,0,0.2)] dark:bg-[rgba(255,255,255,0.2)] text-white">
+          <BsCloudDownload size={22} />
+        </span>
+        <span>PDF 저장</span>
+      </div>
+    </BottomSheet>
+  );
+};
+
 const MarkerComments = () => {
   const { show } = useBottomSheetStore();
 
@@ -528,7 +568,7 @@ const MarkerComments = () => {
           <NotFoundImage text="우와, 리뷰가 하나도 없네요 ㅠㅠ" />
           <button
             className="underline text-sm active:text-primary"
-            onClick={show}
+            onClick={() => show("review")}
           >
             리뷰 작성하기
           </button>
@@ -542,7 +582,7 @@ const MarkerComments = () => {
       title="리뷰"
       className="pb-20"
       subTitle="리뷰 작성하기"
-      subTitleClick={show}
+      subTitleClick={() => show("review")}
     >
       <div>
         {commentsData.comments.map((comment, index) => {
@@ -607,7 +647,7 @@ const MarkerCommentsForm = () => {
   };
 
   return (
-    <BottomSheet title="리뷰 작성" className="pb-10">
+    <BottomSheet id="review" title="리뷰 작성" className="pb-10">
       <div className="w-full p-4 mb-4 shadow-inner-full rounded-xl dark:border dark:border-solid dark:border-grey-dark">
         <textarea
           value={inputValue}
