@@ -158,7 +158,7 @@ const HomePageClient = ({ os }: { os: string }) => {
   };
 
   return (
-    <div className="relative w-full h-full p-4 overflow-hidden">
+    <div className="relative w-full h-full p-4">
       {/* 위치 상세 모달 */}
       {viewMarkerDetail && (
         <MarkerDetail

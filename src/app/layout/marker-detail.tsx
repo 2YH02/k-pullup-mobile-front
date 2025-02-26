@@ -33,6 +33,8 @@ import { toast } from "react-toastify";
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
+// TODO: 로드뷰 지도 모달 모바일 IOS 헤더 높이 수정 및 확인
+// TODO: 안드로이드 하단 scoll바 표시되는 오류
 
 type Comment = {
   commentId: number;
@@ -201,8 +203,11 @@ const MarkerDetail = ({
           <Button
             icon={<BsX size={26} />}
             clickAction
-            className={`absolute top-4 right-4 rounded-full z-30
-                bg-[rgba(255,255,255,0.7)] dark:bg-[rgba(35,35,35,0.7)] text-black dark:text-white p-1 mr-2`}
+            className={cn(
+              `absolute right-4 rounded-full z-30 bg-[rgba(255,255,255,0.7)] dark:bg-[rgba(35,35,35,0.7)] 
+              text-black dark:text-white p-1 mr-2`,
+              os === "iOS" ? "top-14" : "top-4"
+            )}
             onClick={closeRoadview}
           />
           {activeRoadview && (
@@ -224,13 +229,13 @@ const MarkerDetail = ({
               activeRoadview ? "h-1/3" : "h-full"
             )}
           >
-            <Map
+            {/* <Map
               id="roadview-map"
               lat={detailData?.latitude}
               lng={detailData?.longitude}
               type={"ROADVIEW"}
               setMap={setMap}
-            />
+            /> */}
           </div>
         </SwipeClosePage>
       )}
@@ -280,7 +285,7 @@ const MarkerDetail = ({
           <>
             {/* 이미지 슬라이드 */}
             <div>
-              <div className="relative w-full h-72">
+              <div className="relative w-full h-72 overflow-hidden">
                 <Slider {...slideSettings}>
                   {detailData.photos.map((data, index) => (
                     <div
