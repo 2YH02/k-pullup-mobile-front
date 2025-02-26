@@ -6,6 +6,7 @@ import {
 import { Badge } from "@/components/badge/badge";
 import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
 import { Button } from "@/components/button/button";
+import Divider from "@/components/divider/divider";
 import NotFoundImage from "@/components/not-found-image/not-found-image";
 import Section from "@/components/section/section";
 import Skeleton from "@/components/skeleton/skeleton";
@@ -32,10 +33,10 @@ import {
 } from "react-icons/bs";
 import Slider from "react-slick";
 import { toast } from "react-toastify";
+import Moment from "./moment";
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
-import Moment from "./moment";
 
 type Comment = {
   commentId: number;
@@ -400,7 +401,7 @@ const MarkerDetail = ({
               </div>
             </Section>
 
-            <div className="w-full h-4 bg-grey-light dark:bg-[#111]" />
+            <Divider />
 
             {/* 지도 및 길찾기 */}
             <Section>
@@ -422,7 +423,7 @@ const MarkerDetail = ({
               </Button>
             </Section>
 
-            <div className="w-full h-4 bg-grey-light dark:bg-[#111]" />
+            <Divider />
 
             {/* 이미지 */}
             <Section
