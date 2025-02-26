@@ -253,7 +253,7 @@ const MarkerDetail = ({
       )}
 
       {/*  모먼트 페이지 모달 */}
-      {viewMoment && <Moment close={closeMoment} className="z-[33]" />}
+      {viewMoment && <Moment os={os} close={closeMoment} className="z-[33]" />}
 
       {/* 헤더 */}
       <div

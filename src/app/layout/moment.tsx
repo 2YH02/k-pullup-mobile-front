@@ -60,11 +60,13 @@ const postsMockData: Post[] = [
 
 interface MomentProps {
   close: VoidFunction;
+  os?: string;
   className?: React.ComponentProps<"div">["className"];
 }
-const Moment = ({ close, className }: MomentProps) => {
+const Moment = ({ close, os = "Windows", className }: MomentProps) => {
   return (
     <SwipeClosePage
+      os={os}
       close={close}
       className={cn("pb-10", className)}
       slideType="horizontal"

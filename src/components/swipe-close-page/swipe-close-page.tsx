@@ -17,6 +17,7 @@ interface SwipeClosePageProps {
   headerTitle?: string;
   icon?: React.ReactNode;
   iconClick?: VoidFunction;
+  os?: string;
   className?: React.ComponentProps<"div">["className"];
 }
 
@@ -27,6 +28,7 @@ const SwipeClosePage = ({
   headerTitle,
   icon,
   iconClick,
+  os = "Windows",
   className,
   children,
 }: React.PropsWithChildren<SwipeClosePageProps>) => {
@@ -190,8 +192,11 @@ const SwipeClosePage = ({
     >
       {headerTitle && (
         <header
-          className={`p-3 sticky top-0 left-0 w-full bg-white z-10 shadow-sm flex items-center border
-        dark:bg-black dark:border-b dark:border-solid dark:border-grey-dark`}
+          className={cn(
+            `p-3 sticky top-0 left-0 w-full bg-white z-10 shadow-sm flex items-center border
+        dark:bg-black dark:border-b dark:border-solid dark:border-grey-dark`,
+            os === "iOS" ? "pt-12" : ""
+          )}
         >
           <button className="mr-4" onClick={close}>
             <BsArrowLeftShort size={26} />
