@@ -24,7 +24,7 @@ const Section = ({
           {subTitle && (
             <Subtitle
               className={cn(
-                "text-[10px] ml-2 text-grey",
+                "text-[10px] ml-2 text-primary",
                 subTitleClick && "underline active:text-primary"
               )}
               onClick={subTitleClick}

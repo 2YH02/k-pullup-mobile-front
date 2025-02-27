@@ -128,7 +128,8 @@ const MomentItem = ({ data }: { data: Post }) => {
         </div>
         <Button
           appearance="borderless"
-          icon={<BsTrash3 color="#777" />}
+          icon={<BsTrash3 />}
+          className="dark:bg-black dark:text-white text-grey-dark"
           clickAction
         />
       </div>

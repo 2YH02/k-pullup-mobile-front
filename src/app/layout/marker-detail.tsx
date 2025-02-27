@@ -35,8 +35,10 @@ import { toast } from "react-toastify";
 import Moment from "./moment";
 
 import ModalCloseButton from "@/components/modal-close-button/modal-close-button";
+import Textarea from "@/components/textarea/textarea";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
+import LocationEditRequestForm from "./location-edit-request-form";
 
 type Comment = {
   commentId: number;
@@ -121,6 +123,8 @@ const MarkerDetail = ({
   const [activeRoadview, setActiveRoadview] = useState(true);
 
   const [viewMoment, setViewMoment] = useState(false);
+
+  const [viewLocationEditForm, setViewLocationEditForm] = useState(false);
 
   // fetch and page active
   useEffect(() => {
@@ -229,6 +233,14 @@ const MarkerDetail = ({
       {/*  모먼트 페이지 모달 */}
       {viewMoment && <Moment os={os} close={closeMoment} className="z-[33]" />}
 
+      {/* 정보 수정 요청 */}
+      {viewLocationEditForm && (
+        <LocationEditRequestForm
+          os={os}
+          close={() => setViewLocationEditForm(false)}
+        />
+      )}
+
       {/* 헤더 */}
       <div
         className={cn(
@@ -313,7 +325,12 @@ const MarkerDetail = ({
                 최종 수정일: {formatDate(detailData.updatedAt)}
               </p>
               <div className="flex justify-between text-xs mb-4">
-                <button className="underline">정보 수정 요청</button>
+                <button
+                  className="underline"
+                  onClick={() => setViewLocationEditForm(true)}
+                >
+                  정보 수정 요청
+                </button>
                 <span className="flex items-center">
                   <span className="mr-1">
                     <StarIcon />
@@ -387,8 +404,8 @@ const MarkerDetail = ({
             {/* 이미지 */}
             <Section
               title="이미지"
-              subTitle="정보 수정 제안"
-              subTitleClick={() => {}}
+              subTitle="정보 수정 요청"
+              subTitleClick={() => setViewLocationEditForm(true)}
             >
               <MarkerDetailImages images={detailData.photos} />
             </Section>
@@ -664,15 +681,13 @@ const MarkerCommentsForm = () => {
 
   return (
     <BottomSheet id="review" title="리뷰 작성" className="pb-10">
-      <div className="w-full p-4 mb-4 shadow-inner-full rounded-xl dark:border dark:border-solid dark:border-grey-dark">
-        <textarea
-          value={inputValue}
-          onChange={handleChange}
-          maxLength={40}
-          placeholder="다른 사람에게 불쾌감을 주는 욕설, 혐오, 비하의 표현은 주의해주세요."
-          className="w-full resize-none bg-transparent outline-none"
-        />
-      </div>
+      <Textarea
+        value={inputValue}
+        onChnage={handleChange}
+        maxLength={40}
+        placeholder="다른 사람에게 불쾌감을 주는 욕설, 혐오, 비하의 표현은 주의해주세요."
+        className="mb-4"
+      />
       <div className="flex items-center">
         <Button className="w-3/4 bg-primary" onClick={handleClick} clickAction>
           등록하기

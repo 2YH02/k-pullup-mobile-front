@@ -193,7 +193,7 @@ const SwipeClosePage = ({
       {headerTitle && (
         <header
           className={cn(
-            `p-3 sticky top-0 left-0 w-full bg-white z-10 shadow-sm flex items-center border
+            `p-3 sticky top-0 left-0 w-full bg-white z-10 shadow-sm flex items-center
         dark:bg-black dark:border-b dark:border-solid dark:border-grey-dark`,
             os === "iOS" ? "pt-12" : ""
           )}
