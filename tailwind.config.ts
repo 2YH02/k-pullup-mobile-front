@@ -33,12 +33,12 @@ export default {
         "pale-mint": "#679186",
       },
       animation: {
-        "slide-left-out": "0.2s ease-in forwards slide-left-out",
-        "slide-left-in": "0.2s ease-out slide-left-in",
-        "slide-right-out": "0.2s ease-in forwards slide-right-out",
-        "slide-right-in": "0.2s ease-out slide-right-in",
-        "slide-bottom-out": "0.2s ease-in forwards slide-bottom-out",
-        "slide-bottom-in": "0.2s ease-out slide-bottom-in",
+        "slide-left-out": "0.1s ease-in forwards slide-left-out",
+        "slide-left-in": "0.1s ease-out slide-left-in",
+        "slide-right-out": "0.1s ease-in forwards slide-right-out",
+        "slide-right-in": "0.1s ease-out slide-right-in",
+        "slide-bottom-out": "0.1s ease-in forwards slide-bottom-out",
+        "slide-bottom-in": "0.1s ease-out slide-bottom-in",
         "scale-up": "scale-up 0.5s ease-out forwards",
       },
       keyframes: {

@@ -4,7 +4,7 @@ import {
 } from "@/context/page-transition-context";
 import { useContext } from "react";
 
-export const SLIDE_ANIMATION_DURATION = 200;
+export const SLIDE_ANIMATION_DURATION = 100;
 
 const usePageTransition = () => {
   const pageTransitionContext = useContext(PageTransitionContext);
