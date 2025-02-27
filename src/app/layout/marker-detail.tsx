@@ -19,7 +19,7 @@ import { formatDate } from "@/utils/format-date";
 import MapWalker from "@/utils/map-walker";
 import wait from "@/utils/wait";
 import Image from "next/image";
-import { ChangeEvent, memo, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   BsArrowLeftShort,
   BsBookmark,
