@@ -176,12 +176,12 @@ const AddMomentForm = ({
       className="bg-black z-[34] flex flex-col"
     >
       <ModalCloseButton os={os} onClick={close} />
-      <div className="relative w-full h-3/4 mt-10">
+      <div className="relative w-full h-3/5 mt-36 mb-10">
         <Image
           src={imageUrl}
           fill
           alt=""
-          className="object-contain"
+          className="object-cover"
           draggable={false}
         />
       </div>
@@ -195,7 +195,7 @@ const AddMomentForm = ({
         />
       </div>
       <div className="grow" />
-      <div className="text-center">
+      <div className="text-center pb-4">
         <button className="text-white p-2 h-10">만들기</button>
       </div>
     </SwipeClosePage>
