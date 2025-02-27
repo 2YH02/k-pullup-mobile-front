@@ -19,7 +19,7 @@ import { formatDate } from "@/utils/format-date";
 import MapWalker from "@/utils/map-walker";
 import wait from "@/utils/wait";
 import Image from "next/image";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, memo, useEffect, useRef, useState } from "react";
 import {
   BsArrowLeftShort,
   BsBookmark,
@@ -29,12 +29,12 @@ import {
   BsFillShareFill,
   BsPersonBoundingBox,
   BsTrash3,
-  BsX,
 } from "react-icons/bs";
 import Slider from "react-slick";
 import { toast } from "react-toastify";
 import Moment from "./moment";
 
+import ModalCloseButton from "@/components/modal-close-button/modal-close-button";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 
@@ -111,8 +111,6 @@ const MarkerDetail = ({
 
   const [map, setMap] = useState<null | KakaoMap>(null);
 
-  const [curImageIndex, setCurImageIndex] = useState(0);
-
   const [viewHeader, setViewHeader] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -187,21 +185,6 @@ const MarkerDetail = ({
 
   if (!isLoading && !detailData) return;
 
-  const slideSettings = {
-    accessibility: false,
-    dots: false,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    swipe: true,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    beforeChange: (_: number, newIndex: number) => {
-      setCurImageIndex(newIndex);
-    },
-  };
-
   return (
     <div>
       {/* 로드뷰 지도 모달 */}
@@ -212,16 +195,7 @@ const MarkerDetail = ({
           slideType="horizontal"
           dragClose={false}
         >
-          <Button
-            icon={<BsX size={26} />}
-            clickAction
-            className={cn(
-              `absolute right-4 rounded-full z-30 bg-[rgba(255,255,255,0.7)] dark:bg-[rgba(35,35,35,0.7)] 
-              text-black dark:text-white p-1 mr-2`,
-              os === "iOS" ? "top-14" : "top-4"
-            )}
-            onClick={closeRoadview}
-          />
+          <ModalCloseButton os={os} onClick={closeRoadview} />
           {activeRoadview && (
             <div className="relative w-full h-2/3 shadow-lg z-20 border-b border-solid border-grey">
               <RoadView
@@ -299,29 +273,7 @@ const MarkerDetail = ({
         ) : (
           <>
             {/* 이미지 슬라이드 */}
-            <div>
-              <div className="relative w-full h-72 overflow-hidden">
-                <Slider {...slideSettings}>
-                  {detailData.photos.map((data, index) => (
-                    <div
-                      key={data.photoId}
-                      className="w-full h-72 focus:outline-none"
-                    >
-                      <img
-                        src={data.photoUrl}
-                        alt={`Slide ${index + 1}`}
-                        className="w-full h-full object-cover block"
-                      />
-                    </div>
-                  ))}
-                </Slider>
-                {detailData && (
-                  <div className="absolute right-3 bottom-3 bg-[rgba(0,0,0,0.5)] text-white text-xs px-3 py-[2px] rounded-md">
-                    {`${curImageIndex + 1} / ${detailData.photos.length}`}
-                  </div>
-                )}
-              </div>
-            </div>
+            <ImageSlize data={detailData} />
 
             {/* 기구 개수 정보 */}
             <Section className="flex flex-wrap gap-2 pt-2 pb-0">
@@ -450,6 +402,49 @@ const MarkerDetail = ({
           </>
         )}
       </SwipeClosePage>
+    </div>
+  );
+};
+
+// TODO: 메모이제이션 성능 비교 필요
+const ImageSlize = ({ data }: { data: MarkerDetailExtras }) => {
+  const [curImageIndex, setCurImageIndex] = useState(0);
+
+  const slideSettings = {
+    accessibility: false,
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    swipe: true,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    beforeChange: (_: number, newIndex: number) => {
+      setCurImageIndex(newIndex);
+    },
+  };
+
+  return (
+    <div>
+      <div className="relative w-full h-72 overflow-hidden">
+        <Slider {...slideSettings}>
+          {data.photos.map((item, index) => (
+            <div key={item.photoId} className="w-full h-72 focus:outline-none">
+              <img
+                src={item.photoUrl}
+                alt={`Slide ${index + 1}`}
+                className="w-full h-full object-cover block"
+              />
+            </div>
+          ))}
+        </Slider>
+        {data && (
+          <div className="absolute right-3 bottom-3 bg-[rgba(0,0,0,0.5)] text-white text-xs px-3 py-[2px] rounded-md">
+            {`${curImageIndex + 1} / ${data.photos.length}`}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

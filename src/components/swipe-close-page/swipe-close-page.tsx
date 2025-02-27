@@ -174,7 +174,7 @@ const SwipeClosePage = ({
       className={cn(
         "fixed top-0 w-full h-full left-1/2 bg-white z-30 max-w-[480px] dark:bg-black overflow-auto overflow-x-hidden",
         active ? "translate-y-0" : "translate-y-full",
-        !isDragging.current ? "duration-200" : "duration-0",
+        !isDragging.current ? "duration-150" : "duration-0",
         scrollTop < OVERSCROLL_LIMIT ? "overscroll-none" : "",
         className
       )}

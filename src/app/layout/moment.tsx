@@ -1,9 +1,13 @@
 import { Button } from "@/components/button/button";
 import Divider from "@/components/divider/divider";
+import Input from "@/components/input/input";
+import ModalCloseButton from "@/components/modal-close-button/modal-close-button";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
+import useImageLoading from "@/hooks/use-image-loading";
 import cn from "@/utils/cn";
 import { formatDate } from "@/utils/format-date";
 import Image from "next/image";
+import { useRef, useState } from "react";
 import { BsHeart, BsTrash3, BsUpload } from "react-icons/bs";
 
 type Post = {
@@ -64,30 +68,53 @@ interface MomentProps {
   className?: React.ComponentProps<"div">["className"];
 }
 const Moment = ({ close, os = "Windows", className }: MomentProps) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { handleImageChange, reset, previewUrl } = useImageLoading();
+
+  const handleUploadMoment = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
-    <SwipeClosePage
-      os={os}
-      close={close}
-      className={cn("pb-10", className)}
-      slideType="horizontal"
-      headerTitle="모먼트"
-      icon={
-        <div className="flex items-center">
-          <span className="text-xs mr-1">등록</span>
-          <BsUpload />
-        </div>
-      }
-      iconClick={() => {}}
-    >
-      {postsMockData.map((v, i) => {
-        return (
-          <div key={i}>
-            <MomentItem data={v} />
-            {i !== postsMockData.length - 1 && <Divider />}
+    <div className="relative">
+      {/* 모먼트 작성 폼 */}
+      {previewUrl && (
+        <AddMomentForm imageUrl={previewUrl} close={reset} os={os} />
+      )}
+
+      {/* 모먼트 리스트 */}
+      <SwipeClosePage
+        os={os}
+        close={close}
+        className={cn("pb-10", className)}
+        slideType="horizontal"
+        headerTitle="모먼트"
+        icon={
+          <div className="flex items-center">
+            <span className="text-xs mr-1">등록</span>
+            <BsUpload />
           </div>
-        );
-      })}
-    </SwipeClosePage>
+        }
+        iconClick={handleUploadMoment}
+      >
+        <input
+          type="file"
+          onChange={handleImageChange}
+          ref={fileInputRef}
+          className="hidden"
+        />
+
+        {/* 모먼트 리스트 */}
+        {postsMockData.map((v, i) => {
+          return (
+            <div key={i}>
+              <MomentItem data={v} />
+              {i !== postsMockData.length - 1 && <Divider />}
+            </div>
+          );
+        })}
+      </SwipeClosePage>
+    </div>
   );
 };
 
@@ -124,6 +151,54 @@ const MomentItem = ({ data }: { data: Post }) => {
         <span className="font-bold">{data.thumbsUp}</span>
       </button>
     </div>
+  );
+};
+
+const AddMomentForm = ({
+  imageUrl,
+  close,
+  os,
+}: {
+  imageUrl: string;
+  close: VoidFunction;
+  os: string;
+}) => {
+  const [value, setValue] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value);
+  };
+
+  return (
+    <SwipeClosePage
+      close={close}
+      slideType="vertical"
+      className="bg-black z-[34] flex flex-col"
+    >
+      <ModalCloseButton os={os} onClick={close} />
+      <div className="relative w-full h-3/4 mt-10">
+        <Image
+          src={imageUrl}
+          fill
+          alt=""
+          className="object-contain"
+          draggable={false}
+        />
+      </div>
+      <div className="px-4">
+        <div className="text-white mb-1">내용</div>
+        <Input
+          className="bg-grey-dark border-none text-white"
+          value={value}
+          onChange={handleChange}
+          placeholder="오운완 🦾"
+        />
+      </div>
+      <div className="grow" />
+      <div className="text-center">
+        <button className="text-white p-2 h-10">만들기</button>
+      </div>
+    </SwipeClosePage>
   );
 };
 
