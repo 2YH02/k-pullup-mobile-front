@@ -245,7 +245,7 @@ const MarkerDetail = ({
               id="roadview-map"
               lat={detailData?.latitude}
               lng={detailData?.longitude}
-              type={"ROADVIEW"}
+              type={activeRoadview ? "ROADVIEW" : "ROADMAP"}
               setMap={setMap}
             />
           </div>
@@ -406,7 +406,14 @@ const MarkerDetail = ({
             {/* 지도 및 길찾기 */}
             <Section>
               <div className="relative w-full h-48 rounded-lg overflow-hidden mb-3">
-                <div className={cn("absolute w-full h-full z-20")} />
+                <div
+                  role="button"
+                  className={cn("absolute w-full h-full z-20")}
+                  onClick={() => {
+                    setActiveRoadview(false);
+                    setRoadviewMap(true);
+                  }}
+                />
                 <Map
                   id="detail-map"
                   lat={detailData.latitude}
