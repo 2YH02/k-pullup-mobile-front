@@ -3,6 +3,8 @@ import useToast from "@/hooks/use-toast";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { BsPlusLg, BsX } from "react-icons/bs";
+// TODO: fixed bottom button ios 하단 여백 추가 (모바일 확인 필요)
+// TODO: toast ios 상단 여백 추가 (모바일 확인 필요)
 
 type FileData = {
   file: File;
@@ -20,7 +22,7 @@ const UploadImageForm = () => {
   useEffect(() => {
     if (isError || !file || !previewUrl) return;
 
-    if (files.length > 1) {
+    if (files.length > 4) {
       toast("최대 5개 까지 등록 가능합니다!");
       return;
     }

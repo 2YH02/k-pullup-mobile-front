@@ -27,7 +27,7 @@ const LocationEditRequestForm = ({
     <SwipeClosePage
       os={os}
       close={close}
-      className={cn("pb-10 z-[33]", className)}
+      className={cn("pb-28 z-[33]", className)}
       slideType="horizontal"
       headerTitle="정보 수정 요청"
     >
@@ -51,7 +51,9 @@ const LocationEditRequestForm = ({
         <div>기구 개수 변경</div>
       </Section>
 
-      <BottomFixedButton>수정 요청</BottomFixedButton>
+      <BottomFixedButton os={os} onClick={() => {}}>
+        수정 요청
+      </BottomFixedButton>
     </SwipeClosePage>
   );
 };

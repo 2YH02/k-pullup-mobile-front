@@ -1,12 +1,13 @@
 import CheckFirstVisitProvider from "@/provider/check-first-visit-provider";
 import MapProvider from "@/provider/map-provider";
 import PageTransitionProvider from "@/provider/page-transition-provider";
+import cn from "@/utils/cn";
+import getOs from "@/utils/get-os";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import "./globals.css";
 import { headers } from "next/headers";
-import getOs from "@/utils/get-os";
 import { ToastContainer, Zoom } from "react-toastify";
+import "./globals.css";
 
 declare global {
   interface Window {
@@ -114,6 +115,10 @@ export default async function RootLayout({
           draggable
           pauseOnHover={false}
           transition={Zoom}
+          className={cn(
+            "sm:left-1/2 sm:-translate-x-1/2 sm:w-[90%]",
+            os === "iOS" ? "top-14" : ""
+          )}
         />
       </body>
     </html>
