@@ -1,9 +1,8 @@
 import useImageLoading from "@/hooks/use-image-loading";
-import useIsDarkMode from "@/hooks/use-is-dark-mode";
+import useToast from "@/hooks/use-toast";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { BsPlusLg, BsX } from "react-icons/bs";
-import { toast } from "react-toastify";
 
 type FileData = {
   file: File;
@@ -11,7 +10,7 @@ type FileData = {
 };
 
 const UploadImageForm = () => {
-  const isDarkMode = useIsDarkMode();
+  const { toast } = useToast();
   const { handleImageChange, file, previewUrl, isError } = useImageLoading();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -21,12 +20,8 @@ const UploadImageForm = () => {
   useEffect(() => {
     if (isError || !file || !previewUrl) return;
 
-    if (files.length > 4) {
-      if (isDarkMode) {
-        toast.dark("최대 5개 까지 등록 가능합니다!");
-      } else {
-        toast("최대 5개 까지 등록 가능합니다!");
-      }
+    if (files.length > 1) {
+      toast("최대 5개 까지 등록 가능합니다!");
       return;
     }
 

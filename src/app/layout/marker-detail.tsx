@@ -11,7 +11,6 @@ import NotFoundImage from "@/components/not-found-image/not-found-image";
 import Section from "@/components/section/section";
 import Skeleton from "@/components/skeleton/skeleton";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
-import useIsDarkMode from "@/hooks/use-is-dark-mode";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
 import { type KakaoMap } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
@@ -31,11 +30,11 @@ import {
   BsTrash3,
 } from "react-icons/bs";
 import Slider from "react-slick";
-import { toast } from "react-toastify";
 import Moment from "./moment";
 
 import ModalCloseButton from "@/components/modal-close-button/modal-close-button";
 import Textarea from "@/components/textarea/textarea";
+import useToast from "@/hooks/use-toast";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 import LocationEditRequestForm from "./location-edit-request-form";
@@ -796,7 +795,7 @@ const RoadView = ({
   isView?: boolean;
   close?: VoidFunction;
 }) => {
-  const isDarkMode = useIsDarkMode();
+  const { toast } = useToast();
   const roadviewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -810,11 +809,7 @@ const RoadView = ({
 
     roadviewClient.getNearestPanoId(position, 50, (panoId: number) => {
       if (panoId === null) {
-        if (isDarkMode) {
-          toast.dark("로드뷰가 지원되지 않는 위치입니다.");
-        } else {
-          toast("로드뷰가 지원되지 않는 위치입니다.");
-        }
+        toast("로드뷰가 지원되지 않는 위치입니다.");
         map.addOverlayMapTypeId(window.kakao.maps.MapTypeId.ROADMAP);
         map.setZoomable(true);
         close?.();
