@@ -3,8 +3,6 @@ import useToast from "@/hooks/use-toast";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { BsPlusLg, BsX } from "react-icons/bs";
-// TODO: fixed bottom button ios 하단 여백 추가 (모바일 확인 필요)
-// TODO: toast ios 상단 여백 추가 (모바일 확인 필요)
 
 type FileData = {
   file: File;

@@ -9,6 +9,7 @@ const MIN_OPACITY = 0.3;
 const OPACITY_STEP = 0.005;
 const RESET_OPACITY_DELAY = 250;
 const OVERSCROLL_LIMIT = 100;
+const EDGE_SWIPE_THRESHOLD = 20;
 
 interface SwipeClosePageProps {
   slideType?: "vertical" | "horizontal";
@@ -36,6 +37,8 @@ const SwipeClosePage = ({
   const { isTop, scrollTop } = useScroll(containerRef.current);
 
   const isDragging = useRef(false);
+
+  const isEdgeSwipeZone = useRef(false);
 
   const startY = useRef<number | null>(null);
   const startX = useRef<number | null>(null);
@@ -73,6 +76,10 @@ const SwipeClosePage = ({
       startY.current = clientY;
     } else {
       startX.current = clientX;
+
+      if (clientX < EDGE_SWIPE_THRESHOLD) {
+        isEdgeSwipeZone.current = true;
+      }
     }
   };
 
@@ -91,6 +98,7 @@ const SwipeClosePage = ({
         setOpacity(newOpacity);
       }
     } else if (startX.current && slideType === "horizontal") {
+      if (!isEdgeSwipeZone.current) return;
       const deltaX = clientX - startX.current;
       const newOpacity = Math.max(
         MIN_OPACITY,
@@ -118,6 +126,8 @@ const SwipeClosePage = ({
       setTranslateY(0);
       startY.current = null;
     } else {
+      if (!isEdgeSwipeZone.current) return;
+
       if (opacity < CLOSE_OPACITY_THRESHOLD) {
         close?.();
         setOpacity(0);
@@ -129,6 +139,7 @@ const SwipeClosePage = ({
       setTranslateX(0);
       startX.current = null;
     }
+    isEdgeSwipeZone.current = false;
     isDragging.current = false;
   };
 
