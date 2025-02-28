@@ -15,8 +15,8 @@ const ModalCloseButton = ({
       icon={<BsX size={26} />}
       clickAction
       className={cn(
-        `absolute right-4 rounded-full z-30 bg-[rgba(255,255,255,0.7)] dark:bg-[rgba(35,35,35,0.7)] 
-          text-black dark:text-white p-1 mr-2`,
+        `absolute right-4 rounded-full z-30 dark:bg-[rgba(255,255,255,0.7)] bg-[rgba(35,35,35,0.7)] 
+          dark:text-black text-white p-1 mr-2`,
         os === "iOS" ? "top-14" : "top-4"
       )}
       onClick={onClick}

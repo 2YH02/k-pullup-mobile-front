@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "next": "15.1.6",
     "radici-ui": "^0.0.4",
     "react": "^19.0.0",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/lodash": "^4.17.15",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

@@ -233,10 +233,11 @@ const MarkerDetail = ({
       {viewMoment && <Moment os={os} close={closeMoment} className="z-[33]" />}
 
       {/* 정보 수정 요청 */}
-      {viewLocationEditForm && (
+      {viewLocationEditForm && detailData && (
         <LocationEditRequestForm
           os={os}
           close={() => setViewLocationEditForm(false)}
+          markerData={detailData}
         />
       )}
 
@@ -757,7 +758,7 @@ const Map = ({
 
     if (withPin) {
       const imageSize = new window.kakao.maps.Size(35, 50);
-      const imageOption = { offset: new window.kakao.maps.Point(5, 32) };
+      const imageOption = { offset: new window.kakao.maps.Point(18, 45) };
       const imageUrl = "/active-selected.png";
 
       const pin = new window.kakao.maps.MarkerImage(

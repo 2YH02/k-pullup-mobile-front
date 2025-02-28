@@ -148,9 +148,9 @@ const Input: React.FC<InputProps> = ({
         </span>
         {!message && inputMessage ? (
           inputMessage
-        ) : (
+        ) : message ? (
           <InputMessage>{message}</InputMessage>
-        )}
+        ) : null}
       </div>
     </InputContext.Provider>
   );

@@ -31,6 +31,8 @@ export default {
         "dark-teel": "#264e70",
         "grayish-teel": "#679186",
         "pale-mint": "#679186",
+        yellow: "#E5B700",
+        "yellow-dark": "#FFF200",
       },
       animation: {
         "slide-left-out": "0.1s ease-in forwards slide-left-out",
