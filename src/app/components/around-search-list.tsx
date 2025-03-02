@@ -92,8 +92,8 @@ const AroundSearchList = ({
   if (isLoading) {
     return (
       <div className="flex gap-[5%] h-48 p-2 ml-2">
-        <Skeleton className="w-[80%] h-full shrink-0 rounded-lg" />
-        <Skeleton className="w-[80%] h-full shrink-0 rounded-lg" />
+        <Skeleton className="w-[82%] h-full shrink-0 rounded-lg" />
+        <Skeleton className="w-[82%] h-full shrink-0 rounded-lg" />
       </div>
     );
   }
