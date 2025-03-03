@@ -11,16 +11,16 @@ import cn from "../../utils/cn";
 
 const statusVariants = {
   default: "border-gray-300",
-  error: "border-red-400",
-  success: "border-blue-400",
-  warning: "border-yellow-400",
+  error: "border-red",
+  success: "border-blue",
+  warning: "border-yellow",
 };
 
 const messageStatusVariants = {
   default: "text-gray-500 dark:border-[#999]",
-  error: "text-red-400",
-  success: "text-blue-400",
-  warning: "text-yellow-400",
+  error: "text-red",
+  success: "text-blue",
+  warning: "text-yellow",
 };
 
 export type InputStatus = keyof typeof statusVariants;

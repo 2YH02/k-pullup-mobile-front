@@ -144,26 +144,32 @@ const SwipeClosePage = ({
   };
 
   const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
     handleDragStart(e.clientY, e.clientX);
   };
 
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
     handleDragMove(e.clientY, e.clientX);
   };
 
-  const onMouseUp = () => {
+  const onMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
     handleDragEnd();
   };
 
   const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.stopPropagation();
     handleDragStart(e.touches[0].clientY, e.touches[0].clientX);
   };
 
   const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.stopPropagation();
     handleDragMove(e.touches[0].clientY, e.touches[0].clientX);
   };
 
-  const onTouchEnd = () => {
+  const onTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.stopPropagation();
     handleDragEnd();
   };
 

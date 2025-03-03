@@ -6,11 +6,13 @@ const BottomFixedButton = ({
   children,
   os = "Windows",
   onClick,
+  disabled,
   className,
 }: {
   children: string;
   os?: string;
   onClick?: VoidFunction;
+  disabled?: boolean;
   className?: React.ComponentProps<"div">["className"];
 }) => {
   return createPortal(
@@ -23,8 +25,9 @@ const BottomFixedButton = ({
       )}
     >
       <Button
-        className="bg-primary active:scale-95"
+        className="bg-primary active:scale-95 disabled:bg-grey"
         onClick={onClick}
+        disabled={disabled}
         fullWidth
         clickAction
       >
