@@ -103,6 +103,16 @@ const Signup = ({
     }));
   };
 
+  const handlePrev = () => {
+    if (signupValue.step > 0) {
+      setSignupValue((prev) => ({ ...prev, step: prev.step - 1 }));
+    } else {
+      console.log("이전");
+    }
+  };
+
+  console.log(signupValue.step);
+
   return (
     <SwipeClosePage
       os={os}
@@ -110,6 +120,7 @@ const Signup = ({
       slideType="horizontal"
       headerTitle={headerTitle}
       dragClose={false}
+      onPrevClick={handlePrev}
     >
       {signupValue.step === 0 && (
         <VerifyEmail

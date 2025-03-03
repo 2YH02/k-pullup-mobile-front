@@ -20,6 +20,7 @@ interface SwipeClosePageProps {
   iconClick?: VoidFunction;
   os?: string;
   className?: React.ComponentProps<"div">["className"];
+  onPrevClick?: VoidFunction;
 }
 
 const SwipeClosePage = ({
@@ -29,6 +30,7 @@ const SwipeClosePage = ({
   headerTitle,
   icon,
   iconClick,
+  onPrevClick,
   os = "Windows",
   className,
   children,
@@ -215,7 +217,7 @@ const SwipeClosePage = ({
             os === "iOS" ? "pt-12" : ""
           )}
         >
-          <button className="mr-4" onClick={close}>
+          <button className="mr-4" onClick={onPrevClick ? onPrevClick : close}>
             <BsArrowLeftShort size={26} />
           </button>
           <span className="truncate grow">{headerTitle}</span>
