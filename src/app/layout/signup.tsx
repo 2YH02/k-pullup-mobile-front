@@ -4,6 +4,7 @@ import Input from "@/components/input/input";
 import Section from "@/components/section/section";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Timer from "@/components/timer/timer";
+import useImagePreload from "@/hooks/use-image-preload";
 import useInput from "@/hooks/use-input";
 import {
   validateCode,
@@ -61,6 +62,8 @@ const Signup = ({
     signupValue.username,
     signupValue.passwordConformed,
   ]);
+
+  useImagePreload(["/signup-loading.gif"]);
 
   const next = async () => {
     setSignupValue((prev) => ({

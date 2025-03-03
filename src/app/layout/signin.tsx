@@ -2,6 +2,7 @@ import { Button } from "@/components/button/button";
 import Input from "@/components/input/input";
 import Section from "@/components/section/section";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
+import useImagePreload from "@/hooks/use-image-preload";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -14,6 +15,8 @@ interface SigninProps {
 
 const Signin = ({ os = "Windows", close }: SigninProps) => {
   const [viewEmailSignin, setViewEmailSignin] = useState(false);
+
+  useImagePreload(["/logo.png"]);
 
   return (
     <SwipeClosePage
