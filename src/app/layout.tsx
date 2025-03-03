@@ -8,6 +8,7 @@ import localFont from "next/font/local";
 import { headers } from "next/headers";
 import { ToastContainer, Zoom } from "react-toastify";
 import "./globals.css";
+import AlertProvider from "@/provider/alert-provider";
 
 declare global {
   interface Window {
@@ -95,15 +96,17 @@ export default async function RootLayout({
   return (
     <html lang="ko" className={`${pretendard.className}`}>
       <body>
-        <MapProvider>
-          <CheckFirstVisitProvider>
-            <div className="relative h-dvh bg-white max-w-[480px] mx-auto overflow-hidden">
-              <PageTransitionProvider os={os}>
-                {children}
-              </PageTransitionProvider>
-            </div>
-          </CheckFirstVisitProvider>
-        </MapProvider>
+        <AlertProvider>
+          <MapProvider>
+            <CheckFirstVisitProvider>
+              <div className="relative h-dvh bg-white max-w-[480px] mx-auto overflow-hidden">
+                <PageTransitionProvider os={os}>
+                  {children}
+                </PageTransitionProvider>
+              </div>
+            </CheckFirstVisitProvider>
+          </MapProvider>
+        </AlertProvider>
         <ToastContainer
           position="top-center"
           autoClose={1000}

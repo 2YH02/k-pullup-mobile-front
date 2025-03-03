@@ -6,6 +6,7 @@ import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Timer from "@/components/timer/timer";
 import useImagePreload from "@/hooks/use-image-preload";
 import useInput from "@/hooks/use-input";
+import useAlertStore from "@/store/use-alert-store";
 import {
   validateCode,
   validateEmail,
@@ -26,6 +27,8 @@ const Signup = ({
   close: VoidFunction;
   os?: string;
 }) => {
+  const { openAlert } = useAlertStore();
+
   const [signupValue, setSignupValue] = useState({
     email: "",
     username: "",
@@ -107,11 +110,14 @@ const Signup = ({
     if (signupValue.step > 0) {
       setSignupValue((prev) => ({ ...prev, step: prev.step - 1 }));
     } else {
-      console.log("이전");
+      openAlert({
+        title: "가입 취소",
+        description: "정말 회원가입을 취소하시겠습니까?",
+        cancel: true,
+        onClick: close,
+      });
     }
   };
-
-  console.log(signupValue.step);
 
   return (
     <SwipeClosePage
