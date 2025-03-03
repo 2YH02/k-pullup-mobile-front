@@ -27,9 +27,9 @@ const Main = ({
     >
       {headerTitle ? (
         typeof headerTitle === "string" ? (
-          <div className="text-xl px-4 pt-4">{headerTitle}</div>
+          <div className="text-xl px-4 pt-4 font-bold">{headerTitle}</div>
         ) : (
-          <div className="text-xl px-4 pt-4">
+          <div className="text-xl px-4 pt-4 font-bold">
             {headerTitle.map((v) => {
               return <div key={v}>{v}</div>;
             })}
