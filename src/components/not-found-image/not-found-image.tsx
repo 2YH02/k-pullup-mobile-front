@@ -1,11 +1,26 @@
+import cn from "@/utils/cn";
 import Image from "next/image";
 
-const NotFoundImage = ({ text }: { text?: string }) => {
+const imageSizeVariant = {
+  sm: "w-28 h-16",
+  md: " w-48 h-28",
+  lg: " w-72 h-44",
+};
+
+const NotFoundImage = ({
+  text,
+  size = "sm",
+}: {
+  text?: string;
+  size?: "sm" | "md" | "lg";
+}) => {
   const isDark = document.documentElement.classList.contains("dark");
+
+  const imageSize = imageSizeVariant[size];
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="relative w-28 h-16">
+      <div className={cn("relative", imageSize)}>
         <Image
           src={isDark ? "/main-c-dark.png" : "/main-c.png"}
           fill

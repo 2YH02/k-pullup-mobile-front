@@ -8,14 +8,16 @@ import { Button } from "../button/button";
 import Dimmed from "../dimmed/dimmed";
 
 interface BottomSheetProps {
-  title: string;
+  title?: string;
   id: string;
   className?: React.ComponentProps<"div">["className"];
+  withDimmed?: boolean;
 }
 
 const BottomSheet = ({
   title,
   id,
+  withDimmed = true,
   className,
   children,
 }: React.PropsWithChildren<BottomSheetProps>) => {
@@ -37,10 +39,12 @@ const BottomSheet = ({
     return () => clearTimeout(timeout);
   }, [isView]);
 
+  const Container = withDimmed ? Dimmed : "div";
+
   if (!isMounted || !isView || id !== modalId) return null;
 
   return createPortal(
-    <Dimmed onClick={hide}>
+    <Container onClick={hide}>
       <div
         className={cn(
           "absolute bottom-0 left-0 w-full bg-white dark:bg-black z-50 p-4 rounded-t-3xl duration-100",
@@ -49,18 +53,21 @@ const BottomSheet = ({
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center mb-4">
-          <div className="text-xl font-semibold">{title}</div>
-          <Button
-            icon={<BsX size={26} />}
-            className="p-1 rounded-full bg-[rgba(0,0,0,0.4)]"
-            onClick={hide}
-            clickAction
-          />
-        </div>
+        {title && (
+          <div className="flex justify-between items-center mb-4">
+            <div className="text-xl font-semibold">{title}</div>
+            <Button
+              icon={<BsX size={26} />}
+              className="p-1 rounded-full bg-[rgba(0,0,0,0.4)]"
+              onClick={hide}
+              clickAction
+            />
+          </div>
+        )}
+
         {children}
       </div>
-    </Dimmed>,
+    </Container>,
     document.body
   );
 };

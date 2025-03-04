@@ -3,14 +3,16 @@
 import MarkerDetail from "@/app/layout/marker-detail";
 import Input from "@/components/input/input";
 import usePageTransition from "@/hooks/use-page-transition";
+import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
 import { useSessionStore } from "@/store/use-session-store";
 import cn from "@/utils/cn";
 import wait from "@/utils/wait";
 import { useEffect, useRef, useState } from "react";
-import { BsGeoAlt, BsSearch } from "react-icons/bs";
+import { BsChevronLeft, BsGeoAlt, BsSearch } from "react-icons/bs";
 import AroundSearchButton from "./components/around-search-button";
 import AroundSearchList from "./components/around-search-list";
 import GpsButton from "./components/gps-button";
+import SearchResult from "./layout/search-result";
 
 export type Marker = {
   latitude: number;
@@ -117,12 +119,15 @@ const mockData = [
 ];
 
 const HomePageClient = ({ os }: { os: string }) => {
+  const { show, hide } = useBottomSheetStore();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { isFirstVisit } = useSessionStore();
   const { slideIn } = usePageTransition();
 
-  const [searchValue, setSearchValue] = useState("계룡시 엄사면 엄사중앙로 66");
+  const [isFocused, setIsFocused] = useState(false);
+
+  const [searchValue, setSearchValue] = useState("");
 
   const [viewAroundSearchList, setViewAroundSearchList] = useState(false);
   const [aroundSearchList, setAroundSearchList] = useState<Marker[]>([]);
@@ -131,6 +136,10 @@ const HomePageClient = ({ os }: { os: string }) => {
 
   const [cachedImage, setCachedImage] = useState<string | null>(null);
   const [viewMarkerDetail, setViewMarkerDetail] = useState(false);
+
+  const [viewSearch, setViewSearch] = useState(false);
+
+  const [curLocation, setCurLocation] = useState("계룡시 엄사면 엄사중앙로 66");
 
   useEffect(() => {
     if (isFirstVisit) return;
@@ -157,8 +166,26 @@ const HomePageClient = ({ os }: { os: string }) => {
     setViewMarkerDetail(false);
   };
 
+  const handleSearchModal = () => {
+    if (viewSearch) {
+      setViewSearch(false);
+      hide();
+      setSearchValue("");
+      inputRef.current?.blur();
+    } else {
+      setViewSearch(true);
+      show("search");
+      inputRef.current?.focus();
+    }
+  };
+
   return (
-    <div className="relative w-full h-full p-4">
+    <div
+      className={cn(
+        "relative w-full h-full duration-100",
+        viewSearch ? "" : "p-4"
+      )}
+    >
       {/* 위치 상세 모달 */}
       {viewMarkerDetail && (
         <MarkerDetail
@@ -171,16 +198,48 @@ const HomePageClient = ({ os }: { os: string }) => {
       )}
 
       {/* 검색 버튼 */}
-      <div className={cn("relative z-20", os === "iOS" ? "mt-10" : "")}>
-        <button className="absolute top-0 left-0 w-full h-full z-10" />
+      <div
+        className={cn(
+          "relative",
+          viewSearch ? "w-full z-[1000]" : "z-20",
+          os === "iOS" && !viewSearch ? "pt-10" : ""
+        )}
+      >
+        {!viewSearch && (
+          <button
+            className="absolute top-0 left-0 w-full h-full z-10"
+            onClick={handleSearchModal}
+          />
+        )}
+
         <Input
-          iconLeft={<BsGeoAlt size={20} />}
-          iconRight={<BsSearch size={20} />}
-          className="border-primary-light dark:border-grey dark:bg-black"
+          iconLeft={
+            viewSearch ? (
+              <BsChevronLeft size={20} />
+            ) : (
+              <BsGeoAlt size={20} className="text-grey-dark" />
+            )
+          }
+          iconRight={
+            !viewSearch && <BsSearch size={20} className="text-grey-dark" />
+          }
+          className={cn(
+            "border-none dark:border-grey dark:bg-black",
+            viewSearch
+              ? os === "iOS"
+                ? "pt-12 border-none rounded-none"
+                : "rounded-none"
+              : "",
+            isFocused ? "shadow-full" : "shadow-sm"
+          )}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           value={searchValue}
+          placeholder="주소 검색"
           onChange={(e) => setSearchValue(e.target.value)}
           tabIndex={-1}
           ref={inputRef}
+          iconClick={handleSearchModal}
         />
       </div>
 
@@ -192,7 +251,7 @@ const HomePageClient = ({ os }: { os: string }) => {
         )}
       >
         <AroundSearchButton
-          address={searchValue}
+          address={curLocation}
           onClick={aroundSearch}
           viewAroundSearchList={viewAroundSearchList}
         />
@@ -211,6 +270,8 @@ const HomePageClient = ({ os }: { os: string }) => {
           />
         </div>
       )}
+
+      <SearchResult os={os} value={searchValue} />
     </div>
   );
 };
