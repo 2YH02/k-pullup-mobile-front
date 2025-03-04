@@ -37,7 +37,10 @@ const MyInfo = ({ os = "Windows", close }: MyInfoProps) => {
       slideType="horizontal"
     >
       {viewResetPasswordPage && (
-        <ResetPasswordForm close={() => setViewResetPasswordPage(false)} />
+        <ResetPasswordForm
+          os={os}
+          close={() => setViewResetPasswordPage(false)}
+        />
       )}
 
       <Section className="pt-10">

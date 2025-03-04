@@ -2,6 +2,7 @@
 
 import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
 import NotFoundImage from "@/components/not-found-image/not-found-image";
+import Section from "@/components/section/section";
 import PinIcon from "@/icons/pin-icon";
 import { type KakaoPlace } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
@@ -10,9 +11,13 @@ import { useEffect, useState } from "react";
 const SearchResult = ({
   os = "Windows",
   value,
+  moveMap,
+  close,
 }: {
   os?: string;
   value: string;
+  moveMap: ({ lat, lng }: { lat: number; lng: number }) => void;
+  close: VoidFunction;
 }) => {
   const [result, setResult] = useState<KakaoPlace[]>([]);
   const [searchStatus, setSearchStatus] = useState<null | string>(null);
@@ -28,10 +33,7 @@ const SearchResult = ({
 
     const ps = new window.kakao.maps.services.Places();
 
-    const placesSearchCB = (
-      data: KakaoPlace[],
-      status: string,
-    ) => {
+    const placesSearchCB = (data: KakaoPlace[], status: string) => {
       if (status === window.kakao.maps.services.Status.OK) {
         setSearchStatus(null);
         setResult([...data]);
@@ -50,6 +52,21 @@ const SearchResult = ({
 
     return () => clearTimeout(handler);
   }, [value]);
+
+  if (value.length === 0) {
+    return (
+      <BottomSheet
+        id="search"
+        className={cn(
+          "pb-10 h-full rounded-none px-0 overflow-auto",
+          os === "iOS" ? "pt-[88px]" : "pt-12"
+        )}
+        withDimmed={false}
+      >
+        <Section>검색 기록</Section>
+      </BottomSheet>
+    );
+  }
 
   if (searchStatus) {
     return (
@@ -78,7 +95,13 @@ const SearchResult = ({
       {result.map((item) => {
         return (
           <div key={item.id} className="px-4 active:bg-grey-light">
-            <button className="flex items-center w-full py-1 text-left active:scale-95 border-b border-solid border-grey-light duration-100">
+            <button
+              className="flex items-center w-full py-1 text-left active:scale-95 border-b border-solid border-grey-light duration-100"
+              onClick={() => {
+                moveMap({ lat: Number(item.y), lng: Number(item.x) });
+                close();
+              }}
+            >
               <div className="shrink-0 max-w-[90%]">
                 <div className="font-bold break-words">{item.place_name}</div>
                 <div className="text-xs text-grey break-words">

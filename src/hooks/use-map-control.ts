@@ -55,7 +55,15 @@ const useMapControl = (map?: KakaoMap | null) => {
     };
   }, [map]);
 
-  return { center };
+  const moveMap = ({ lat, lng }: { lat: number; lng: number }) => {
+    if (!map) return;
+
+    const moveLatLon = new window.kakao.maps.LatLng(lat, lng);
+
+    map.setCenter(moveLatLon);
+  };
+
+  return { center, moveMap };
 };
 
 export default useMapControl;

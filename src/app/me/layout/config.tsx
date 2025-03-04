@@ -26,7 +26,7 @@ const Config = ({ os = "Windows", close }: MyInfoProps) => {
       className="bg-grey-light"
     >
       {viewResetPasswordPage && (
-        <ResetPasswordForm close={() => setViewResetPasswordPage(false)} />
+        <ResetPasswordForm os={os} close={() => setViewResetPasswordPage(false)} />
       )}
 
       <ConfigList title="앱 설정">

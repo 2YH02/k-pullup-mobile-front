@@ -122,7 +122,7 @@ const mockData = [
 
 const HomePageClient = ({ os }: { os: string }) => {
   const { map } = useMapStore();
-  const { center } = useMapControl(map);
+  const { center, moveMap } = useMapControl(map);
 
   const { show, hide } = useBottomSheetStore();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -277,7 +277,17 @@ const HomePageClient = ({ os }: { os: string }) => {
         </div>
       )}
 
-      <SearchResult os={os} value={searchValue} />
+      <SearchResult
+        moveMap={moveMap}
+        os={os}
+        value={searchValue}
+        close={() => {
+          setViewSearch(false);
+          hide();
+          setSearchValue("");
+          inputRef.current?.blur();
+        }}
+      />
     </div>
   );
 };

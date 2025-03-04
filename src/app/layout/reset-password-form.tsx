@@ -6,7 +6,13 @@ import Section from "@/components/section/section";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import { useState } from "react";
 
-const ResetPasswordForm = ({ close }: { close: VoidFunction }) => {
+const ResetPasswordForm = ({
+  close,
+  os = "Windows",
+}: {
+  close: VoidFunction;
+  os?: string;
+}) => {
   const [emailValue, setEmailValue] = useState("");
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -15,6 +21,7 @@ const ResetPasswordForm = ({ close }: { close: VoidFunction }) => {
 
   return (
     <SwipeClosePage
+      os={os}
       close={close}
       slideType="horizontal"
       headerTitle="비밀번호 초기화"
