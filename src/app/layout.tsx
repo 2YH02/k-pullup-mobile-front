@@ -1,14 +1,15 @@
+import AlertProvider from "@/provider/alert-provider";
 import CheckFirstVisitProvider from "@/provider/check-first-visit-provider";
 import MapProvider from "@/provider/map-provider";
 import PageTransitionProvider from "@/provider/page-transition-provider";
+import ThemeProvider from "@/provider/theme-provider";
 import cn from "@/utils/cn";
 import getOs from "@/utils/get-os";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { ToastContainer, Zoom } from "react-toastify";
 import "./globals.css";
-import AlertProvider from "@/provider/alert-provider";
 
 declare global {
   interface Window {
@@ -93,36 +94,45 @@ export default async function RootLayout({
 
   const os = getOs(userAgent || "");
 
+  const cookieStore = cookies();
+  const theme = (await cookieStore).get("theme")?.value;
+  const isDark = theme === "dark";
+
   return (
-    <html lang="ko" className={`${pretendard.className}`}>
+    <html
+      lang="ko"
+      className={`${pretendard.className} ${isDark ? "dark" : ""}`}
+    >
       <body>
-        <AlertProvider>
-          <MapProvider>
-            <CheckFirstVisitProvider>
-              <div className="relative h-dvh bg-white max-w-[480px] mx-auto overflow-hidden">
-                <PageTransitionProvider os={os}>
-                  {children}
-                </PageTransitionProvider>
-              </div>
-            </CheckFirstVisitProvider>
-          </MapProvider>
-        </AlertProvider>
-        <ToastContainer
-          position="top-center"
-          autoClose={1000}
-          hideProgressBar
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover={false}
-          transition={Zoom}
-          className={cn(
-            "sm:left-1/2 sm:-translate-x-1/2 sm:w-[90%]",
-            os === "iOS" ? "top-14" : ""
-          )}
-        />
+        <ThemeProvider>
+          <AlertProvider>
+            <MapProvider>
+              <CheckFirstVisitProvider>
+                <div className="relative h-dvh bg-white max-w-[480px] mx-auto overflow-hidden">
+                  <PageTransitionProvider os={os}>
+                    {children}
+                  </PageTransitionProvider>
+                </div>
+              </CheckFirstVisitProvider>
+            </MapProvider>
+          </AlertProvider>
+          <ToastContainer
+            position="top-center"
+            autoClose={1000}
+            hideProgressBar
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover={false}
+            transition={Zoom}
+            className={cn(
+              "sm:left-1/2 sm:-translate-x-1/2 sm:w-[90%]",
+              os === "iOS" ? "top-14" : ""
+            )}
+          />
+        </ThemeProvider>
       </body>
     </html>
   );

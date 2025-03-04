@@ -2,7 +2,7 @@
 
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Switch from "@/components/switch/switch";
-import React from "react";
+import useDarkMode from "@/hooks/use-dark-mode";
 import { BsChevronRight } from "react-icons/bs";
 
 interface MyInfoProps {
@@ -11,6 +11,8 @@ interface MyInfoProps {
 }
 
 const Config = ({ os = "Windows", close }: MyInfoProps) => {
+  const { isDark, toggleTheme } = useDarkMode();
+
   return (
     <SwipeClosePage
       os={os}
@@ -20,7 +22,12 @@ const Config = ({ os = "Windows", close }: MyInfoProps) => {
       className="bg-grey-light"
     >
       <ConfigList title="앱 설정">
-        <ConfigListItem title="다크모드" type="toggle" />
+        <ConfigListItem
+          title="다크모드"
+          type="toggle"
+          onToggleChange={toggleTheme}
+          initToggleValue={isDark}
+        />
       </ConfigList>
     </SwipeClosePage>
   );
