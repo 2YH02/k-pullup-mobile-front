@@ -1,8 +1,10 @@
 "use client";
 
+import ResetPasswordForm from "@/app/layout/reset-password-form";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Switch from "@/components/switch/switch";
 import useDarkMode from "@/hooks/use-dark-mode";
+import { useState } from "react";
 import { BsChevronRight } from "react-icons/bs";
 
 interface MyInfoProps {
@@ -13,6 +15,8 @@ interface MyInfoProps {
 const Config = ({ os = "Windows", close }: MyInfoProps) => {
   const { isDark, toggleTheme } = useDarkMode();
 
+  const [viewResetPasswordPage, setViewResetPasswordPage] = useState(false);
+
   return (
     <SwipeClosePage
       os={os}
@@ -21,6 +25,10 @@ const Config = ({ os = "Windows", close }: MyInfoProps) => {
       slideType="horizontal"
       className="bg-grey-light"
     >
+      {viewResetPasswordPage && (
+        <ResetPasswordForm close={() => setViewResetPasswordPage(false)} />
+      )}
+
       <ConfigList title="앱 설정">
         <ConfigListItem
           title="다크모드"
@@ -28,6 +36,19 @@ const Config = ({ os = "Windows", close }: MyInfoProps) => {
           onToggleChange={toggleTheme}
           initToggleValue={isDark}
         />
+      </ConfigList>
+
+      <ConfigList title="사용자 설정">
+        <ConfigListItem title="로그아웃" />
+        <ConfigListItem
+          title="비밀번호 초기화"
+          onClick={() => setViewResetPasswordPage(true)}
+        />
+        <ConfigListItem title="회원 탈퇴" />
+      </ConfigList>
+
+      <ConfigList title="기타">
+        <ConfigListItem title="문의" />
       </ConfigList>
     </SwipeClosePage>
   );
@@ -54,7 +75,7 @@ interface ListItemProps {
   onToggleChange?: VoidFunction;
 }
 
-export const ConfigListItem = ({
+const ConfigListItem = ({
   title,
   description,
   type = "link",

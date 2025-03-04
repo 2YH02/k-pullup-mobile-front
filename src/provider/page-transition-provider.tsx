@@ -29,7 +29,7 @@ const PageTransitionProvider = ({
         setClassName: setAnimationClass,
       }}
     >
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full dark:bg-black">
         <div className={cn("relative grow", className, animationClass)}>
           {children}
           <Map />

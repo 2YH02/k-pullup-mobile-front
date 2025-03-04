@@ -23,7 +23,7 @@ const Main = ({
 
   return (
     <div
-      className={cn("overflow-auto", os === "iOS" ? iOSBodyHeight : bodyHeight)}
+      className={cn("overflow-auto dark:bg-black", os === "iOS" ? iOSBodyHeight : bodyHeight)}
     >
       {headerTitle ? (
         typeof headerTitle === "string" ? (

@@ -14,8 +14,6 @@ import { useSessionStore } from "../../store/use-session-store";
 import Signin from "../layout/signin";
 import Config from "./layout/config";
 import MyInfo from "./layout/my-info";
-// TODO: 마이페이지, 로그인, 회원가입 다크모드 적용
-// TODO: 내 정보 관리, 설정 페이지 완성
 
 const MePageClient = ({ os }: { os: string }) => {
   const user = {
@@ -39,8 +37,6 @@ const MePageClient = ({ os }: { os: string }) => {
     slideIn();
   }, []);
 
-  console.log(user);
-
   return (
     <Main
       os={os}
@@ -56,7 +52,7 @@ const MePageClient = ({ os }: { os: string }) => {
             <Button
               icon={<BsChevronRight />}
               onClick={() => setViewSignin(true)}
-              className="flex-row-reverse justify-between active:scale-90 px-0 text-primary"
+              className="flex-row-reverse justify-between active:scale-90 px-0 text-primary dark:text-primary bg-transparent dark:bg-transparent"
               appearance="borderless"
               clickAction
               fullWidth
@@ -79,16 +75,16 @@ const MePageClient = ({ os }: { os: string }) => {
 
       {/* 내 정보, 설정 */}
       <Section>
-        <div className="relative shadow-full rounded p-1 flex">
+        <div className="relative shadow-full rounded p-1 flex dark:border dark:border-solid dark:border-grey-dark">
           <button
-            className="w-1/2 text-center active:bg-grey-light p-1 rounded"
+            className="w-1/2 text-center active:bg-grey-light p-1 rounded dark:active:bg-grey-dark"
             onClick={() => setViewMyInfo(true)}
           >
             내 정보 관리
           </button>
           <div className="mx-3 w-[0.5px] bg-[#ddd]" />
           <button
-            className="w-1/2 text-center active:bg-grey-light p-1 rounded"
+            className="w-1/2 text-center active:bg-grey-light p-1 rounded dark:active:bg-grey-dark"
             onClick={() => setViewConfig(true)}
           >
             설정
@@ -99,7 +95,7 @@ const MePageClient = ({ os }: { os: string }) => {
       {/* 유저 등급 */}
       {user && (
         <Section>
-          <div className="flex justify-center items-center p-4 bg-white shadow-full">
+          <div className="flex justify-center items-center p-4 bg-white shadow-full rounded dark:border dark:border-solid dark:border-grey-dark dark:bg-black">
             <div className="flex flex-col justify-center items-center relative w-2/5">
               <div className="w-20 mb-2">
                 <img src="/ranking1.png" alt="등급" />
@@ -148,7 +144,7 @@ const IconLinkButton = ({
 }: React.PropsWithChildren<{ icon: React.ReactElement }>) => {
   return (
     <Button
-      className="px-4 py-2 flex items-center bg-transparent dark:text-white text-black active:scale-95 active:bg-grey-light"
+      className="px-4 py-2 flex items-center bg-transparent dark:text-white text-black active:scale-95 active:bg-grey-light dark:bg-black"
       fullWidth
       clickAction
     >

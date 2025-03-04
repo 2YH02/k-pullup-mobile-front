@@ -41,7 +41,7 @@ const MyInfo = ({ os = "Windows", close }: MyInfoProps) => {
       )}
 
       <Section className="pt-10">
-        <div className="shadow-full rounded-md p-6 flex flex-col items-center justify-center">
+        <div className="shadow-full rounded-md p-6 flex flex-col items-center justify-center dark:border dark:border-solid dark:border-grey-dark">
           {viewEditNameInput && (
             <div>
               <Input
@@ -51,7 +51,7 @@ const MyInfo = ({ os = "Windows", close }: MyInfoProps) => {
               />
               <div className="flex justify-center items-center gap-2 mt-2">
                 <Button
-                  className="w-1/2 border-primary"
+                  className="w-1/2 border-primary dark:bg-transparent dark:border-white dark:text-white"
                   appearance="outlined"
                   size="sm"
                   onClick={() => setViewEditNameInput(false)}
@@ -79,6 +79,7 @@ const MyInfo = ({ os = "Windows", close }: MyInfoProps) => {
               <div className="shrink-0">
                 <Button
                   icon={<BsPencilSquare />}
+                  className="dark:bg-transparent dark:text-white"
                   appearance="borderless"
                   onClick={() => setViewEditNameInput(true)}
                   clickAction
@@ -92,7 +93,7 @@ const MyInfo = ({ os = "Windows", close }: MyInfoProps) => {
       </Section>
 
       <Section title="개인 정보">
-        <div className="shadow-full rounded-md p-6">
+        <div className="shadow-full rounded-md p-6 dark:border dark:border-solid dark:border-grey-dark">
           <div className="flex items-center">
             <span className="w-1/4 shrink-0">이메일</span>
             <span className="grow truncate">{user.email}</span>
@@ -103,6 +104,7 @@ const MyInfo = ({ os = "Windows", close }: MyInfoProps) => {
             <div className="shrink-0">
               <Button
                 icon={<BsPencilSquare />}
+                className="dark:bg-transparent dark:text-white"
                 appearance="borderless"
                 onClick={() => setViewResetPasswordPage(true)}
                 clickAction
