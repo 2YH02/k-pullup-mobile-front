@@ -4,9 +4,11 @@ import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
 import NotFoundImage from "@/components/not-found-image/not-found-image";
 import Section from "@/components/section/section";
 import PinIcon from "@/icons/pin-icon";
+import useSearchStore from "@/store/use-search-store";
 import { type KakaoPlace } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
 import { useEffect, useState } from "react";
+import { BsTrash3 } from "react-icons/bs";
 
 const SearchResult = ({
   os = "Windows",
@@ -19,6 +21,8 @@ const SearchResult = ({
   moveMap: ({ lat, lng }: { lat: number; lng: number }) => void;
   close: VoidFunction;
 }) => {
+  const { addSearch, searches, clearSearches, removeItem } = useSearchStore();
+  
   const [result, setResult] = useState<KakaoPlace[]>([]);
   const [searchStatus, setSearchStatus] = useState<null | string>(null);
 
@@ -63,7 +67,35 @@ const SearchResult = ({
         )}
         withDimmed={false}
       >
-        <Section>검색 기록</Section>
+        {searches.length > 0 && (
+          <>
+            <Section
+              className="pb-0"
+              title="지도 이동 기록"
+              subTitle="목록 전체 삭제"
+              subTitleClick={clearSearches}
+            />
+            <div>
+              {searches.map((item) => {
+                return (
+                  <ListItem
+                    key={`${item.lat} ${item.lat} ${item.address_name}`}
+                    address={item.address_name}
+                    place={item.place_name}
+                    lat={item.lat}
+                    lng={item.lng}
+                    close={close}
+                    moveMap={moveMap}
+                    icon={<BsTrash3 color="#777" />}
+                    iconClick={() => {
+                      removeItem(item.address_name);
+                    }}
+                  />
+                );
+              })}
+            </div>
+          </>
+        )}
       </BottomSheet>
     );
   }
@@ -94,29 +126,77 @@ const SearchResult = ({
     >
       {result.map((item) => {
         return (
-          <div key={item.id} className="px-4 active:bg-grey-light">
-            <button
-              className="flex items-center w-full py-1 text-left active:scale-95 border-b border-solid border-grey-light duration-100"
-              onClick={() => {
-                moveMap({ lat: Number(item.y), lng: Number(item.x) });
-                close();
-              }}
-            >
-              <div className="shrink-0 max-w-[90%]">
-                <div className="font-bold break-words">{item.place_name}</div>
-                <div className="text-xs text-grey break-words">
-                  {item.address_name}
-                </div>
-              </div>
-              <div className="grow" />
-              <div className="shrink-0">
-                <PinIcon />
-              </div>
-            </button>
-          </div>
+          <ListItem
+            key={item.id}
+            address={item.address_name}
+            place={item.place_name}
+            lat={Number(item.y)}
+            lng={Number(item.x)}
+            close={close}
+            moveMap={moveMap}
+            icon={<PinIcon />}
+            addSearch={() => {
+              addSearch({
+                lat: Number(item.y),
+                lng: Number(item.x),
+                address_name: item.address_name,
+                place_name: item.place_name,
+              });
+            }}
+          />
         );
       })}
     </BottomSheet>
+  );
+};
+
+const ListItem = ({
+  address,
+  lat,
+  lng,
+  place,
+  icon,
+  addSearch,
+  moveMap,
+  close,
+  iconClick,
+}: {
+  address: string;
+  lat: number;
+  lng: number;
+  place: string;
+  icon: React.ReactElement;
+  moveMap: ({ lat, lng }: { lat: number; lng: number }) => void;
+  addSearch?: VoidFunction;
+  close: VoidFunction;
+  iconClick?: VoidFunction;
+}) => {
+  return (
+    <div className="px-4 active:bg-grey-light">
+      <button
+        className="flex items-center w-full py-1 text-left border-b border-solid border-grey-light duration-100"
+        onClick={() => {
+          if (addSearch) addSearch();
+          moveMap({ lat, lng });
+          close();
+        }}
+      >
+        <div className="shrink-0 max-w-[90%]">
+          <div className="font-bold break-words">{place}</div>
+          <div className="text-xs text-grey break-words">{address}</div>
+        </div>
+        <div className="grow" />
+        <div
+          className="shrink-0"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (iconClick) iconClick();
+          }}
+        >
+          {icon}
+        </div>
+      </button>
+    </div>
   );
 };
 
