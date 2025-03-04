@@ -3,7 +3,7 @@
 import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
 import NotFoundImage from "@/components/not-found-image/not-found-image";
 import PinIcon from "@/icons/pin-icon";
-import { KakaoPagination, type KakaoPlace } from "@/types/kakao-map.types";
+import { type KakaoPlace } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
 import { useEffect, useState } from "react";
 
@@ -26,12 +26,11 @@ const SearchResult = ({
 
     setSearchStatus(null);
 
-    let ps = new window.kakao.maps.services.Places();
+    const ps = new window.kakao.maps.services.Places();
 
     const placesSearchCB = (
       data: KakaoPlace[],
       status: string,
-      _: KakaoPagination
     ) => {
       if (status === window.kakao.maps.services.Status.OK) {
         setSearchStatus(null);

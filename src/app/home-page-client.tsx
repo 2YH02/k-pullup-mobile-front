@@ -2,8 +2,10 @@
 
 import MarkerDetail from "@/app/layout/marker-detail";
 import Input from "@/components/input/input";
+import useMapControl from "@/hooks/use-map-control";
 import usePageTransition from "@/hooks/use-page-transition";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
+import { useMapStore } from "@/store/use-map-store";
 import { useSessionStore } from "@/store/use-session-store";
 import cn from "@/utils/cn";
 import wait from "@/utils/wait";
@@ -119,6 +121,9 @@ const mockData = [
 ];
 
 const HomePageClient = ({ os }: { os: string }) => {
+  const { map } = useMapStore();
+  const { center } = useMapControl(map);
+
   const { show, hide } = useBottomSheetStore();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -138,8 +143,6 @@ const HomePageClient = ({ os }: { os: string }) => {
   const [viewMarkerDetail, setViewMarkerDetail] = useState(false);
 
   const [viewSearch, setViewSearch] = useState(false);
-
-  const [curLocation, setCurLocation] = useState("계룡시 엄사면 엄사중앙로 66");
 
   useEffect(() => {
     if (isFirstVisit) return;
@@ -250,11 +253,14 @@ const HomePageClient = ({ os }: { os: string }) => {
           viewAroundSearchList ? "bottom-52" : ""
         )}
       >
-        <AroundSearchButton
-          address={curLocation}
-          onClick={aroundSearch}
-          viewAroundSearchList={viewAroundSearchList}
-        />
+        {center.addr !== "" && center.addr !== "위치 제공 안됨" && (
+          <AroundSearchButton
+            address={center.addr}
+            onClick={aroundSearch}
+            viewAroundSearchList={viewAroundSearchList}
+          />
+        )}
+
         <GpsButton />
       </div>
 

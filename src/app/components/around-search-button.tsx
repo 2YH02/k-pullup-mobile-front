@@ -28,8 +28,10 @@ const AroundSearchButton = ({
         />
       }
     >
-      <span className="text-primary-dark">{address}</span>
-      <span> 주변 검색</span>
+      <div className="flex flex-wrap justify-center items-center">
+        <span className="text-primary-dark mr-1">{address}</span>
+        <span> 주변 검색</span>
+      </div>
     </Button>
   );
 };
