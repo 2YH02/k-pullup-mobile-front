@@ -12,6 +12,10 @@ import { useEffect, useState } from "react";
 import { BsChevronRight } from "react-icons/bs";
 import { useSessionStore } from "../../store/use-session-store";
 import Signin from "../layout/signin";
+import Config from "./layout/config";
+import MyInfo from "./layout/my-info";
+// TODO: 마이페이지, 로그인, 회원가입 다크모드 적용
+// TODO: 내 정보 관리, 설정 페이지 완성
 
 const MePageClient = ({ os }: { os: string }) => {
   const user = {
@@ -27,6 +31,8 @@ const MePageClient = ({ os }: { os: string }) => {
   const { slideIn } = usePageTransition();
 
   const [viewSingin, setViewSignin] = useState(false);
+  const [viewMyInfo, setViewMyInfo] = useState(false);
+  const [viewConfig, setViewConfig] = useState(false);
 
   useEffect(() => {
     if (isFirstVisit) return;
@@ -41,6 +47,8 @@ const MePageClient = ({ os }: { os: string }) => {
       headerTitle={!user ? ["오늘도 와주셔서", "감사해요!"] : undefined}
     >
       {viewSingin && <Signin os={os} close={() => setViewSignin(false)} />}
+      {viewMyInfo && <MyInfo os={os} close={() => setViewMyInfo(false)} />}
+      {viewConfig && <Config os={os} close={() => setViewConfig(false)} />}
 
       {!user ? (
         <Section className="pb-0">
@@ -72,11 +80,17 @@ const MePageClient = ({ os }: { os: string }) => {
       {/* 내 정보, 설정 */}
       <Section>
         <div className="relative shadow-full rounded p-1 flex">
-          <button className="w-1/2 text-center active:bg-grey-light p-1 rounded">
+          <button
+            className="w-1/2 text-center active:bg-grey-light p-1 rounded"
+            onClick={() => setViewMyInfo(true)}
+          >
             내 정보 관리
           </button>
           <div className="mx-3 w-[0.5px] bg-[#ddd]" />
-          <button className="w-1/2 text-center active:bg-grey-light p-1 rounded">
+          <button
+            className="w-1/2 text-center active:bg-grey-light p-1 rounded"
+            onClick={() => setViewConfig(true)}
+          >
             설정
           </button>
         </div>
@@ -105,6 +119,7 @@ const MePageClient = ({ os }: { os: string }) => {
         </Section>
       )}
 
+      {/* 버튼 링크 */}
       {user && (
         <div className="mt-4">
           <IconLinkButton icon={<BookmarkIcon size={30} />}>
@@ -122,7 +137,7 @@ const MePageClient = ({ os }: { os: string }) => {
         </div>
       )}
 
-      <div className="pb-10"/>
+      <div className="pb-10" />
     </Main>
   );
 };

@@ -24,7 +24,7 @@ const borderVariants = {
 };
 
 const sizeVariants = {
-  sm: "px-3 py-2",
+  sm: "px-3 py-1",
   md: "px-6 py-2",
   lg: "px-10 py-4",
 };
