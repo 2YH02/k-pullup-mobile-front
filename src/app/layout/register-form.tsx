@@ -127,7 +127,7 @@ const RegisterForm = ({ initPosition, os = "Windows" }: RegisterFormProps) => {
           "absolute bottom-0 left-0 w-full bg-white dark:bg-black z-40 px-4 pb-20 rounded-t-3xl shadow-full",
           step !== 0
             ? os === "iOS"
-              ? "h-full rounded-none pt-20"
+              ? "h-full rounded-none pt-16"
               : "h-full rounded-none pt-4"
             : "h-auto rounded-t-3xl pt-4"
         )}
@@ -136,7 +136,7 @@ const RegisterForm = ({ initPosition, os = "Windows" }: RegisterFormProps) => {
         {step === 1 && (
           <div>
             <div className="font-bold mb-4 mt-3 text-sm text-primary">
-              <div>정확한 징보를 입력해 주시면,</div>
+              <div>정확한 정보를 입력해 주시면,</div>
               <div>다른 사람이 해당 위치를 찾는 데 큰 도움이 됩니다!</div>
             </div>
             <Description
@@ -167,6 +167,7 @@ const RegisterForm = ({ initPosition, os = "Windows" }: RegisterFormProps) => {
         withSecondButton={step !== 0}
         secondButtonTitle="이전"
         secondButtonClick={prevStep}
+        os={os}
       >
         {step === 1 ? "등록" : "다음"}
       </BottomFixedButton>
