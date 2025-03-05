@@ -4,12 +4,17 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { BsPlusLg, BsX } from "react-icons/bs";
 
-type FileData = {
+export type FileData = {
   file: File;
   previewUrl: string;
 };
 
-const UploadImageForm = () => {
+interface UploadImageFormProps {
+  uploadFile?: (file: FileData) => void;
+  deleteFile?: (id: string) => void;
+}
+
+const UploadImageForm = ({ uploadFile, deleteFile }: UploadImageFormProps) => {
   const { toast } = useToast();
   const { handleImageChange, file, previewUrl, isError } = useImageLoading();
 
@@ -30,6 +35,7 @@ const UploadImageForm = () => {
       previewUrl: previewUrl,
     };
 
+    if (uploadFile) uploadFile(data);
     setFiles((prev) => [...prev, data]);
   }, [file]);
 
@@ -39,16 +45,18 @@ const UploadImageForm = () => {
 
   const deleteImage = (id: string) => {
     const filtered = files.filter((file) => file.previewUrl !== id);
+
+    if (deleteFile) deleteFile(id);
     setFiles(filtered);
   };
 
   return (
     <div>
       <div className="flex justify-start gap-4 flex-wrap">
-        {files.map((file) => {
+        {files.map((file, i) => {
           return (
             <div
-              key={file.previewUrl}
+              key={`${file.previewUrl} ${file.file} ${i}`}
               className="relative rounded-lg w-16 h-16 shadow-sm dark:border border-solid border-grey-dark"
             >
               <button

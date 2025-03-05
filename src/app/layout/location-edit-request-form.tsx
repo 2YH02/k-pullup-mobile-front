@@ -5,12 +5,12 @@ import NumberInput from "@/components/number-input/number-input";
 import Section from "@/components/section/section";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Textarea from "@/components/textarea/textarea";
+import WarningText from "@/components/warning-text/warning-text";
 import { type KakaoMap } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
 import { useEffect, useRef, useState } from "react";
-import { BsExclamationTriangle } from "react-icons/bs";
 import { MarkerDetailExtras } from "../pullup/[id]/pullup-page-client";
-import UploadImageForm from "./upload-image-form";
+import UploadImageForm, { type FileData } from "./upload-image-form";
 
 interface Props {
   os?: string;
@@ -46,6 +46,8 @@ const LocationEditRequestForm = ({
     lng: null,
     addr: null,
   });
+
+  const [files, setFiles] = useState<FileData[]>([]);
 
   const handleDescriptionChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>
@@ -100,6 +102,17 @@ const LocationEditRequestForm = ({
     setCurLocation({ ...prevLocation });
   };
 
+  const uploadFile = (files: FileData) => {
+    setFiles((prev) => [...prev, files]);
+  };
+  const deleteFile = (id: string) => {
+    setFiles((prev) => {
+      const filtered = prev.filter((photo) => photo.previewUrl !== id);
+
+      return filtered;
+    });
+  };
+
   return (
     <div>
       {/* 위치 수정 지도 */}
@@ -147,7 +160,7 @@ const LocationEditRequestForm = ({
         </Section>
 
         <Section title="새로운 이미지를 추가해주세요. (필수!)">
-          <UploadImageForm />
+          <UploadImageForm uploadFile={uploadFile} deleteFile={deleteFile} />
         </Section>
 
         <Section title="위치가 정확하지 않나요?">
@@ -166,15 +179,10 @@ const LocationEditRequestForm = ({
           >
             위치 변경하기
           </Button>
-          <div className="text-sm text-yellow dark:text-yellow-dark flex items-start">
-            <div className="mr-2 mt-1">
-              <BsExclamationTriangle />
-            </div>
-            <div>
-              지도에서 위치를 수정한 후 꼭{" "}
-              <span className="font-bold">위치 적용</span> 버튼을 눌러주세요!
-            </div>
-          </div>
+          <WarningText>
+            지도에서 위치를 수정한 후 꼭{" "}
+            <span className="font-bold">위치 적용</span> 버튼을 눌러주세요!
+          </WarningText>
         </Section>
 
         <Section title="기구 개수 수정">
@@ -204,7 +212,19 @@ const LocationEditRequestForm = ({
 
         <BottomFixedButton
           os={os}
-          onClick={viewChangeLocationMap ? changeCurLocation : () => {}}
+          onClick={
+            viewChangeLocationMap
+              ? changeCurLocation
+              : () => {
+                  console.log({
+                    decription: descriptionValue,
+                    photos: files,
+                    curLocation: curLocation,
+                    pullupBarCount,
+                    parallelBarCount,
+                  });
+                }
+          }
         >
           {viewChangeLocationMap ? "위치 적용" : "수정 요청"}
         </BottomFixedButton>
@@ -213,7 +233,7 @@ const LocationEditRequestForm = ({
   );
 };
 
-const ChangeLocationMap = ({
+export const ChangeLocationMap = ({
   lat,
   lng,
   addr,
@@ -247,7 +267,7 @@ const ChangeLocationMap = ({
 
     if (!onDragEnd) return;
 
-    const handleChangeLocationMapIdle = () => {
+    const handleEditRequestMapIdle = () => {
       const position = map.getCenter();
       const lat = position.getLat();
       const lng = position.getLng();
@@ -268,17 +288,13 @@ const ChangeLocationMap = ({
       });
     };
 
-    window.kakao.maps.event.addListener(
-      map,
-      "idle",
-      handleChangeLocationMapIdle
-    );
+    window.kakao.maps.event.addListener(map, "idle", handleEditRequestMapIdle);
 
     return () => {
       window.kakao.maps.event.removeListener(
         map,
         "idle",
-        handleChangeLocationMapIdle
+        handleEditRequestMapIdle
       );
     };
   }, []);

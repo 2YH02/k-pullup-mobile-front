@@ -1,9 +1,10 @@
 "use client";
 
 import usePageTransition from "@/hooks/use-page-transition";
+import useViewRegisterStore from "@/store/use-view-register-store";
 import cn from "@/utils/cn";
 import { usePathname, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BsBarChartLine,
   BsBuilding,
@@ -16,6 +17,15 @@ import { Button } from "../button/button";
 const LINK_LIST = ["/", "/social", "/challenge", "/me"];
 
 const BottomNavigation = ({ os }: { os: string }) => {
+  const { openRegister } = useViewRegisterStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    LINK_LIST.map((link) => {
+      router.prefetch(link);
+    });
+  }, []);
+
   return (
     <div
       className={cn(
@@ -36,6 +46,7 @@ const BottomNavigation = ({ os }: { os: string }) => {
       <div className="flex items-center justify-center">
         <Button
           className="rounded-full p-2 bg-primary dark:bg-primary"
+          onClick={openRegister}
           clickAction
         >
           <BsPlus size={30} />

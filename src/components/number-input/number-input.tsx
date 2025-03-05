@@ -25,7 +25,7 @@ const NumberInput = ({
       />
       <input
         type="number"
-        className="px-1 mx-1 w-16 outline-primary text-center"
+        className="px-1 mx-1 w-16 outline-primary text-center bg-transparent"
         value={value}
         onChange={onChange}
         min={0}

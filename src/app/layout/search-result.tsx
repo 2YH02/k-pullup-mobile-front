@@ -22,7 +22,7 @@ const SearchResult = ({
   close: VoidFunction;
 }) => {
   const { addSearch, searches, clearSearches, removeItem } = useSearchStore();
-  
+
   const [result, setResult] = useState<KakaoPlace[]>([]);
   const [searchStatus, setSearchStatus] = useState<null | string>(null);
 
@@ -172,7 +172,7 @@ const ListItem = ({
   iconClick?: VoidFunction;
 }) => {
   return (
-    <div className="px-4 active:bg-grey-light">
+    <div className="px-4 active:bg-grey-light dark:active:bg-grey-dark">
       <button
         className="flex items-center w-full py-1 text-left border-b border-solid border-grey-light duration-100"
         onClick={() => {

@@ -15,6 +15,8 @@ import AroundSearchButton from "./components/around-search-button";
 import AroundSearchList from "./components/around-search-list";
 import GpsButton from "./components/gps-button";
 import SearchResult from "./layout/search-result";
+import RegisterForm from "./layout/register-form";
+import useViewRegisterStore from "@/store/use-view-register-store";
 
 export type Marker = {
   latitude: number;
@@ -123,6 +125,7 @@ const mockData = [
 const HomePageClient = ({ os }: { os: string }) => {
   const { map } = useMapStore();
   const { center, moveMap } = useMapControl(map);
+  const { isView } = useViewRegisterStore();
 
   const { show, hide } = useBottomSheetStore();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -220,11 +223,19 @@ const HomePageClient = ({ os }: { os: string }) => {
             viewSearch ? (
               <BsChevronLeft size={20} />
             ) : (
-              <BsGeoAlt size={20} className="text-grey-dark" />
+              <BsGeoAlt
+                size={20}
+                className="text-grey-dark dark:text-grey-light"
+              />
             )
           }
           iconRight={
-            !viewSearch && <BsSearch size={20} className="text-grey-dark" />
+            !viewSearch && (
+              <BsSearch
+                size={20}
+                className="text-grey-dark dark:text-grey-light"
+              />
+            )
           }
           className={cn(
             "border-none dark:border-grey dark:bg-black",
@@ -277,6 +288,7 @@ const HomePageClient = ({ os }: { os: string }) => {
         </div>
       )}
 
+      {/* 검색 결과 모달 */}
       <SearchResult
         moveMap={moveMap}
         os={os}
@@ -288,6 +300,13 @@ const HomePageClient = ({ os }: { os: string }) => {
           inputRef.current?.blur();
         }}
       />
+
+      {isView && (
+        <RegisterForm
+          initPosition={{ lat: center.lat, lng: center.lng, addr: center.addr }}
+          os={os}
+        />
+      )}
     </div>
   );
 };
