@@ -175,6 +175,7 @@ const SearchResult = ({
 
       {viewDetail && viewMarkerId.current && (
         <MarkerDetail
+          os={os}
           closeDetail={() => setViewDetail(false)}
           markerId={viewMarkerId.current}
         />
