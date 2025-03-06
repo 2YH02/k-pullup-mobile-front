@@ -58,6 +58,15 @@ const mockDetailData: Marker = {
       thumbnailUrl:
         "https://chulbong-kr.s3.amazonaws.com/markers/5647/645b225c-024d-498b-9239-0a1de203bdb0_thumb.jpeg",
     },
+    {
+      uploadedAt: "2024-06-14T01:43:45Z",
+      photoId: 110,
+      markerId: 5647,
+      photoUrl:
+        "https://chulbong-kr.s3.amazonaws.com/markers/6969/f7c2eb69-72e2-422e-836c-4e3f74cba265.webp",
+      thumbnailUrl:
+        "https://chulbong-kr.s3.amazonaws.com/markers/6969/f7c2eb69-72e2-422e-836c-4e3f74cba265.webp",
+    },
   ],
   username: "감자",
   favCount: 5,

@@ -36,9 +36,6 @@ import Slider from "react-slick";
 import LocationEditRequestForm from "./location-edit-request-form";
 import Moment from "./moment";
 
-// TODO: 이미지 상세 모달 만들기
-// TODO: 회원가입 약관 동의 시트 만들기
-
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 
@@ -130,6 +127,9 @@ const MarkerDetail = ({
 
   const [viewLocationEditForm, setViewLocationEditForm] = useState(false);
 
+  const [viewImageDetail, setViewImageDetail] = useState(false);
+  const [curImageIndex, setCurImageIndex] = useState(0);
+
   // fetch and page active
   useEffect(() => {
     const fetch = async () => {
@@ -191,6 +191,11 @@ const MarkerDetail = ({
     setViewMoment(false);
   };
 
+  const onImageClick = (index: number) => {
+    setCurImageIndex(index);
+    setViewImageDetail(true);
+  };
+
   if (!isLoading && !detailData) return;
 
   return (
@@ -243,6 +248,17 @@ const MarkerDetail = ({
           os={os}
           close={() => setViewLocationEditForm(false)}
           markerData={detailData}
+        />
+      )}
+
+      {/* 이미지 상세 모달 */}
+      {viewImageDetail && (
+        <ImageDetail
+          os={os}
+          close={() => setViewImageDetail(false)}
+          className="z-[33]"
+          images={detailData ? detailData.photos : null}
+          curImageIndex={curImageIndex}
         />
       )}
 
@@ -412,7 +428,10 @@ const MarkerDetail = ({
               subTitle="정보 수정 요청"
               subTitleClick={() => setViewLocationEditForm(true)}
             >
-              <MarkerDetailImages images={detailData.photos} />
+              <MarkerDetailImages
+                images={detailData.photos}
+                onImageClick={onImageClick}
+              />
             </Section>
 
             {/* 리뷰 */}
@@ -518,45 +537,51 @@ const MarkerDetailBadge = ({ children }: React.PropsWithChildren) => {
   );
 };
 
-const MarkerDetailImages = ({ images }: { images: Photo[] | null }) => {
+const MarkerDetailImages = ({
+  images,
+  onImageClick,
+}: {
+  images: Photo[] | null;
+  onImageClick: (index: number) => void;
+}) => {
   if (!images) {
     return <NotFoundImage text="우와, 사진이 하나도 없네요 ㅠㅠ" />;
   }
   return (
     <div className="flex">
-      <div className="w-1/2 h-32 mr-1">
+      <div className="w-1/2 mr-1">
         {images.map((image, index) => {
           if (index % 2 === 1) return;
           return (
             <button
               key={image.photoId}
-              className="relative w-full h-full"
-              onClick={() => {}}
+              className="relative w-full h-32"
+              onClick={() => onImageClick(index)}
             >
               <Image
                 src={image.photoUrl}
                 fill
                 alt="상세"
-                className="rounded-md"
+                className="rounded-md object-cover"
               />
             </button>
           );
         })}
       </div>
-      <div className="w-1/2 h-32 ml-1">
+      <div className="w-1/2 ml-1">
         {images.map((image, index) => {
           if (index % 2 !== 1) return;
           return (
             <button
               key={image.photoId}
-              className="relative w-full h-full"
-              onClick={() => {}}
+              className="relative w-full h-32"
+              onClick={() => onImageClick(index)}
             >
               <Image
                 src={image.photoUrl}
                 fill
                 alt="상세"
-                className="rounded-md"
+                className="rounded-md object-cover"
               />
             </button>
           );
@@ -1044,6 +1069,63 @@ const StarIcon = () => {
         </g>
       </g>
     </svg>
+  );
+};
+
+const ImageDetail = ({
+  os = "Windows",
+  close,
+  curImageIndex,
+  images,
+  className,
+}: {
+  os?: string;
+  close: VoidFunction;
+  images: Photo[] | null;
+  curImageIndex: number;
+  className?: React.ComponentProps<"div">["className"];
+}) => {
+  const slideSettings = {
+    accessibility: false,
+    dots: false,
+    infinite: true,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    swipe: true,
+    autoplay: false,
+    autoplaySpeed: 3000,
+    adaptiveHeight: true,
+    initialSlide: curImageIndex,
+  };
+
+  if (!images) return;
+
+  return (
+    <SwipeClosePage
+      os={os}
+      close={close}
+      className={cn(
+        "bg-[rgba(0,0,0,0.8)] dark:bg-[rgba(0,0,0,0.8)]",
+        className
+      )}
+    >
+      <ModalCloseButton os={os} onClick={close} />
+      <div className="h-full flex items-center justify-center">
+        <div className="relative w-full overflow-hidden">
+          <Slider {...slideSettings}>
+            {images.map((item, index) => (
+              <div key={item.photoId} className="w-full focus:outline-none">
+                <img
+                  src={item.photoUrl}
+                  alt={`Slide ${index + 1}`}
+                  className="w-full h-full object-cover block"
+                />
+              </div>
+            ))}
+          </Slider>
+        </div>
+      </div>
+    </SwipeClosePage>
   );
 };
 
