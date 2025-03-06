@@ -237,8 +237,8 @@ const extractMarkedText = (
   input: string
 ): { marked: string[]; unmarked: string } => {
   const markRegex = /<mark>(.*?)<\/mark>/g;
-  let marked: string[] = [];
-  let unmarked = input.replace(markRegex, (_, p1) => {
+  const marked: string[] = [];
+  const unmarked = input.replace(markRegex, (_, p1) => {
     marked.push(p1);
     return "";
   });

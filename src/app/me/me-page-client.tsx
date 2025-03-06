@@ -8,6 +8,7 @@ import BookmarkIcon from "@/icons/bookmark-icon";
 import MylocateIcon from "@/icons/mylocation-icon";
 import ProposalIcon from "@/icons/proposal-icon";
 import ReceivedIcon from "@/icons/received-icon";
+import { type User, useUserStore } from "@/store/use-user-store";
 import { useEffect, useState } from "react";
 import { BsChevronRight } from "react-icons/bs";
 import { useSessionStore } from "../../store/use-session-store";
@@ -15,15 +16,17 @@ import Signin from "../layout/signin";
 import Config from "./layout/config";
 import MyInfo from "./layout/my-info";
 
+const userMockData: User = {
+  username: "도토리",
+  email: "yonghuni484@gmail.com",
+  provider: "kakao",
+  contributionLevel: "초보 운동자",
+  userId: 50,
+  contributionCount: 70,
+};
+
 const MePageClient = ({ os }: { os: string }) => {
-  const user = {
-    username: "도토리",
-    email: "yonghuni484@gmail.com",
-    provider: "kakao",
-    contributionLevel: "초보 운동자",
-    userId: 50,
-    contributionCount: 70,
-  };
+  const { user, setUser, logout } = useUserStore();
 
   const { isFirstVisit } = useSessionStore();
   const { slideIn } = usePageTransition();
@@ -132,6 +135,21 @@ const MePageClient = ({ os }: { os: string }) => {
           </IconLinkButton>
         </div>
       )}
+
+      {/* 로그인 로그아웃 (임시) */}
+      <Section className="mt-5 mb-5">
+        <div>테스트 용</div>
+        <Button
+          className="bg-primary"
+          onClick={() => {
+            if (!user) setUser(userMockData);
+            else logout();
+          }}
+          clickAction
+        >
+          {user ? "로그아웃" : "로그인"}
+        </Button>
+      </Section>
 
       <div className="pb-10" />
     </Main>

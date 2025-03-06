@@ -1,11 +1,14 @@
+import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
 import { Button } from "@/components/button/button";
 import Input from "@/components/input/input";
 import Section from "@/components/section/section";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import useImagePreload from "@/hooks/use-image-preload";
+import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import TermsCheckboxForm from "../signin/layout/terms-checkbox-form";
 import ResetPasswordForm from "./reset-password-form";
 import Signup from "./signup";
 
@@ -101,6 +104,8 @@ const EmailSigninForm = ({
   close: VoidFunction;
   os?: string;
 }) => {
+  const { show, hide } = useBottomSheetStore();
+
   const [emailValue, setEmailValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
 
@@ -124,9 +129,11 @@ const EmailSigninForm = ({
       {viewEmailSignupPage && (
         <Signup os={os} close={() => setViewEmailSignupPage(false)} />
       )}
+
       {viewResetPasswordPage && (
         <ResetPasswordForm close={() => setViewResetPasswordPage(false)} />
       )}
+
       <Section className="mt-10">
         <div className=" h-[90px]">
           <Input
@@ -156,10 +163,7 @@ const EmailSigninForm = ({
       <Section>
         <div className="text-sm">
           <span className="font-bold mr-1">계정이 없으신가요?</span>
-          <button
-            className="active:underline"
-            onClick={() => setViewEmailSignupPage(true)}
-          >
+          <button className="active:underline" onClick={() => show("terms")}>
             이메일로 회원가입하기
           </button>
         </div>
@@ -173,6 +177,16 @@ const EmailSigninForm = ({
           </button>
         </div>
       </Section>
+
+      <BottomSheet id="terms" title="약관 동의">
+        <TermsCheckboxForm
+          next={() => {
+            hide();
+            setViewEmailSignupPage(true);
+          }}
+          os={os}
+        />
+      </BottomSheet>
     </SwipeClosePage>
   );
 };
