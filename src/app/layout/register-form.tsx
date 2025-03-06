@@ -7,8 +7,9 @@ import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Textarea from "@/components/textarea/textarea";
 import WarningText from "@/components/warning-text/warning-text";
 import useViewRegisterStore from "@/store/use-view-register-store";
+import { type KakaoMap } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChangeLocationMap } from "./location-edit-request-form";
 import UploadImageForm, { type FileData } from "./upload-image-form";
 
@@ -124,21 +125,44 @@ const RegisterForm = ({ initPosition, os = "Windows" }: RegisterFormProps) => {
 
       <div
         className={cn(
-          "absolute bottom-0 left-0 w-full bg-white dark:bg-black z-40 px-4 pb-20 rounded-t-3xl shadow-full",
+          "absolute bottom-0 left-0 w-full bg-white dark:bg-black z-40 px-4 pb-20 rounded-t-3xl",
           step !== 0
             ? os === "iOS"
-              ? "h-full rounded-none pt-16"
-              : "h-full rounded-none pt-4"
-            : "h-auto rounded-t-3xl pt-4"
+              ? "h-full rounded-none pt-16 shadow-none"
+              : "h-full rounded-none pt-4 shadow-none"
+            : "h-auto rounded-t-3xl pt-4 shadow-full"
         )}
       >
         {step === 0 && <SelectLocation />}
         {step === 1 && (
-          <div>
+          <div className="pb-24">
             <div className="font-bold mb-4 mt-3 text-sm text-primary">
               <div>정확한 정보를 입력해 주시면,</div>
               <div>다른 사람이 해당 위치를 찾는 데 큰 도움이 됩니다!</div>
             </div>
+
+            {/* 지도 */}
+            <div className="mb-7">
+              <div className="h-48 mb-1">
+                <Map
+                  lat={createMarkerData.latitude || initPosition.lat}
+                  lng={createMarkerData.longitude || initPosition.lng}
+                />
+              </div>
+              <div>
+                <span className="mr-4">
+                  위도 :{" "}
+                  {Number(createMarkerData.latitude?.toFixed(5)) ||
+                    Number(initPosition.lat.toFixed(5))}
+                </span>
+                <span>
+                  경도 :{" "}
+                  {Number(createMarkerData.longitude?.toFixed(5)) ||
+                    Number(initPosition.lng.toFixed(5))}
+                </span>
+              </div>
+            </div>
+
             <Description
               value={createMarkerData.description}
               onChage={handleDescriptionChange}
@@ -161,7 +185,6 @@ const RegisterForm = ({ initPosition, os = "Windows" }: RegisterFormProps) => {
           </div>
         )}
       </div>
-
       <BottomFixedButton
         onClick={handleRegisterClick}
         withSecondButton={step !== 0}
@@ -279,6 +302,50 @@ const Description = ({
         placeholder="해당 위치에 대한 설명을 40자 이내로 작성해주세요."
       />
     </div>
+  );
+};
+
+const Map = ({ lat, lng }: { lat: number; lng: number }) => {
+  const mapRef = useRef<KakaoMap>(null);
+
+  useEffect(() => {
+    if (mapRef.current) return;
+
+    const mapContainer = document.getElementById("register-detail-map");
+    const centerPosition = new window.kakao.maps.LatLng(lat, lng);
+    const mapOption = {
+      center: centerPosition,
+      draggable: false,
+      level: 3,
+    };
+
+    const map = new window.kakao.maps.Map(mapContainer, mapOption);
+
+    const imageSize = new window.kakao.maps.Size(35, 50);
+    const imageOption = { offset: new window.kakao.maps.Point(18, 45) };
+    const imageUrl = "/active-selected.png";
+
+    const pin = new window.kakao.maps.MarkerImage(
+      imageUrl,
+      imageSize,
+      imageOption
+    );
+
+    const marker = new window.kakao.maps.Marker({
+      position: centerPosition,
+      image: pin,
+    });
+
+    marker.setMap(map);
+
+    mapRef.current = map;
+  }, []);
+
+  return (
+    <div
+      id="register-detail-map"
+      className={cn("relative w-full h-full z-10")}
+    />
   );
 };
 

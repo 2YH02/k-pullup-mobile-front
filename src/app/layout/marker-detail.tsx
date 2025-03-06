@@ -36,6 +36,9 @@ import Slider from "react-slick";
 import LocationEditRequestForm from "./location-edit-request-form";
 import Moment from "./moment";
 
+// TODO: 이미지 상세 모달 만들기
+// TODO: 회원가입 약관 동의 시트 만들기
+
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 
