@@ -207,7 +207,7 @@ const HomePageClient = ({ os }: { os: string }) => {
       <div
         className={cn(
           "relative",
-          viewSearch ? "w-full z-[1000]" : "z-20",
+          viewSearch ? "w-full z-30" : "z-20",
           os === "iOS" && !viewSearch ? "pt-10" : ""
         )}
       >
@@ -289,17 +289,19 @@ const HomePageClient = ({ os }: { os: string }) => {
       )}
 
       {/* 검색 결과 모달 */}
-      <SearchResult
-        moveMap={moveMap}
-        os={os}
-        value={searchValue}
-        close={() => {
-          setViewSearch(false);
-          hide();
-          setSearchValue("");
-          inputRef.current?.blur();
-        }}
-      />
+      {viewSearch && (
+        <SearchResult
+          moveMap={moveMap}
+          os={os}
+          value={searchValue}
+          close={() => {
+            setViewSearch(false);
+            hide();
+            setSearchValue("");
+            inputRef.current?.blur();
+          }}
+        />
+      )}
 
       {isView && (
         <RegisterForm

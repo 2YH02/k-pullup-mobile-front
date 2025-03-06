@@ -1,14 +1,16 @@
 "use client";
 
-import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
 import NotFoundImage from "@/components/not-found-image/not-found-image";
 import Section from "@/components/section/section";
+import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
+import useMarkerSearch from "@/hooks/api/use-marker-search";
 import PinIcon from "@/icons/pin-icon";
 import useSearchStore from "@/store/use-search-store";
 import { type KakaoPlace } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
-import { useEffect, useState } from "react";
-import { BsTrash3 } from "react-icons/bs";
+import { useEffect, useRef, useState } from "react";
+import { BsPinMapFill, BsXLg } from "react-icons/bs";
+import MarkerDetail from "./marker-detail";
 
 const SearchResult = ({
   os = "Windows",
@@ -22,9 +24,13 @@ const SearchResult = ({
   close: VoidFunction;
 }) => {
   const { addSearch, searches, clearSearches, removeItem } = useSearchStore();
+  const { data } = useMarkerSearch(value);
 
   const [result, setResult] = useState<KakaoPlace[]>([]);
   const [searchStatus, setSearchStatus] = useState<null | string>(null);
+
+  const [viewDetail, setViewDetail] = useState(false);
+  const viewMarkerId = useRef<number | null>(null);
 
   useEffect(() => {
     if (value.length <= 0) {
@@ -57,17 +63,15 @@ const SearchResult = ({
     return () => clearTimeout(handler);
   }, [value]);
 
-  if (value.length === 0) {
-    return (
-      <BottomSheet
-        id="search"
-        className={cn(
-          "pb-10 h-full rounded-none px-0 overflow-auto",
-          os === "iOS" ? "pt-[88px]" : "pt-12"
-        )}
-        withDimmed={false}
+  const isDataInvalid = data?.error || data?.markers.length === 0 || !data;
+
+  return (
+    <div>
+      <SwipeClosePage
+        className={cn("pb-10 z-20", os === "iOS" ? "pt-[88px]" : "pt-12")}
+        close={close}
       >
-        {searches.length > 0 && (
+        {value.length === 0 && searches.length > 0 && (
           <>
             <Section
               className="pb-0"
@@ -86,7 +90,7 @@ const SearchResult = ({
                     lng={item.lng}
                     close={close}
                     moveMap={moveMap}
-                    icon={<BsTrash3 color="#777" />}
+                    icon={<BsXLg color="#777" />}
                     iconClick={() => {
                       removeItem(item.address_name);
                     }}
@@ -96,57 +100,86 @@ const SearchResult = ({
             </div>
           </>
         )}
-      </BottomSheet>
-    );
-  }
 
-  if (searchStatus) {
-    return (
-      <BottomSheet
-        id="search"
-        className={cn(
-          "pb-10 h-full rounded-none px-0 overflow-auto duration-0",
-          os === "iOS" ? "pt-32" : "pt-24"
+        {searchStatus && isDataInvalid && (
+          <div className="mt-10">
+            <NotFoundImage text={searchStatus} size="md" />
+          </div>
         )}
-        withDimmed={false}
-      >
-        <NotFoundImage text={searchStatus} size="md" />
-      </BottomSheet>
-    );
-  }
 
-  return (
-    <BottomSheet
-      id="search"
-      className={cn(
-        "pb-10 h-full rounded-none px-0 overflow-auto",
-        os === "iOS" ? "pt-[88px]" : "pt-12"
+        {/* 마커 위치 검색 결과 */}
+        {!isDataInvalid && (
+          <div className="mb-5">
+            <div className="px-4 font-bold mb-1 text-lg">철봉 위치</div>
+            {data?.markers.map((marker) => {
+              return (
+                <div
+                  key={marker.markerId}
+                  className="px-4 bg-primary-light active:bg-opacity-60 dark:active:bg-opacity-40 bg-opacity-20 dark:bg-opacity-10"
+                >
+                  <button
+                    className="flex items-center w-full py-2 text-left border-b border-solid border-grey-light duration-100"
+                    onClick={() => {
+                      viewMarkerId.current = marker.markerId;
+                      setViewDetail(true);
+                    }}
+                  >
+                    <div className="shrink-0 max-w-[90%]">
+                      <div className="font-bold break-words">
+                        {highlightText(
+                          removeMarkTags(marker.address),
+                          extractMarkedText(marker.address).marked
+                        )}
+                      </div>
+                    </div>
+                    <div className="grow" />
+                    <div className="shrink-0 w-[10%] flex justify-center items-center">
+                      <PinIcon />
+                    </div>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* 지도 이동 검색 결과 */}
+        {result.length > 0 && !searchStatus && (
+          <div>
+            <div className="px-4 font-bold mb-1 text-lg">지도 이동</div>
+            {result.map((item) => {
+              return (
+                <ListItem
+                  key={item.id}
+                  address={item.address_name}
+                  place={item.place_name}
+                  lat={Number(item.y)}
+                  lng={Number(item.x)}
+                  close={close}
+                  moveMap={moveMap}
+                  icon={<BsPinMapFill className="fill-primary" />}
+                  addSearch={() => {
+                    addSearch({
+                      lat: Number(item.y),
+                      lng: Number(item.x),
+                      address_name: item.address_name,
+                      place_name: item.place_name,
+                    });
+                  }}
+                />
+              );
+            })}
+          </div>
+        )}
+      </SwipeClosePage>
+
+      {viewDetail && viewMarkerId.current && (
+        <MarkerDetail
+          closeDetail={() => setViewDetail(false)}
+          markerId={viewMarkerId.current}
+        />
       )}
-      withDimmed={false}
-    >
-      {result.map((item) => {
-        return (
-          <ListItem
-            key={item.id}
-            address={item.address_name}
-            place={item.place_name}
-            lat={Number(item.y)}
-            lng={Number(item.x)}
-            close={close}
-            moveMap={moveMap}
-            icon={<PinIcon />}
-            addSearch={() => {
-              addSearch({
-                lat: Number(item.y),
-                lng: Number(item.x),
-                address_name: item.address_name,
-                place_name: item.place_name,
-              });
-            }}
-          />
-        );
-      })}
-    </BottomSheet>
+    </div>
   );
 };
 
@@ -187,7 +220,7 @@ const ListItem = ({
         </div>
         <div className="grow" />
         <div
-          className="shrink-0"
+          className="shrink-0 w-[10%] flex justify-center items-center"
           onClick={(e) => {
             e.stopPropagation();
             if (iconClick) iconClick();
@@ -198,6 +231,43 @@ const ListItem = ({
       </button>
     </div>
   );
+};
+
+const extractMarkedText = (
+  input: string
+): { marked: string[]; unmarked: string } => {
+  const markRegex = /<mark>(.*?)<\/mark>/g;
+  let marked: string[] = [];
+  let unmarked = input.replace(markRegex, (_, p1) => {
+    marked.push(p1);
+    return "";
+  });
+
+  return {
+    marked,
+    unmarked,
+  };
+};
+
+const highlightText = (text: string, highlights: string[]): React.ReactNode => {
+  const regex = new RegExp(`(${highlights.join("|")})`, "gi");
+  const parts = text.split(regex);
+
+  return parts.map((part, index) =>
+    highlights.some(
+      (highlight) => part.toLowerCase() === highlight.toLowerCase()
+    ) ? (
+      <span key={index} className="text-primary-dark dark:text-primary-dark">
+        {part}
+      </span>
+    ) : (
+      part
+    )
+  );
+};
+
+const removeMarkTags = (input: string): string => {
+  return input.replace(/<\/?mark>/g, "");
 };
 
 export default SearchResult;

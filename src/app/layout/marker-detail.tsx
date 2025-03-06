@@ -7,10 +7,13 @@ import { Badge } from "@/components/badge/badge";
 import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
 import { Button } from "@/components/button/button";
 import Divider from "@/components/divider/divider";
+import ModalCloseButton from "@/components/modal-close-button/modal-close-button";
 import NotFoundImage from "@/components/not-found-image/not-found-image";
 import Section from "@/components/section/section";
 import Skeleton from "@/components/skeleton/skeleton";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
+import Textarea from "@/components/textarea/textarea";
+import useToast from "@/hooks/use-toast";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
 import { type KakaoMap } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
@@ -30,14 +33,11 @@ import {
   BsTrash3,
 } from "react-icons/bs";
 import Slider from "react-slick";
+import LocationEditRequestForm from "./location-edit-request-form";
 import Moment from "./moment";
 
-import ModalCloseButton from "@/components/modal-close-button/modal-close-button";
-import Textarea from "@/components/textarea/textarea";
-import useToast from "@/hooks/use-toast";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
-import LocationEditRequestForm from "./location-edit-request-form";
 
 type Comment = {
   commentId: number;
@@ -97,12 +97,14 @@ interface MarkerDetailProps {
   os?: string;
   closeDetail?: VoidFunction;
   imageCache?: (img: string | null) => void;
+  className?: React.ComponentProps<"div">["className"];
 }
 
 const MarkerDetail = ({
   markerId,
   imageUrl,
   os = "Windows",
+  className,
   closeDetail,
   imageCache,
 }: MarkerDetailProps) => {
@@ -189,7 +191,7 @@ const MarkerDetail = ({
   if (!isLoading && !detailData) return;
 
   return (
-    <div>
+    <div className={className}>
       {/* 로드뷰 지도 모달 */}
       {roadviewMap && (
         <SwipeClosePage
@@ -280,7 +282,7 @@ const MarkerDetail = ({
                 />
               </div>
             )}
-            <DetailSkeletons />
+            <DetailSkeletons imageUrl={imageUrl} />
           </>
         ) : (
           <>
@@ -466,9 +468,15 @@ const ImageSlize = ({ data }: { data: MarkerDetailExtras }) => {
   );
 };
 
-const DetailSkeletons = () => {
+const DetailSkeletons = ({
+  imageUrl,
+}: {
+  imageUrl?: string | null | undefined;
+}) => {
   return (
     <div className="overflow-hidden">
+      {!imageUrl && <Skeleton className="w-full h-72" />}
+
       <Section className="flex flex-wrap gap-2 pt-2 pb-0">
         <div className="flex gap-2">
           <Skeleton className="w-24 h-7 rounded-full" />

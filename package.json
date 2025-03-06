@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.67.1",
     "lodash": "^4.17.21",
     "next": "15.1.6",
     "radici-ui": "^0.0.4",

@@ -2,6 +2,7 @@ import AlertProvider from "@/provider/alert-provider";
 import CheckFirstVisitProvider from "@/provider/check-first-visit-provider";
 import MapProvider from "@/provider/map-provider";
 import PageTransitionProvider from "@/provider/page-transition-provider";
+import RQProvider from "@/provider/rq-provider";
 import ThemeProvider from "@/provider/theme-provider";
 import cn from "@/utils/cn";
 import getOs from "@/utils/get-os";
@@ -9,6 +10,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { cookies, headers } from "next/headers";
 import { ToastContainer, Zoom } from "react-toastify";
+
 import "./globals.css";
 
 declare global {
@@ -105,17 +107,19 @@ export default async function RootLayout({
     >
       <body>
         <ThemeProvider>
-          <AlertProvider>
-            <MapProvider>
-              <CheckFirstVisitProvider>
-                <div className="relative h-dvh bg-white max-w-[480px] mx-auto overflow-hidden">
-                  <PageTransitionProvider os={os}>
-                    {children}
-                  </PageTransitionProvider>
-                </div>
-              </CheckFirstVisitProvider>
-            </MapProvider>
-          </AlertProvider>
+          <RQProvider>
+            <AlertProvider>
+              <MapProvider>
+                <CheckFirstVisitProvider>
+                  <div className="relative h-dvh bg-white max-w-[480px] mx-auto overflow-hidden">
+                    <PageTransitionProvider os={os}>
+                      {children}
+                    </PageTransitionProvider>
+                  </div>
+                </CheckFirstVisitProvider>
+              </MapProvider>
+            </AlertProvider>
+          </RQProvider>
           <ToastContainer
             position="top-center"
             autoClose={1000}

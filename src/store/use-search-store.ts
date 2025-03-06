@@ -25,6 +25,12 @@ const useSearchStore = create<SearchState>()(
             return search.address_name === data.address_name;
           });
 
+          if (state.searches.length >= 30) {
+            const newSearch = [...state.searches];
+            newSearch.pop();
+            return { searches: [data, ...newSearch] };
+          }
+
           if (item !== -1) {
             const newSearch = [...state.searches].filter((search) => {
               return search.address_name !== data.address_name;
