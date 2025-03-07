@@ -281,7 +281,7 @@ export const SlideItem: React.FC<SlideItemProps> = ({
   return (
     <div
       className={cn(
-        "shrink-0 w-[80%] h-full bg-white border border-solid border-[#eee] shadow-md rounded-lg p-2",
+        "shrink-0 w-[80%] h-full bg-white border border-solid border-[#eee] shadow-full rounded-lg p-2",
         className
       )}
       onClick={handleClick}

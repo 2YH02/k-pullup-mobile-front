@@ -7,7 +7,11 @@ interface MapCenterData {
   addr: string;
 }
 
-const useMapControl = (map?: KakaoMap | null) => {
+const useMapControl = (
+  map?: KakaoMap | null,
+  option?: { enableDrag?: boolean }
+) => {
+  const enableDrag = option?.enableDrag ?? true;
   const [center, setCenter] = useState<MapCenterData>({
     lat: 0,
     lng: 0,
@@ -15,7 +19,7 @@ const useMapControl = (map?: KakaoMap | null) => {
   });
 
   useEffect(() => {
-    if (!map) return;
+    if (!map || !enableDrag) return;
 
     const geocoder = new window.kakao.maps.services.Geocoder();
 
@@ -63,7 +67,40 @@ const useMapControl = (map?: KakaoMap | null) => {
     map.setCenter(moveLatLon);
   };
 
-  return { center, moveMap };
+  const addMarker = ({
+    map,
+    lat,
+    lng,
+    selected = false,
+  }: {
+    map: KakaoMap;
+    lat: number;
+    lng: number;
+    selected?: boolean;
+  }) => {
+    const centerPosition = new window.kakao.maps.LatLng(lat, lng);
+
+    const imageSize = new window.kakao.maps.Size(35, 50);
+    const imageOption = { offset: new window.kakao.maps.Point(18, 45) };
+    const imageUrl = selected ? "/active-selected.png" : "/active.png";
+
+    const image = new window.kakao.maps.MarkerImage(
+      imageUrl,
+      imageSize,
+      imageOption
+    );
+
+    const marker = new window.kakao.maps.Marker({
+      position: centerPosition,
+      image: image,
+    });
+
+    marker.setMap(map);
+
+    return marker;
+  };
+
+  return { center, moveMap, addMarker };
 };
 
 export default useMapControl;

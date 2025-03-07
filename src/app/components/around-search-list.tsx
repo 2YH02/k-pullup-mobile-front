@@ -1,3 +1,4 @@
+import { type Marker } from "@/api/marker";
 import Carousel, {
   SlideContainer,
   SlideItem,
@@ -7,7 +8,6 @@ import useIsDarkMode from "@/hooks/use-is-dark-mode";
 import cn from "@/utils/cn";
 import Image from "next/image";
 import { useRef } from "react";
-import { Marker } from "../home-page-client";
 
 const AroundSearchList = ({
   data,
@@ -126,6 +126,50 @@ const AroundSearchList = ({
     );
   }
 
+  if (data.length === 1) {
+    return (
+      <div
+        className="h-48 p-2"
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
+        <div
+          className="w-[90%] mx-auto h-full rounded-lg bg-white shadow-full dark:bg-black overflow-hidden"
+          onClick={async (e) => {
+            if (isDragging.current) {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
+
+            await setDetailImage(data[0].thumbnail);
+            openDetail();
+          }}
+        >
+          <div className="relative w-full h-24">
+            <Image
+              src={data[0].thumbnail || "/metaimg.webp"}
+              fill
+              alt={data[0].description}
+              className="object-cover"
+              draggable={false}
+            />
+          </div>
+          <div className="p-2">
+            <div className={cn("font-bold", data[0].description && "truncate")}>
+              {data[0].address}
+            </div>
+            <div className="text-xs text-grey-dark">{data[0].description}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Carousel
       className="h-48 p-2"
@@ -140,7 +184,7 @@ const AroundSearchList = ({
         {data.map((value) => {
           return (
             <SlideItem
-              key={value.address}
+              key={value.markerId}
               className={cn(
                 "p-0 overflow-hidden border-none bg-white dark:bg-black",
                 ""
