@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 
 const Map = () => {
   const pathname = usePathname();
-  const { map, isView, hide, show, markers } = useMapStore();
+  const { map, isView, hide, show, markers, selectedMarkers } = useMapStore();
   const { addMarker } = useMapControl(map, { enableDrag: false });
 
   const [kakaoMarkers, setKakaoMarkers] = useState<KakaoMarker[]>([]);
@@ -33,15 +33,19 @@ const Map = () => {
     kakaoMarkers.forEach((marker) => marker.setMap(null));
 
     markers.forEach((marker) => {
+      const selected = selectedMarkers?.findIndex(
+        (selectedmarker) => marker.id !== selectedmarker.id
+      );
+
       const kakaoMarker = addMarker({
         map,
         lat: marker.lat,
         lng: marker.lng,
-        selected: true,
+        selected: !!selected,
       });
       setKakaoMarkers((prev) => [...prev, kakaoMarker]);
     });
-  }, [markers]);
+  }, [markers, selectedMarkers]);
 
   const mapStyle = isView ? "block" : "hidden";
 

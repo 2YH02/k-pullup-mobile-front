@@ -80,9 +80,14 @@ const useMapControl = (
   }) => {
     const centerPosition = new window.kakao.maps.LatLng(lat, lng);
 
-    const imageSize = new window.kakao.maps.Size(35, 50);
-    const imageOption = { offset: new window.kakao.maps.Point(18, 45) };
-    const imageUrl = selected ? "/active-selected.png" : "/active.png";
+    const imageSize = selected
+      ? new window.kakao.maps.Size(28, 32)
+      : new window.kakao.maps.Size(28, 28);
+    const imageOption = selected
+      ? { offset: new window.kakao.maps.Point(14, 29) }
+      : { offset: new window.kakao.maps.Point(14, 25) };
+    const imageUrl = selected ? "/normal-selected.png" : "/normal.png";
+    const zIndex = selected ? 3 : 2;
 
     const image = new window.kakao.maps.MarkerImage(
       imageUrl,
@@ -93,6 +98,7 @@ const useMapControl = (
     const marker = new window.kakao.maps.Marker({
       position: centerPosition,
       image: image,
+      zIndex: zIndex,
     });
 
     marker.setMap(map);

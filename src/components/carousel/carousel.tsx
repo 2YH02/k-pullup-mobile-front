@@ -55,6 +55,7 @@ const useCarousel = () => {
 interface CarouselProps extends HTMLAttributes<HTMLDivElement> {
   onChange?: (value?: any) => void;
   onMount?: (value?: any) => void;
+  afterSlide?: (index: number) => void;
   className?: React.ComponentProps<"div">["className"];
   children: React.ReactNode;
 }
@@ -62,6 +63,7 @@ interface CarouselProps extends HTMLAttributes<HTMLDivElement> {
 const Carousel: React.FC<CarouselProps> = ({
   onChange,
   onMount,
+  afterSlide,
   className,
   children,
   ...props
@@ -75,6 +77,10 @@ const Carousel: React.FC<CarouselProps> = ({
   useEffect(() => {
     if (onMount) onMount();
   }, []);
+
+  useEffect(() => {
+    afterSlide?.(currentIndex);
+  }, [currentIndex]);
 
   const childrenArray = React.Children.toArray(children);
   const slideChild = childrenArray.find(
@@ -105,7 +111,6 @@ const Carousel: React.FC<CarouselProps> = ({
 
   const handleNext = () => {
     onChange?.();
-
     if (currentIndex >= itemsCount - 1) {
       setSlideTransform(slideRef, `translateX(-${translateValue.current}%)`);
       return;

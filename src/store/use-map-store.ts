@@ -1,7 +1,7 @@
 import type { KakaoMap } from "@/types/kakao-map.types";
 import { create } from "zustand";
 
-interface MarkerData {
+export interface MarkerData {
   lat: number;
   lng: number;
   id: number | string;
@@ -11,6 +11,7 @@ interface MapState {
   map: KakaoMap | null;
   markers: MarkerData[] | null;
   isView: boolean;
+  selectedMarkers: MarkerData[] | null;
   hide: VoidFunction;
   show: VoidFunction;
   setMap: (map: KakaoMap) => void;
@@ -18,12 +19,14 @@ interface MapState {
   addMarker: (marker: MarkerData) => void;
   removeMarker: (id: number | string) => void;
   changeMarkers: (markers: MarkerData[]) => void;
+  selectMarkers: (marker: MarkerData[]) => void;
 }
 
 export const useMapStore = create<MapState>((set) => ({
   map: null,
   markers: null,
   isView: false,
+  selectedMarkers: null,
   hide: () => set({ isView: false }),
   show: () => set({ isView: true }),
   setMap: (map) => set({ map }),
@@ -42,4 +45,5 @@ export const useMapStore = create<MapState>((set) => ({
       return { ...state, marker: removedMarker };
     }),
   changeMarkers: (markers: MarkerData[]) => set({ markers }),
+  selectMarkers: (markers: MarkerData[]) => set({ selectedMarkers: markers }),
 }));

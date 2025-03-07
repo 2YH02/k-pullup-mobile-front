@@ -5,6 +5,8 @@ import Carousel, {
 } from "@/components/carousel/carousel";
 import Skeleton from "@/components/skeleton/skeleton";
 import useIsDarkMode from "@/hooks/use-is-dark-mode";
+import useMapControl from "@/hooks/use-map-control";
+import { useMapStore } from "@/store/use-map-store";
 import cn from "@/utils/cn";
 import Image from "next/image";
 import { useRef } from "react";
@@ -22,6 +24,9 @@ const AroundSearchList = ({
   imageCache: (img: string) => void;
   openDetail: VoidFunction;
 }) => {
+  const { map, selectMarkers } = useMapStore();
+  const { moveMap } = useMapControl(map, { enableDrag: false });
+
   const isDarkMode = useIsDarkMode();
 
   const isDragging = useRef(false);
@@ -87,6 +92,17 @@ const AroundSearchList = ({
 
       startY.current = null;
     }
+  };
+
+  const afterSlide = (index: number) => {
+    const selectedMarker = {
+      lat: data[index].latitude,
+      lng: data[index].longitude,
+      id: data[index].markerId,
+    };
+
+    selectMarkers([selectedMarker]);
+    moveMap({ lat: data[index].latitude, lng: data[index].longitude });
   };
 
   if (isLoading) {
@@ -179,6 +195,7 @@ const AroundSearchList = ({
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
+      afterSlide={afterSlide}
     >
       <SlideContainer>
         {data.map((value) => {
