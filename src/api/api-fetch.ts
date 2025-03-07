@@ -8,7 +8,7 @@ const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   });
 
   if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`);
+    throw new Error(`${response.status}`);
   }
   return response.json();
 };

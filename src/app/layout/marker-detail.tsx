@@ -9,6 +9,8 @@ import Skeleton from "@/components/skeleton/skeleton";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Textarea from "@/components/textarea/textarea";
 import { useMarkerDetails } from "@/hooks/api/marker/use-marker-details";
+import { useMarkerFacilities } from "@/hooks/api/marker/use-marker-facilities";
+import { useMarkerWeather } from "@/hooks/api/marker/use-marker-weather";
 import useToast from "@/hooks/use-toast";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
 import { type KakaoMap } from "@/types/kakao-map.types";
@@ -106,7 +108,18 @@ const MarkerDetail = ({
 }: MarkerDetailProps) => {
   const { show } = useBottomSheetStore();
 
-  const { data, isLoading } = useMarkerDetails(markerId);
+  const {
+    data: marker,
+    isLoading: markerLoading,
+    error: markerError,
+  } = useMarkerDetails(markerId);
+  const { data: facilities, error: facilitiesError } =
+    useMarkerFacilities(markerId);
+  const {
+    data: weather,
+    error: weatherError,
+    isLoading: weatherLoading,
+  } = useMarkerWeather(marker?.latitude as number, marker?.longitude as number);
 
   const titleRef = useRef<HTMLDivElement>(null);
 
@@ -148,10 +161,10 @@ const MarkerDetail = ({
   }, [titleRef.current]);
 
   useEffect(() => {
-    if (!data || !map) return;
+    if (!marker || !map) return;
     const position = new window.kakao.maps.LatLng(
-      data.latitude,
-      data.longitude
+      marker.latitude,
+      marker.longitude
     );
     map.relayout();
     map.setCenter(position);
@@ -178,7 +191,17 @@ const MarkerDetail = ({
     setViewImageDetail(true);
   };
 
-  if (!isLoading && !data) return;
+  if (markerError?.message === "404") {
+    return (
+      <SwipeClosePage close={closeDetail} headerTitle="404 Not Found">
+        <div className="mt-10">
+          <NotFoundImage size="lg" text="위치를 찾을 수 없습니다." />
+        </div>
+      </SwipeClosePage>
+    );
+  }
+
+  if (!markerLoading && !marker) return null;
 
   return (
     <div className={className}>
@@ -195,8 +218,8 @@ const MarkerDetail = ({
             <div className="relative w-full h-2/3 shadow-lg z-20 border-b border-solid border-grey">
               <RoadView
                 id="detail-roadview"
-                lat={data?.latitude}
-                lng={data?.longitude}
+                lat={marker?.latitude}
+                lng={marker?.longitude}
                 isView={activeRoadview}
                 close={() => setActiveRoadview(false)}
                 map={map}
@@ -212,8 +235,8 @@ const MarkerDetail = ({
           >
             <Map
               id="roadview-map"
-              lat={data?.latitude}
-              lng={data?.longitude}
+              lat={marker?.latitude}
+              lng={marker?.longitude}
               type={activeRoadview ? "ROADVIEW" : "ROADMAP"}
               setMap={setMap}
             />
@@ -225,11 +248,11 @@ const MarkerDetail = ({
       {viewMoment && <Moment os={os} close={closeMoment} className="z-[33]" />}
 
       {/* 정보 수정 요청 */}
-      {viewLocationEditForm && data && (
+      {viewLocationEditForm && marker && (
         <LocationEditRequestForm
           os={os}
           close={() => setViewLocationEditForm(false)}
-          markerData={data}
+          markerData={marker}
         />
       )}
 
@@ -239,7 +262,7 @@ const MarkerDetail = ({
           os={os}
           close={() => setViewImageDetail(false)}
           className="z-[33]"
-          images={data?.photos}
+          images={marker?.photos}
           curImageIndex={curImageIndex}
         />
       )}
@@ -264,12 +287,12 @@ const MarkerDetail = ({
           }}
         />
         {viewHeader && (
-          <div className="truncate">{data?.address || "주소 정보 없음"}</div>
+          <div className="truncate">{marker?.address || "주소 정보 없음"}</div>
         )}
       </div>
 
       <SwipeClosePage close={closeDetail}>
-        {isLoading || !data ? (
+        {markerLoading || !marker ? (
           <>
             {imageUrl && (
               <div className="w-full h-72">
@@ -286,8 +309,8 @@ const MarkerDetail = ({
         ) : (
           <>
             {/* 이미지 슬라이드 */}
-            <ImageSlide photos={data.photos} />
-            {!data.photos && (
+            <ImageSlide photos={marker.photos} />
+            {!marker.photos && (
               <div
                 className={cn(
                   "w-full h-10 bg-transparent",
@@ -297,41 +320,41 @@ const MarkerDetail = ({
             )}
 
             {/* 기구 개수 정보 */}
-            {/* <Section className="flex flex-wrap gap-2 pt-2 pb-0">
-              {data.facilities[0].quantity > 0 && (
-                <MarkerDetailBadge>
-                  철봉 {data.facilities[0].quantity} 개
-                </MarkerDetailBadge>
+            <Section className="flex flex-wrap gap-2 pt-2 pb-0">
+              {facilities && !facilitiesError && facilities.length > 0 && (
+                <>
+                  {facilities[0].quantity > 0 && (
+                    <MarkerDetailBadge>
+                      철봉 {facilities[0].quantity} 개
+                    </MarkerDetailBadge>
+                  )}
+                  {facilities[1].quantity > 0 && (
+                    <MarkerDetailBadge>
+                      평행봉 {facilities[1].quantity} 개
+                    </MarkerDetailBadge>
+                  )}
+                </>
               )}
-              {data.facilities[1].quantity > 0 && (
-                <MarkerDetailBadge>
-                  평행봉 {detailData.facilities[1].quantity} 개
-                </MarkerDetailBadge>
-              )}
-              {detailData.weather && (
+
+              {weatherLoading && <Skeleton className="w-24 h-7 rounded-full" />}
+              {weather && !weatherError && (
                 <MarkerDetailBadge>
                   <div className="relative w-5 h-5 shrink-0">
-                    <Image
-                      src={detailData.weather.iconImage}
-                      fill
-                      alt={detailData.weather.desc}
-                    />
+                    <Image src={weather.iconImage} fill alt={weather.desc} />
                   </div>
-                  <div className="shrink-0">
-                    {detailData.weather.temperature} °C
-                  </div>
+                  <div className="shrink-0">{weather.temperature} °C</div>
                 </MarkerDetailBadge>
               )}
-            </Section> */}
+            </Section>
 
             {/* 정보 및 버튼 버튼 */}
             <Section className="pb-0 pt-2">
               <h1 ref={titleRef} className="text-xl">
-                {data.address}
+                {marker.address}
               </h1>
-              <p className="text-sm font-bold mb-2">{data.description}</p>
+              <p className="text-sm font-bold mb-2">{marker.description}</p>
               <p className="text-xs text-grey mb-2">
-                최종 수정일: {formatDate(data.updatedAt)}
+                최종 수정일: {formatDate(marker.updatedAt)}
               </p>
               <div className="flex justify-between text-xs mb-4">
                 <button
@@ -344,7 +367,7 @@ const MarkerDetail = ({
                   <span className="mr-1">
                     <StarIcon />
                   </span>
-                  <span>정보 제공자: {data.username}</span>
+                  <span>정보 제공자: {marker.username}</span>
                 </span>
               </div>
               <div className="flex h-16 border-t border-solid border-[#ccc] py-1">
@@ -392,7 +415,11 @@ const MarkerDetail = ({
                     setRoadviewMap(true);
                   }}
                 />
-                <Map id="detail-map" lat={data.latitude} lng={data.longitude} />
+                <Map
+                  id="detail-map"
+                  lat={marker.latitude}
+                  lng={marker.longitude}
+                />
               </div>
               <Button
                 fullWidth
@@ -413,7 +440,7 @@ const MarkerDetail = ({
               subTitleClick={() => setViewLocationEditForm(true)}
             >
               <MarkerDetailImages
-                images={data.photos}
+                images={marker.photos}
                 onImageClick={onImageClick}
               />
             </Section>
@@ -777,9 +804,9 @@ const Map = ({
     if (setMap) setMap(map);
 
     if (withPin) {
-      const imageSize = new window.kakao.maps.Size(35, 50);
-      const imageOption = { offset: new window.kakao.maps.Point(18, 45) };
-      const imageUrl = "/active-selected.png";
+      const imageSize = new window.kakao.maps.Size(28, 33);
+      const imageOption = { offset: new window.kakao.maps.Point(14, 29) };
+      const imageUrl = "/normal-selected.png";
 
       const pin = new window.kakao.maps.MarkerImage(
         imageUrl,

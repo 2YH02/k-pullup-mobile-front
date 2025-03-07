@@ -81,7 +81,7 @@ const useMapControl = (
     const centerPosition = new window.kakao.maps.LatLng(lat, lng);
 
     const imageSize = selected
-      ? new window.kakao.maps.Size(28, 32)
+      ? new window.kakao.maps.Size(28, 33)
       : new window.kakao.maps.Size(28, 28);
     const imageOption = selected
       ? { offset: new window.kakao.maps.Point(14, 29) }

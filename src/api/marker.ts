@@ -1,15 +1,15 @@
 import type { MarkerDetail } from "@/types/marker.types";
 import apiFetch from "./api-fetch";
 
-export type FetchNearbyMarkersParams = {
+export interface FetchNearbyMarkersParams {
   latitude: number;
   longitude: number;
   distance: number;
   page?: number;
   pageSize?: number;
-};
+}
 
-export type Marker = {
+export interface Marker {
   latitude: number;
   longitude: number;
   distance: number;
@@ -17,14 +17,29 @@ export type Marker = {
   description: string;
   address: string;
   thumbnail: string;
-};
+}
 
-export type NearbyMarkersRes = {
+export interface NearbyMarkersRes {
   currentPage: number;
   markers: Marker[];
   totalMarkers: number;
   totalPages: number;
-};
+}
+
+export interface Facilities {
+  facilityId: number;
+  quantity: number;
+  markerId: number;
+}
+
+export interface Weather {
+  temperature: string;
+  desc: string;
+  humidity: string;
+  rainfall: string;
+  snowfall: string;
+  iconImage: string;
+}
 
 export const fetchNearbyMarkers = async ({
   latitude,
@@ -51,4 +66,24 @@ export const fetchMarkerDetails = async (id: number): Promise<MarkerDetail> => {
   return apiFetch(`/markers/${id}/details`, {
     credentials: "include",
   });
+};
+
+export const fetchMarkerFacilities = async (
+  markerId: number
+): Promise<Facilities[]> => {
+  return apiFetch(`/markers/${markerId}/facilities`, {
+    credentials: "include",
+  });
+};
+
+export const fetchMarkerWeather = async (
+  latitude: number,
+  longitude: number
+): Promise<Weather> => {
+  const params = new URLSearchParams({
+    latitude: String(latitude),
+    longitude: String(longitude),
+  });
+
+  return apiFetch(`/markers/weather?${params.toString()}`);
 };
