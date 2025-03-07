@@ -3,7 +3,7 @@
 import NotFoundImage from "@/components/not-found-image/not-found-image";
 import Section from "@/components/section/section";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
-import useMarkerSearch from "@/hooks/api/use-marker-search";
+import useMarkerSearch from "@/hooks/api/marker/use-marker-search";
 import PinIcon from "@/icons/pin-icon";
 import useSearchStore from "@/store/use-search-store";
 import { type KakaoPlace } from "@/types/kakao-map.types";

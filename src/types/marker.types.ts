@@ -1,11 +1,12 @@
 export interface Photo {
+  uploadedAt: string;
   photoId: number;
   markerId: number;
   photoUrl: string;
-  uploadedAt: Date;
+  thumbnailUrl: string;
 }
 
-export interface Marker {
+export interface MarkerDetail {
   markerId: number;
   userId: number | null;
   latitude: number;

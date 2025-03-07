@@ -22,7 +22,7 @@ const AroundSearchList = ({
   isLoading: boolean;
   closeSlide: VoidFunction;
   imageCache: (img: string) => void;
-  openDetail: VoidFunction;
+  openDetail: (id: number) => void;
 }) => {
   const { map, selectMarkers } = useMapStore();
   const { moveMap } = useMapControl(map, { enableDrag: false });
@@ -163,7 +163,7 @@ const AroundSearchList = ({
             }
 
             await setDetailImage(data[0].thumbnail);
-            openDetail();
+            openDetail(data[0].markerId);
           }}
         >
           <div className="relative w-full h-24">
@@ -214,7 +214,7 @@ const AroundSearchList = ({
                 }
 
                 await setDetailImage(value.thumbnail);
-                openDetail();
+                openDetail(value.markerId);
               }}
             >
               <div className="relative w-full h-24">

@@ -26,11 +26,11 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 /* 슬라이드 */
-.slick-track {
+/* .slick-track {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-}
+} */
 
 
 /* 로드뷰 동동이 */

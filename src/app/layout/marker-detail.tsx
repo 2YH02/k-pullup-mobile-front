@@ -1,8 +1,3 @@
-import {
-  mockDetailDataWithExtras,
-  type MarkerDetailExtras,
-  type Photo,
-} from "@/app/pullup/[id]/pullup-page-client";
 import { Badge } from "@/components/badge/badge";
 import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
 import { Button } from "@/components/button/button";
@@ -13,13 +8,14 @@ import Section from "@/components/section/section";
 import Skeleton from "@/components/skeleton/skeleton";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Textarea from "@/components/textarea/textarea";
+import { useMarkerDetails } from "@/hooks/api/marker/use-marker-details";
 import useToast from "@/hooks/use-toast";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
 import { type KakaoMap } from "@/types/kakao-map.types";
+import type { MarkerDetail, Photo } from "@/types/marker.types";
 import cn from "@/utils/cn";
 import { formatDate } from "@/utils/format-date";
 import MapWalker from "@/utils/map-walker";
-import wait from "@/utils/wait";
 import Image from "next/image";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
@@ -110,15 +106,13 @@ const MarkerDetail = ({
 }: MarkerDetailProps) => {
   const { show } = useBottomSheetStore();
 
+  const { data, isLoading } = useMarkerDetails(markerId);
+
   const titleRef = useRef<HTMLDivElement>(null);
 
   const [map, setMap] = useState<null | KakaoMap>(null);
 
   const [viewHeader, setViewHeader] = useState(false);
-
-  const [isLoading, setIsLoading] = useState(true);
-
-  const [detailData, setDetailData] = useState<MarkerDetailExtras | null>(null);
 
   const [roadviewMap, setRoadviewMap] = useState(false);
   const [activeRoadview, setActiveRoadview] = useState(true);
@@ -129,18 +123,6 @@ const MarkerDetail = ({
 
   const [viewImageDetail, setViewImageDetail] = useState(false);
   const [curImageIndex, setCurImageIndex] = useState(0);
-
-  // fetch and page active
-  useEffect(() => {
-    const fetch = async () => {
-      await wait(2000);
-      console.log("markerId: " + markerId);
-      setDetailData(mockDetailDataWithExtras);
-      setIsLoading(false);
-    };
-
-    fetch();
-  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -166,10 +148,10 @@ const MarkerDetail = ({
   }, [titleRef.current]);
 
   useEffect(() => {
-    if (!detailData || !map) return;
+    if (!data || !map) return;
     const position = new window.kakao.maps.LatLng(
-      detailData.latitude,
-      detailData.longitude
+      data.latitude,
+      data.longitude
     );
     map.relayout();
     map.setCenter(position);
@@ -196,7 +178,7 @@ const MarkerDetail = ({
     setViewImageDetail(true);
   };
 
-  if (!isLoading && !detailData) return;
+  if (!isLoading && !data) return;
 
   return (
     <div className={className}>
@@ -213,8 +195,8 @@ const MarkerDetail = ({
             <div className="relative w-full h-2/3 shadow-lg z-20 border-b border-solid border-grey">
               <RoadView
                 id="detail-roadview"
-                lat={detailData?.latitude}
-                lng={detailData?.longitude}
+                lat={data?.latitude}
+                lng={data?.longitude}
                 isView={activeRoadview}
                 close={() => setActiveRoadview(false)}
                 map={map}
@@ -230,8 +212,8 @@ const MarkerDetail = ({
           >
             <Map
               id="roadview-map"
-              lat={detailData?.latitude}
-              lng={detailData?.longitude}
+              lat={data?.latitude}
+              lng={data?.longitude}
               type={activeRoadview ? "ROADVIEW" : "ROADMAP"}
               setMap={setMap}
             />
@@ -243,11 +225,11 @@ const MarkerDetail = ({
       {viewMoment && <Moment os={os} close={closeMoment} className="z-[33]" />}
 
       {/* 정보 수정 요청 */}
-      {viewLocationEditForm && detailData && (
+      {viewLocationEditForm && data && (
         <LocationEditRequestForm
           os={os}
           close={() => setViewLocationEditForm(false)}
-          markerData={detailData}
+          markerData={data}
         />
       )}
 
@@ -257,7 +239,7 @@ const MarkerDetail = ({
           os={os}
           close={() => setViewImageDetail(false)}
           className="z-[33]"
-          images={detailData ? detailData.photos : null}
+          images={data?.photos}
           curImageIndex={curImageIndex}
         />
       )}
@@ -282,14 +264,12 @@ const MarkerDetail = ({
           }}
         />
         {viewHeader && (
-          <div className="truncate">
-            {detailData?.address || "주소 정보 없음"}
-          </div>
+          <div className="truncate">{data?.address || "주소 정보 없음"}</div>
         )}
       </div>
 
       <SwipeClosePage close={closeDetail}>
-        {isLoading || !detailData ? (
+        {isLoading || !data ? (
           <>
             {imageUrl && (
               <div className="w-full h-72">
@@ -306,16 +286,24 @@ const MarkerDetail = ({
         ) : (
           <>
             {/* 이미지 슬라이드 */}
-            <ImageSlize data={detailData} />
+            <ImageSlide photos={data.photos} />
+            {!data.photos && (
+              <div
+                className={cn(
+                  "w-full h-10 bg-transparent",
+                  os === "iOS" ? "h-20" : "h-12"
+                )}
+              />
+            )}
 
             {/* 기구 개수 정보 */}
-            <Section className="flex flex-wrap gap-2 pt-2 pb-0">
-              {detailData.facilities[0].quantity > 0 && (
+            {/* <Section className="flex flex-wrap gap-2 pt-2 pb-0">
+              {data.facilities[0].quantity > 0 && (
                 <MarkerDetailBadge>
-                  철봉 {detailData.facilities[0].quantity} 개
+                  철봉 {data.facilities[0].quantity} 개
                 </MarkerDetailBadge>
               )}
-              {detailData.facilities[1].quantity > 0 && (
+              {data.facilities[1].quantity > 0 && (
                 <MarkerDetailBadge>
                   평행봉 {detailData.facilities[1].quantity} 개
                 </MarkerDetailBadge>
@@ -334,16 +322,16 @@ const MarkerDetail = ({
                   </div>
                 </MarkerDetailBadge>
               )}
-            </Section>
+            </Section> */}
 
             {/* 정보 및 버튼 버튼 */}
             <Section className="pb-0 pt-2">
               <h1 ref={titleRef} className="text-xl">
-                {detailData.address}
+                {data.address}
               </h1>
-              <p className="text-sm font-bold mb-2">{detailData.description}</p>
+              <p className="text-sm font-bold mb-2">{data.description}</p>
               <p className="text-xs text-grey mb-2">
-                최종 수정일: {formatDate(detailData.updatedAt)}
+                최종 수정일: {formatDate(data.updatedAt)}
               </p>
               <div className="flex justify-between text-xs mb-4">
                 <button
@@ -356,7 +344,7 @@ const MarkerDetail = ({
                   <span className="mr-1">
                     <StarIcon />
                   </span>
-                  <span>정보 제공자: {detailData.username}</span>
+                  <span>정보 제공자: {data.username}</span>
                 </span>
               </div>
               <div className="flex h-16 border-t border-solid border-[#ccc] py-1">
@@ -404,11 +392,7 @@ const MarkerDetail = ({
                     setRoadviewMap(true);
                   }}
                 />
-                <Map
-                  id="detail-map"
-                  lat={detailData.latitude}
-                  lng={detailData.longitude}
-                />
+                <Map id="detail-map" lat={data.latitude} lng={data.longitude} />
               </div>
               <Button
                 fullWidth
@@ -429,7 +413,7 @@ const MarkerDetail = ({
               subTitleClick={() => setViewLocationEditForm(true)}
             >
               <MarkerDetailImages
-                images={detailData.photos}
+                images={data.photos}
                 onImageClick={onImageClick}
               />
             </Section>
@@ -448,7 +432,7 @@ const MarkerDetail = ({
 };
 
 // TODO: 메모이제이션 성능 비교 필요
-const ImageSlize = ({ data }: { data: MarkerDetailExtras }) => {
+const ImageSlide = ({ photos }: { photos?: Photo[] }) => {
   const [curImageIndex, setCurImageIndex] = useState(0);
 
   const slideSettings = {
@@ -466,11 +450,13 @@ const ImageSlize = ({ data }: { data: MarkerDetailExtras }) => {
     },
   };
 
+  if (!photos) return null;
+
   return (
     <div>
       <div className="relative w-full h-72 overflow-hidden">
         <Slider {...slideSettings}>
-          {data.photos.map((item, index) => (
+          {photos.map((item, index) => (
             <div key={item.photoId} className="w-full h-72 focus:outline-none">
               <img
                 src={item.photoUrl}
@@ -480,11 +466,9 @@ const ImageSlize = ({ data }: { data: MarkerDetailExtras }) => {
             </div>
           ))}
         </Slider>
-        {data && (
-          <div className="absolute right-3 bottom-3 bg-[rgba(0,0,0,0.5)] text-white text-xs px-3 py-[2px] rounded-md">
-            {`${curImageIndex + 1} / ${data.photos.length}`}
-          </div>
-        )}
+        <div className="absolute right-3 bottom-3 bg-[rgba(0,0,0,0.5)] text-white text-xs px-3 py-[2px] rounded-md">
+          {`${curImageIndex + 1} / ${photos.length}`}
+        </div>
       </div>
     </div>
   );
@@ -541,7 +525,7 @@ const MarkerDetailImages = ({
   images,
   onImageClick,
 }: {
-  images: Photo[] | null;
+  images?: Photo[];
   onImageClick: (index: number) => void;
 }) => {
   if (!images) {
@@ -1081,7 +1065,7 @@ const ImageDetail = ({
 }: {
   os?: string;
   close: VoidFunction;
-  images: Photo[] | null;
+  images?: Photo[];
   curImageIndex: number;
   className?: React.ComponentProps<"div">["className"];
 }) => {

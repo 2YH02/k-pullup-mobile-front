@@ -1,3 +1,4 @@
+import type { MarkerDetail } from "@/types/marker.types";
 import apiFetch from "./api-fetch";
 
 export type FetchNearbyMarkersParams = {
@@ -43,7 +44,11 @@ export const fetchNearbyMarkers = async ({
     params.append("pageSize", String(pageSize));
   }
 
-  return apiFetch(`/markers/close?${params.toString()}`, {
-    method: "GET",
+  return apiFetch(`/markers/close?${params.toString()}`);
+};
+
+export const fetchMarkerDetails = async (id: number): Promise<MarkerDetail> => {
+  return apiFetch(`/markers/${id}/details`, {
+    credentials: "include",
   });
 };

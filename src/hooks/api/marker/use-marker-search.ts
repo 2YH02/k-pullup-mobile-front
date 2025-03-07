@@ -1,6 +1,6 @@
 import { searchMarkers } from "@/api/search";
 import { useQuery } from "@tanstack/react-query";
-import useDebouncedValue from "../use-debounced-value";
+import useDebouncedValue from "../../use-debounced-value";
 
 const useMarkerSearch = (query: string) => {
   const debouncedQuery = useDebouncedValue(query, 300);

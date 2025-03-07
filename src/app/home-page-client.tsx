@@ -2,7 +2,7 @@
 
 import MarkerDetail from "@/app/layout/marker-detail";
 import Input from "@/components/input/input";
-import { useNearbyMarkers } from "@/hooks/api/use-nearby-markers";
+import { useNearbyMarkers } from "@/hooks/api/marker/use-nearby-markers";
 import useMapControl from "@/hooks/use-map-control";
 import usePageTransition from "@/hooks/use-page-transition";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
@@ -56,6 +56,7 @@ const HomePageClient = ({ os }: { os: string }) => {
 
   const [cachedImage, setCachedImage] = useState<string | null>(null);
   const [viewMarkerDetail, setViewMarkerDetail] = useState(false);
+  const [curMarkerId, setCurMarkerId] = useState<number | null>(null);
 
   const [viewSearch, setViewSearch] = useState(false);
 
@@ -90,8 +91,9 @@ const HomePageClient = ({ os }: { os: string }) => {
     setCachedImage(img);
   };
 
-  const openDetail = () => {
+  const openDetail = (id: number) => {
     setViewMarkerDetail(true);
+    setCurMarkerId(id);
   };
 
   const closeDetail = () => {
@@ -119,10 +121,10 @@ const HomePageClient = ({ os }: { os: string }) => {
       )}
     >
       {/* 위치 상세 모달 */}
-      {viewMarkerDetail && (
+      {viewMarkerDetail && curMarkerId && (
         <MarkerDetail
           os={os}
-          markerId={24}
+          markerId={curMarkerId}
           imageUrl={cachedImage}
           imageCache={handleImageCache}
           closeDetail={closeDetail}

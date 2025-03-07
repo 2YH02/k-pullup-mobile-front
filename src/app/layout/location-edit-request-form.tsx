@@ -7,15 +7,21 @@ import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Textarea from "@/components/textarea/textarea";
 import WarningText from "@/components/warning-text/warning-text";
 import { type KakaoMap } from "@/types/kakao-map.types";
+import type { MarkerDetail } from "@/types/marker.types";
 import cn from "@/utils/cn";
 import { useEffect, useRef, useState } from "react";
-import { MarkerDetailExtras } from "../pullup/[id]/pullup-page-client";
 import UploadImageForm, { type FileData } from "./upload-image-form";
+
+type Location = {
+  lat: number | null;
+  lng: number | null;
+  addr?: string | null;
+};
 
 interface Props {
   os?: string;
   close?: VoidFunction;
-  markerData: MarkerDetailExtras;
+  markerData: MarkerDetail;
   className?: React.ComponentProps<"div">["className"];
 }
 
@@ -32,16 +38,12 @@ const LocationEditRequestForm = ({
   const [pullupBarCount, setPullupBarCount] = useState(0);
   const [parallelBarCount, setParallelBarCount] = useState(0);
 
-  const [prevLocation, setPrevLocation] = useState({
+  const [prevLocation, setPrevLocation] = useState<Location>({
     lat: markerData.latitude,
     lng: markerData.longitude,
     addr: markerData.address,
   });
-  const [curLocation, setCurLocation] = useState<{
-    lat: number | null;
-    lng: number | null;
-    addr: string | null;
-  }>({
+  const [curLocation, setCurLocation] = useState<Location>({
     lat: null,
     lng: null,
     addr: null,
