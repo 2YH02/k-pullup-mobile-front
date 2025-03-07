@@ -21,6 +21,7 @@ interface SwipeClosePageProps {
   os?: string;
   className?: React.ComponentProps<"div">["className"];
   onPrevClick?: VoidFunction;
+  headerStyleClass?: string;
 }
 
 const SwipeClosePage = ({
@@ -33,6 +34,7 @@ const SwipeClosePage = ({
   onPrevClick,
   os = "Windows",
   className,
+  headerStyleClass,
   children,
 }: React.PropsWithChildren<SwipeClosePageProps>) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -214,7 +216,8 @@ const SwipeClosePage = ({
           className={cn(
             `p-3 sticky top-0 left-0 w-full bg-white z-10 shadow-sm flex items-center
         dark:bg-black dark:border-b dark:border-solid dark:border-grey-dark`,
-            os === "iOS" ? "pt-12" : ""
+            os === "iOS" ? "pt-12" : "",
+            headerStyleClass
           )}
         >
           <button className="mr-4" onClick={onPrevClick ? onPrevClick : close}>

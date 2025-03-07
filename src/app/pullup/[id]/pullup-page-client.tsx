@@ -67,6 +67,24 @@ const mockDetailData: Marker = {
       thumbnailUrl:
         "https://chulbong-kr.s3.amazonaws.com/markers/6969/f7c2eb69-72e2-422e-836c-4e3f74cba265.webp",
     },
+    {
+      uploadedAt: "2024-06-17T01:43:45Z",
+      photoId: 11111,
+      markerId: 111111,
+      photoUrl:
+        "https://cms-assets.tutsplus.com/cdn-cgi/image/width=850/uploads/users/107/posts/26488/final_image/41-space-scrolling-background850-2.jpg",
+      thumbnailUrl:
+        "https://cms-assets.tutsplus.com/cdn-cgi/image/width=850/uploads/users/107/posts/26488/final_image/41-space-scrolling-background850-2.jpg",
+    },
+    {
+      uploadedAt: "2024-06-07T01:43:45Z",
+      photoId: 22222,
+      markerId: 22222,
+      photoUrl:
+        "https://jobifynn.com/storage/2021/08/whide-1.jpeg",
+      thumbnailUrl:
+        "https://jobifynn.com/storage/2021/08/whide-1.jpeg",
+    },
   ],
   username: "감자",
   favCount: 5,

@@ -20,7 +20,13 @@ interface SigninProps {
 const Signin = ({ os = "Windows", close }: SigninProps) => {
   const [viewEmailSignin, setViewEmailSignin] = useState(false);
 
-  useImagePreload(["/logo.png"]);
+  useImagePreload([
+    "/logo.png",
+    "allCheckedIcon.svg",
+    "allCheckIcon.svg",
+    "checkedIcon.svg",
+    "checkIcon.svg",
+  ]);
 
   return (
     <SwipeClosePage
@@ -131,7 +137,10 @@ const EmailSigninForm = ({
       )}
 
       {viewResetPasswordPage && (
-        <ResetPasswordForm close={() => setViewResetPasswordPage(false)} />
+        <ResetPasswordForm
+          os={os}
+          close={() => setViewResetPasswordPage(false)}
+        />
       )}
 
       <Section className="mt-10">

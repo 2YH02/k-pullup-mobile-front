@@ -555,7 +555,7 @@ const MarkerDetailImages = ({
           return (
             <button
               key={image.photoId}
-              className="relative w-full h-32"
+              className="relative w-full h-32 mb-2"
               onClick={() => onImageClick(index)}
             >
               <Image
@@ -1085,6 +1085,8 @@ const ImageDetail = ({
   curImageIndex: number;
   className?: React.ComponentProps<"div">["className"];
 }) => {
+  const [imageIndex, setImageIndex] = useState(curImageIndex);
+
   const slideSettings = {
     accessibility: false,
     dots: false,
@@ -1094,8 +1096,8 @@ const ImageDetail = ({
     swipe: true,
     autoplay: false,
     autoplaySpeed: 3000,
-    adaptiveHeight: true,
     initialSlide: curImageIndex,
+    afterChange: (index: number) => setImageIndex(index),
   };
 
   if (!images) return;
@@ -1104,25 +1106,28 @@ const ImageDetail = ({
     <SwipeClosePage
       os={os}
       close={close}
-      className={cn(
-        "bg-[rgba(0,0,0,0.8)] dark:bg-[rgba(0,0,0,0.8)]",
-        className
-      )}
+      className={cn("bg-black flex flex-col", className)}
+      headerTitle={`${imageIndex + 1}/${images.length}`}
+      headerStyleClass="bg-black text-white"
     >
-      <ModalCloseButton os={os} onClick={close} />
-      <div className="h-full flex items-center justify-center">
-        <div className="relative w-full overflow-hidden">
-          <Slider {...slideSettings}>
-            {images.map((item, index) => (
-              <div key={item.photoId} className="w-full focus:outline-none">
-                <img
-                  src={item.photoUrl}
-                  alt={`Slide ${index + 1}`}
-                  className="w-full h-full object-cover block"
-                />
-              </div>
-            ))}
-          </Slider>
+      <div className="grow h-full overflow-hidden">
+        <div className="h-full flex items-center justify-center">
+          <div className="relative w-full h-full overflow-hidden">
+            <Slider {...slideSettings}>
+              {images.map((item, index) => (
+                <div
+                  key={item.photoId}
+                  className="w-full h-[calc(100dvh-50px)] focus:outline-none"
+                >
+                  <img
+                    src={item.photoUrl}
+                    alt={`Slide ${index + 1}`}
+                    className="w-full h-full object-contain block"
+                  />
+                </div>
+              ))}
+            </Slider>
+          </div>
         </div>
       </div>
     </SwipeClosePage>
