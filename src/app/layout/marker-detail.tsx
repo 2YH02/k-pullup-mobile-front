@@ -8,6 +8,8 @@ import Section from "@/components/section/section";
 import Skeleton from "@/components/skeleton/skeleton";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Textarea from "@/components/textarea/textarea";
+import { useAddComment } from "@/hooks/api/comments/use-add-comment";
+import { useInfiniteComments } from "@/hooks/api/comments/use-infinite-comments";
 import { useMarkerDetails } from "@/hooks/api/marker/use-marker-details";
 import { useMarkerFacilities } from "@/hooks/api/marker/use-marker-facilities";
 import { useMarkerWeather } from "@/hooks/api/marker/use-marker-weather";
@@ -19,7 +21,7 @@ import cn from "@/utils/cn";
 import { formatDate } from "@/utils/format-date";
 import MapWalker from "@/utils/map-walker";
 import Image from "next/image";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, Fragment, useEffect, useRef, useState } from "react";
 import {
   BsArrowLeftShort,
   BsBookmark,
@@ -33,6 +35,7 @@ import {
 import Slider from "react-slick";
 import LocationEditRequestForm from "./location-edit-request-form";
 import Moment from "./moment";
+// TODO: 댓글 삭제, 등록 중 로딩, 댓글 에러 헨들링
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
@@ -106,7 +109,7 @@ const MarkerDetail = ({
   closeDetail,
   imageCache,
 }: MarkerDetailProps) => {
-  const { show } = useBottomSheetStore();
+  const { show, hide } = useBottomSheetStore();
 
   const {
     data: marker,
@@ -446,8 +449,8 @@ const MarkerDetail = ({
             </Section>
 
             {/* 리뷰 */}
-            <MarkerComments />
-            <MarkerCommentsForm />
+            <MarkerComments markerId={marker.markerId} />
+            <MarkerCommentsForm markerId={marker.markerId} close={hide} />
 
             {/* 공유 모달 */}
             <ShareModal />
@@ -636,12 +639,27 @@ const ShareModal = () => {
   );
 };
 
-const MarkerComments = () => {
+const MarkerComments = ({ markerId }: { markerId: number }) => {
   const { show } = useBottomSheetStore();
 
-  const commentsData = commentMockData;
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetching,
+  } = useInfiniteComments(markerId);
 
-  if (!commentsData) {
+  if (isLoading) {
+    return (
+      <Section title="리뷰" className="pb-20">
+        <Skeleton className="w-full h-24" />
+      </Section>
+    );
+  }
+
+  if (!data || data.pages.flatMap((page) => page.comments).length === 0) {
     return (
       <Section title="리뷰" className="pb-20">
         <div className="flex flex-col items-center justify-center">
@@ -665,57 +683,90 @@ const MarkerComments = () => {
       subTitleClick={() => show("review")}
     >
       <div>
-        {commentsData.comments.map((comment, index) => {
-          if (comment.username === "k-pullup") {
-            return (
-              <div
-                key={comment.commentId}
-                className="bg-white dark:bg-black-light shadow-full p-4 rounded-md flex justify-between items-center mb-2"
-              >
-                <div>
-                  <div className="font-bold">{comment.commentText}</div>
-                  <div className="text-sm text-grey">
-                    {formatDate(comment.postedAt)}
+        {data.pages.map((page, pageIndex) => (
+          <Fragment key={pageIndex}>
+            {page.comments.map((comment, index) => {
+              if (comment.username === "k-pullup") {
+                return (
+                  <div
+                    key={comment.commentId}
+                    className="bg-white dark:bg-black-light shadow-full p-4 rounded-md flex justify-between items-center mb-2"
+                  >
+                    <div>
+                      <div className="font-bold">{comment.commentText}</div>
+                      <div className="text-sm text-grey">
+                        {formatDate(comment.postedAt)}
+                      </div>
+                    </div>
+                    <div>{comment.username}</div>
                   </div>
-                </div>
-                <div>{comment.username}</div>
-              </div>
-            );
-          } else {
-            return (
-              <div
-                key={comment.commentId}
-                className={cn(
-                  "p-3",
-                  (index !== commentsData.comments.length - 1 ||
-                    commentsData.comments.length === 1) &&
-                    "border-b border-solid border-grey-light dark:border-grey-dark"
-                )}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="font-bold">{comment.username}</div>
-                  <Button
-                    className="bg-white dark:bg-black"
-                    icon={<BsTrash3 color="#777" />}
-                    appearance="borderless"
-                    clickAction
-                  />
-                </div>
-                <div className="break-words">{comment.commentText}</div>
-                <div className="text-sm text-grey">
-                  {formatDate(comment.postedAt)}
-                </div>
-              </div>
-            );
-          }
-        })}
+                );
+              } else {
+                return (
+                  <div
+                    key={comment.commentId}
+                    className={cn(
+                      "p-3",
+                      (index !== page.comments.length - 1 ||
+                        page.comments.length === 1) &&
+                        "border-b border-solid border-grey-light dark:border-grey-dark"
+                    )}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="font-bold">{comment.username}</div>
+                      <Button
+                        className="bg-white dark:bg-black"
+                        icon={<BsTrash3 color="#777" />}
+                        appearance="borderless"
+                        clickAction
+                      />
+                    </div>
+                    <div className="break-words">{comment.commentText}</div>
+                    <div className="text-sm text-grey">
+                      {formatDate(comment.postedAt)}
+                    </div>
+                  </div>
+                );
+              }
+            })}
+          </Fragment>
+        ))}
+      </div>
+      <div>
+        {isFetchingNextPage && <Skeleton className="w-full h-20 my-4" />}
+        {hasNextPage && (
+          <Button
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="bg-primary active:scale-90"
+            clickAction
+            fullWidth
+          >
+            더 보기
+          </Button>
+        )}
       </div>
     </Section>
   );
 };
 
-const MarkerCommentsForm = () => {
+const MarkerCommentsForm = ({
+  markerId,
+  close,
+}: {
+  markerId: number;
+  close: VoidFunction;
+}) => {
+  const { toast } = useToast();
+  const { mutate: addCommentMutation, error } = useAddComment(markerId);
+
   const [inputValue, setInputValue] = useState("");
+
+  useEffect(() => {
+    if (error?.message === "400") {
+      toast("최대 3개까지 리뷰를 작성하실 수 있습니다.");
+    }
+  }, [error]);
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
@@ -723,7 +774,10 @@ const MarkerCommentsForm = () => {
 
   const handleClick = () => {
     if (inputValue.length <= 0) return;
-    console.log(inputValue);
+    if (inputValue.trim() === "") return;
+    addCommentMutation({ commentText: inputValue });
+    setInputValue("");
+    close();
   };
 
   return (
