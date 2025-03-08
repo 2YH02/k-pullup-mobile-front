@@ -2,6 +2,7 @@ import { Badge } from "@/components/badge/badge";
 import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
 import { Button } from "@/components/button/button";
 import Divider from "@/components/divider/divider";
+import Loading from "@/components/loading/loading";
 import ModalCloseButton from "@/components/modal-close-button/modal-close-button";
 import NotFoundImage from "@/components/not-found-image/not-found-image";
 import Section from "@/components/section/section";
@@ -35,62 +36,10 @@ import {
 import Slider from "react-slick";
 import LocationEditRequestForm from "./location-edit-request-form";
 import Moment from "./moment";
-// TODO: 댓글 삭제, 등록 중 로딩, 댓글 에러 헨들링
+// TODO: 댓글 삭제, 이미지 리스트 크기 조정, 모든 마커 불러오기 (클러스터링)
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
-
-type Comment = {
-  commentId: number;
-  markerId: number;
-  userId: number;
-  postedAt: string;
-  updatedAt: string;
-  commentText: string;
-  username: string;
-};
-
-type CommentData = {
-  comments: Comment[];
-  currentPage: number;
-  totalPages: number;
-  totalComments: number;
-};
-
-const commentMockData: CommentData = {
-  comments: [
-    {
-      commentId: 279,
-      markerId: 5647,
-      userId: 1,
-      postedAt: "2025-01-08T04:08:31Z",
-      updatedAt: "2025-01-08T04:08:31Z",
-      commentText: "좋아요\n",
-      username: "k-pullup",
-    },
-    {
-      commentId: 361,
-      markerId: 5647,
-      userId: 12,
-      postedAt: "2025-02-19T03:47:25Z",
-      updatedAt: "2025-02-19T03:47:25Z",
-      commentText: "test2",
-      username: "감자",
-    },
-    {
-      commentId: 360,
-      markerId: 5647,
-      userId: 12,
-      postedAt: "2025-02-19T03:47:21Z",
-      updatedAt: "2025-02-19T03:47:21Z",
-      commentText: "test",
-      username: "감자",
-    },
-  ],
-  currentPage: 1,
-  totalPages: 1,
-  totalComments: 3,
-};
 
 interface MarkerDetailProps {
   imageUrl?: string | null;
@@ -651,6 +600,11 @@ const MarkerComments = ({ markerId }: { markerId: number }) => {
     isFetching,
   } = useInfiniteComments(markerId);
 
+  const isRefreshing =
+    Boolean(data) && isFetching && !isFetchingNextPage && !isLoading;
+
+  let loadingShown = false;
+
   if (isLoading) {
     return (
       <Section title="리뷰" className="pb-20">
@@ -702,6 +656,10 @@ const MarkerComments = ({ markerId }: { markerId: number }) => {
                   </div>
                 );
               } else {
+                const showLoading = !loadingShown && isRefreshing;
+                if (showLoading) {
+                  loadingShown = true;
+                }
                 return (
                   <div
                     key={comment.commentId}
@@ -712,6 +670,12 @@ const MarkerComments = ({ markerId }: { markerId: number }) => {
                         "border-b border-solid border-grey-light dark:border-grey-dark"
                     )}
                   >
+                    {showLoading && (
+                      <div className="flex items-center justify-center">
+                        <Loading />
+                      </div>
+                    )}
+
                     <div className="flex items-center justify-between">
                       <div className="font-bold">{comment.username}</div>
                       <Button
@@ -758,15 +722,22 @@ const MarkerCommentsForm = ({
   close: VoidFunction;
 }) => {
   const { toast } = useToast();
-  const { mutate: addCommentMutation, error } = useAddComment(markerId);
+  const {
+    mutate: addCommentMutation,
+    error,
+    isError,
+  } = useAddComment(markerId);
 
   const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
+    if (!isError) return;
     if (error?.message === "400") {
       toast("최대 3개까지 리뷰를 작성하실 수 있습니다.");
+    } else {
+      toast("잠시 후 다시 시도해주세요.");
     }
-  }, [error]);
+  }, [error, isError]);
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
