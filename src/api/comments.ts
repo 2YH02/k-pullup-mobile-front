@@ -44,3 +44,10 @@ export const addComment = async (body: AddCommentPayload) => {
     body: JSON.stringify(body),
   });
 };
+
+export const deleteComment = async (id: number) => {
+  return apiFetch(`/comments/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+};

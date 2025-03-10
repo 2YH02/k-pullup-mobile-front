@@ -31,6 +31,8 @@ import {
   BsFillPinMapFill,
   BsFillShareFill,
   BsPersonBoundingBox,
+  BsThreeDots,
+  BsTrash,
   BsTrash3,
 } from "react-icons/bs";
 import Slider from "react-slick";
@@ -40,6 +42,7 @@ import Moment from "./moment";
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
+import { useDeleteComment } from "@/hooks/api/comments/use-delete-comment";
 
 interface MarkerDetailProps {
   imageUrl?: string | null;
@@ -590,6 +593,7 @@ const ShareModal = () => {
 
 const MarkerComments = ({ markerId }: { markerId: number }) => {
   const { show } = useBottomSheetStore();
+  const { toast } = useToast();
 
   const {
     data,
@@ -600,10 +604,25 @@ const MarkerComments = ({ markerId }: { markerId: number }) => {
     isFetching,
   } = useInfiniteComments(markerId);
 
+  const {
+    mutate: deleteComment,
+    isError: isDeleteError,
+    error: deleteError,
+  } = useDeleteComment(markerId);
+
   const isRefreshing =
     Boolean(data) && isFetching && !isFetchingNextPage && !isLoading;
 
   let loadingShown = false;
+
+  useEffect(() => {
+    if (!isDeleteError) return;
+    if (deleteError?.message === "404") {
+      toast("접근 권한이 없습니다. 잠시 후 다시 시도해주세요.");
+    } else {
+      toast("잠시 후 다시 시도해주세요.");
+    }
+  }, [isDeleteError, deleteError]);
 
   if (isLoading) {
     return (
@@ -644,11 +663,11 @@ const MarkerComments = ({ markerId }: { markerId: number }) => {
                 return (
                   <div
                     key={comment.commentId}
-                    className="bg-white dark:bg-black-light shadow-full p-4 rounded-md flex justify-between items-center mb-2"
+                    className="bg-white text-sm dark:bg-black-light shadow-full p-4 rounded-md flex justify-between items-center mb-2"
                   >
                     <div>
                       <div className="font-bold">{comment.commentText}</div>
-                      <div className="text-sm text-grey">
+                      <div className="text-xs text-grey">
                         {formatDate(comment.postedAt)}
                       </div>
                     </div>
@@ -664,7 +683,7 @@ const MarkerComments = ({ markerId }: { markerId: number }) => {
                   <div
                     key={comment.commentId}
                     className={cn(
-                      "p-3",
+                      "p-3 text-sm",
                       (index !== page.comments.length - 1 ||
                         page.comments.length === 1) &&
                         "border-b border-solid border-grey-light dark:border-grey-dark"
@@ -680,15 +699,24 @@ const MarkerComments = ({ markerId }: { markerId: number }) => {
                       <div className="font-bold">{comment.username}</div>
                       <Button
                         className="bg-white dark:bg-black"
-                        icon={<BsTrash3 color="#777" />}
+                        icon={<BsThreeDots color="#777" />}
                         appearance="borderless"
+                        onClick={() => show(`option-${comment.commentId}`)}
                         clickAction
                       />
                     </div>
                     <div className="break-words">{comment.commentText}</div>
-                    <div className="text-sm text-grey">
+                    <div className="text-xs text-grey">
                       {formatDate(comment.postedAt)}
                     </div>
+
+                    <MarkerCommentsOption
+                      id={comment.commentId}
+                      isOwner={true}
+                      deleteComment={() => {
+                        deleteComment(comment.commentId);
+                      }}
+                    />
                   </div>
                 );
               }
@@ -767,6 +795,42 @@ const MarkerCommentsForm = ({
         <div className="grow" />
         <div className="mr-2">{inputValue.length}/40</div>
       </div>
+    </BottomSheet>
+  );
+};
+
+const MarkerCommentsOption = ({
+  id,
+  isOwner,
+  deleteComment,
+}: {
+  id: number;
+  isOwner: boolean;
+  deleteComment: VoidFunction;
+}) => {
+  return (
+    <BottomSheet title="공유" id={`option-${id}`} className="pb-10">
+      <div
+        role="button"
+        className="p-3 flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg"
+      >
+        <span className="mr-4 p-2 rounded-full bg-[rgba(0,0,0,0.2)] dark:bg-[rgba(255,255,255,0.2)] text-white">
+          <BsCopy size={22} />
+        </span>
+        <span>리뷰 복사</span>
+      </div>
+      {isOwner && (
+        <div
+          role="button"
+          className="p-3 flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg"
+          onClick={deleteComment}
+        >
+          <span className="mr-4 p-2 rounded-full bg-[rgba(0,0,0,0.2)] dark:bg-[rgba(255,255,255,0.2)] text-white">
+            <BsTrash size={22} />
+          </span>
+          <span>삭제</span>
+        </div>
+      )}
     </BottomSheet>
   );
 };
