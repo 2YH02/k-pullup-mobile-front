@@ -71,7 +71,7 @@ export const Button: React.FC<ButtonProps> = ({
       : "px-2 py-2"
     : "";
 
-  const clickActionStyle = clickAction ? "active:scale-75" : "";
+  const clickActionStyle = clickAction ? "active:scale-90" : "";
   return (
     <button
       className={cn(

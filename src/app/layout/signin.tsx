@@ -3,11 +3,13 @@ import { Button } from "@/components/button/button";
 import Input from "@/components/input/input";
 import Section from "@/components/section/section";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
+import { useSignin } from "@/hooks/api/auth/use-signin";
 import useImagePreload from "@/hooks/use-image-preload";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
+import { validateSigin } from "@/utils/validate";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TermsCheckboxForm from "../signin/layout/terms-checkbox-form";
 import ResetPasswordForm from "./reset-password-form";
 import Signup from "./signup";
@@ -15,9 +17,10 @@ import Signup from "./signup";
 interface SigninProps {
   close?: VoidFunction;
   os?: string;
+  className?: React.ComponentProps<"div">["className"];
 }
 
-const Signin = ({ os = "Windows", close }: SigninProps) => {
+const Signin = ({ os = "Windows", close, className }: SigninProps) => {
   const [viewEmailSignin, setViewEmailSignin] = useState(false);
 
   useImagePreload([
@@ -34,9 +37,14 @@ const Signin = ({ os = "Windows", close }: SigninProps) => {
       headerTitle="로그인"
       close={close}
       slideType="horizontal"
+      className={className}
     >
       {viewEmailSignin && (
-        <EmailSigninForm os={os} close={() => setViewEmailSignin(false)} />
+        <EmailSigninForm
+          os={os}
+          close={() => setViewEmailSignin(false)}
+          closeSignin={close}
+        />
       )}
 
       <OauthSignin />
@@ -106,22 +114,49 @@ const OauthSignin = () => {
 const EmailSigninForm = ({
   close,
   os = "Windows",
+  closeSignin,
 }: {
   close: VoidFunction;
   os?: string;
+  closeSignin?: VoidFunction;
 }) => {
   const { show, hide } = useBottomSheetStore();
+
+  const {
+    mutateAsync: signin,
+    error,
+    isPending,
+  } = useSignin({
+    onSuccess: () => {
+      close();
+      closeSignin?.();
+    },
+  });
 
   const [emailValue, setEmailValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
 
+  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
+
   const [viewResetPasswordPage, setViewResetPasswordPage] = useState(false);
   const [viewEmailSignupPage, setViewEmailSignupPage] = useState(false);
 
+  useEffect(() => {
+    if (!error) return;
+    if (error.message === "401") {
+      setEmailErrorMessage("이메일 또는 비밀번호가 올바르지 않습니다.");
+    } else {
+      setEmailErrorMessage("잠시 후 다시 시도해주세요.");
+    }
+  }, [error]);
+
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmailErrorMessage("");
     setEmailValue(e.target.value);
   };
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPasswordErrorMessage("");
     setPasswordValue(e.target.value);
   };
 
@@ -150,6 +185,8 @@ const EmailSigninForm = ({
             type="email"
             value={emailValue}
             onChange={handleEmailChange}
+            message={emailErrorMessage}
+            status={emailErrorMessage ? "error" : "default"}
           />
         </div>
         <div>
@@ -158,11 +195,27 @@ const EmailSigninForm = ({
             type="password"
             value={passwordValue}
             onChange={handlePasswordChange}
+            message={passwordErrorMessage}
+            status={passwordErrorMessage ? "error" : "default"}
           />
         </div>
 
         <Button
           className="bg-primary mt-5 disabled:bg-grey"
+          onClick={async () => {
+            const error = validateSigin({
+              email: emailValue,
+              password: passwordValue,
+            });
+
+            if (error.email) setEmailErrorMessage(error.email);
+            if (error.password) setPasswordErrorMessage(error.password);
+
+            if (!error.email || !error.password) {
+              await signin({ email: emailValue, password: passwordValue });
+            }
+          }}
+          disabled={isPending}
           clickAction
           fullWidth
         >

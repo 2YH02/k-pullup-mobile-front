@@ -1,3 +1,4 @@
+import { type UserInfo } from "@/api/user";
 import { Badge } from "@/components/badge/badge";
 import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
 import { Button } from "@/components/button/button";
@@ -10,12 +11,14 @@ import Skeleton from "@/components/skeleton/skeleton";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Textarea from "@/components/textarea/textarea";
 import { useAddComment } from "@/hooks/api/comments/use-add-comment";
+import { useDeleteComment } from "@/hooks/api/comments/use-delete-comment";
 import { useInfiniteComments } from "@/hooks/api/comments/use-infinite-comments";
 import { useMarkerDetails } from "@/hooks/api/marker/use-marker-details";
 import { useMarkerFacilities } from "@/hooks/api/marker/use-marker-facilities";
 import { useMarkerWeather } from "@/hooks/api/marker/use-marker-weather";
 import useToast from "@/hooks/use-toast";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
+import { useUserStore } from "@/store/use-user-store";
 import { type KakaoMap } from "@/types/kakao-map.types";
 import type { MarkerDetail, Photo } from "@/types/marker.types";
 import cn from "@/utils/cn";
@@ -33,16 +36,14 @@ import {
   BsPersonBoundingBox,
   BsThreeDots,
   BsTrash,
-  BsTrash3,
 } from "react-icons/bs";
 import Slider from "react-slick";
 import LocationEditRequestForm from "./location-edit-request-form";
 import Moment from "./moment";
-// TODO: 댓글 삭제, 이미지 리스트 크기 조정, 모든 마커 불러오기 (클러스터링)
+import Signin from "./signin";
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
-import { useDeleteComment } from "@/hooks/api/comments/use-delete-comment";
 
 interface MarkerDetailProps {
   imageUrl?: string | null;
@@ -61,6 +62,7 @@ const MarkerDetail = ({
   closeDetail,
   imageCache,
 }: MarkerDetailProps) => {
+  const { user } = useUserStore();
   const { show, hide } = useBottomSheetStore();
 
   const {
@@ -91,6 +93,8 @@ const MarkerDetail = ({
 
   const [viewImageDetail, setViewImageDetail] = useState(false);
   const [curImageIndex, setCurImageIndex] = useState(0);
+
+  const [viewSignin, setViewSignin] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -220,6 +224,11 @@ const MarkerDetail = ({
           images={marker?.photos}
           curImageIndex={curImageIndex}
         />
+      )}
+
+      {/* 로그인 모달 */}
+      {viewSignin && (
+        <Signin os={os} close={() => setViewSignin(false)} className="z-[33]" />
       )}
 
       {/* 헤더 */}
@@ -401,8 +410,13 @@ const MarkerDetail = ({
             </Section>
 
             {/* 리뷰 */}
-            <MarkerComments markerId={marker.markerId} />
-            <MarkerCommentsForm markerId={marker.markerId} close={hide} />
+            <MarkerComments markerId={marker.markerId} user={user} />
+            <MarkerCommentsForm
+              markerId={marker.markerId}
+              close={hide}
+              isLoggedIn={!!user}
+              openSignin={() => setViewSignin(true)}
+            />
 
             {/* 공유 모달 */}
             <ShareModal />
@@ -521,12 +535,13 @@ const MarkerDetailImages = ({
           return (
             <button
               key={image.photoId}
-              className="relative w-full h-32 mb-2"
+              className="relative w-full mb-2"
               onClick={() => onImageClick(index)}
             >
               <Image
                 src={image.photoUrl}
-                fill
+                width={230}
+                height={230}
                 alt="상세"
                 className="rounded-md object-cover"
               />
@@ -540,12 +555,13 @@ const MarkerDetailImages = ({
           return (
             <button
               key={image.photoId}
-              className="relative w-full h-32"
+              className="relative w-full mb-2"
               onClick={() => onImageClick(index)}
             >
               <Image
                 src={image.photoUrl}
-                fill
+                width={300}
+                height={300}
                 alt="상세"
                 className="rounded-md object-cover"
               />
@@ -591,7 +607,13 @@ const ShareModal = () => {
   );
 };
 
-const MarkerComments = ({ markerId }: { markerId: number }) => {
+const MarkerComments = ({
+  markerId,
+  user,
+}: {
+  markerId: number;
+  user: UserInfo | null;
+}) => {
   const { show } = useBottomSheetStore();
   const { toast } = useToast();
 
@@ -608,6 +630,7 @@ const MarkerComments = ({ markerId }: { markerId: number }) => {
     mutate: deleteComment,
     isError: isDeleteError,
     error: deleteError,
+    isPending,
   } = useDeleteComment(markerId);
 
   const isRefreshing =
@@ -671,7 +694,31 @@ const MarkerComments = ({ markerId }: { markerId: number }) => {
                         {formatDate(comment.postedAt)}
                       </div>
                     </div>
-                    <div>{comment.username}</div>
+                    <div className="flex items-center">
+                      <span>{comment.username}</span>
+                      {user?.chulbong && (
+                        <span>
+                          <Button
+                            className="bg-white dark:bg-black"
+                            icon={<BsThreeDots color="#777" />}
+                            appearance="borderless"
+                            onClick={() => show(`option-${comment.commentId}`)}
+                            clickAction
+                          />
+                        </span>
+                      )}
+                    </div>
+
+                    <MarkerCommentsOption
+                      id={comment.commentId}
+                      isOwner={
+                        user?.chulbong || user?.userId === comment.userId
+                      }
+                      deleteComment={() => {
+                        deleteComment(comment.commentId);
+                      }}
+                      isLoading={isPending}
+                    />
                   </div>
                 );
               } else {
@@ -712,10 +759,13 @@ const MarkerComments = ({ markerId }: { markerId: number }) => {
 
                     <MarkerCommentsOption
                       id={comment.commentId}
-                      isOwner={true}
+                      isOwner={
+                        user?.chulbong || user?.userId === comment.userId
+                      }
                       deleteComment={() => {
                         deleteComment(comment.commentId);
                       }}
+                      isLoading={isPending}
                     />
                   </div>
                 );
@@ -745,15 +795,20 @@ const MarkerComments = ({ markerId }: { markerId: number }) => {
 const MarkerCommentsForm = ({
   markerId,
   close,
+  isLoggedIn,
+  openSignin,
 }: {
   markerId: number;
   close: VoidFunction;
+  isLoggedIn: boolean;
+  openSignin: VoidFunction;
 }) => {
   const { toast } = useToast();
   const {
     mutate: addCommentMutation,
     error,
     isError,
+    isPending,
   } = useAddComment(markerId);
 
   const [inputValue, setInputValue] = useState("");
@@ -781,20 +836,44 @@ const MarkerCommentsForm = ({
 
   return (
     <BottomSheet id="review" title="리뷰 작성" className="pb-10">
-      <Textarea
-        value={inputValue}
-        onChnage={handleChange}
-        maxLength={40}
-        placeholder="다른 사람에게 불쾌감을 주는 욕설, 혐오, 비하의 표현은 주의해주세요."
-        className="mb-4"
-      />
-      <div className="flex items-center">
-        <Button className="w-3/4 bg-primary" onClick={handleClick} clickAction>
-          등록하기
-        </Button>
-        <div className="grow" />
-        <div className="mr-2">{inputValue.length}/40</div>
-      </div>
+      {isLoggedIn ? (
+        <div>
+          <Textarea
+            value={inputValue}
+            onChnage={handleChange}
+            maxLength={40}
+            placeholder="다른 사람에게 불쾌감을 주는 욕설, 혐오, 비하의 표현은 주의해주세요."
+            className="mb-4"
+          />
+          <div className="flex items-center">
+            <Button
+              className="w-3/4 bg-primary"
+              onClick={handleClick}
+              disabled={isPending}
+              clickAction
+            >
+              등록하기
+            </Button>
+            <div className="grow" />
+            <div className="mr-2">{inputValue.length}/40</div>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <div className="text-center mb-5">먼저 로그인을 해주셔야 해요.</div>
+          <Button
+            className="bg-primary"
+            onClick={() => {
+              openSignin();
+              close();
+            }}
+            fullWidth
+            clickAction
+          >
+            로그인 하러 가기
+          </Button>
+        </div>
+      )}
     </BottomSheet>
   );
 };
@@ -803,33 +882,32 @@ const MarkerCommentsOption = ({
   id,
   isOwner,
   deleteComment,
+  isLoading,
 }: {
   id: number;
   isOwner: boolean;
   deleteComment: VoidFunction;
+  isLoading: boolean;
 }) => {
   return (
     <BottomSheet title="공유" id={`option-${id}`} className="pb-10">
-      <div
-        role="button"
-        className="p-3 flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg"
-      >
+      <button className="p-3 w-full flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg">
         <span className="mr-4 p-2 rounded-full bg-[rgba(0,0,0,0.2)] dark:bg-[rgba(255,255,255,0.2)] text-white">
           <BsCopy size={22} />
         </span>
         <span>리뷰 복사</span>
-      </div>
+      </button>
       {isOwner && (
-        <div
-          role="button"
-          className="p-3 flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg"
+        <button
+          className="p-3 w-full flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg"
           onClick={deleteComment}
+          disabled={isLoading}
         >
           <span className="mr-4 p-2 rounded-full bg-[rgba(0,0,0,0.2)] dark:bg-[rgba(255,255,255,0.2)] text-white">
             <BsTrash size={22} />
           </span>
           <span>삭제</span>
-        </div>
+        </button>
       )}
     </BottomSheet>
   );

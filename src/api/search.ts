@@ -1,4 +1,4 @@
-import apiFetch from "./api-fetch";
+import { apiFetch } from "./api-fetch";
 
 export interface SearchMarkers {
   address: string;
@@ -12,6 +12,8 @@ export interface SearchMarkersRes {
   message?: string;
 }
 
-export const searchMarkers = async (query: string): Promise<SearchMarkersRes> => {
+export const searchMarkers = async (
+  query: string
+): Promise<SearchMarkersRes> => {
   return apiFetch(`/search/marker?term=${query}`);
 };

@@ -1,14 +1,16 @@
 "use client";
 
+import { type UserInfo } from "@/api/user";
 import { Button } from "@/components/button/button";
 import Main from "@/components/main/main";
 import Section from "@/components/section/section";
+import Skeleton from "@/components/skeleton/skeleton";
 import usePageTransition from "@/hooks/use-page-transition";
 import BookmarkIcon from "@/icons/bookmark-icon";
 import MylocateIcon from "@/icons/mylocation-icon";
 import ProposalIcon from "@/icons/proposal-icon";
 import ReceivedIcon from "@/icons/received-icon";
-import { type User, useUserStore } from "@/store/use-user-store";
+import { useUserStore } from "@/store/use-user-store";
 import { useEffect, useState } from "react";
 import { BsChevronRight } from "react-icons/bs";
 import { useSessionStore } from "../../store/use-session-store";
@@ -16,18 +18,8 @@ import Signin from "../layout/signin";
 import Config from "./layout/config";
 import MyInfo from "./layout/my-info";
 
-const userMockData: User = {
-  username: "도토리",
-  email: "yonghuni484@gmail.com",
-  provider: "kakao",
-  contributionLevel: "초보 운동자",
-  userId: 50,
-  contributionCount: 70,
-};
-
-const MePageClient = ({ os }: { os: string }) => {
-  const { user, setUser, logout } = useUserStore();
-
+const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
+  const { setUser, setLoading, loading } = useUserStore();
   const { isFirstVisit } = useSessionStore();
   const { slideIn } = usePageTransition();
 
@@ -36,9 +28,27 @@ const MePageClient = ({ os }: { os: string }) => {
   const [viewConfig, setViewConfig] = useState(false);
 
   useEffect(() => {
+    setUser(user);
+    setLoading(false);
+  }, [user]);
+
+  useEffect(() => {
     if (isFirstVisit) return;
     slideIn();
   }, []);
+
+  if (loading) {
+    return (
+      <Main os={os} headerTitle={["오늘도 와주셔서", "감사해요!"]}>
+        <Section>
+          <Skeleton className="w-full h-10" />
+        </Section>
+        <Section>
+          <Skeleton className="w-full h-44" />
+        </Section>
+      </Main>
+    );
+  }
 
   return (
     <Main
@@ -135,21 +145,6 @@ const MePageClient = ({ os }: { os: string }) => {
           </IconLinkButton>
         </div>
       )}
-
-      {/* 로그인 로그아웃 (임시) */}
-      <Section className="mt-5 mb-5">
-        <div>테스트 용</div>
-        <Button
-          className="bg-primary"
-          onClick={() => {
-            if (!user) setUser(userMockData);
-            else logout();
-          }}
-          clickAction
-        >
-          {user ? "로그아웃" : "로그인"}
-        </Button>
-      </Section>
 
       <div className="pb-10" />
     </Main>

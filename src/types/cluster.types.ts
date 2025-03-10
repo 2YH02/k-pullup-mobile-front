@@ -1,9 +1,9 @@
 import type { CustomOverlay } from "./custom-overlay.types";
 import type { KakaoMarker } from "./kakao-map.types";
-import type { Marker } from "./marker.types";
+import type { MarkerDetail } from "./marker.types";
 
 export type MarkerRes = Pick<
-  Marker,
+  MarkerDetail,
   "markerId" | "latitude" | "longitude" | "address" | "hasPhoto"
 >;
 

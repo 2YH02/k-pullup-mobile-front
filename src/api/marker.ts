@@ -1,5 +1,5 @@
 import type { MarkerDetail } from "@/types/marker.types";
-import apiFetch from "./api-fetch";
+import { apiFetch } from "./api-fetch";
 
 export interface FetchNearbyMarkersParams {
   latitude: number;

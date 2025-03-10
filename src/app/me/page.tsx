@@ -1,3 +1,5 @@
+import myInfo from "@/api/user";
+import { cookies } from "next/headers";
 import MePageClient from "./me-page-client";
 
 const MePage = async ({
@@ -5,9 +7,14 @@ const MePage = async ({
 }: {
   searchParams: Promise<{ os: string }>;
 }) => {
-  const { os } = await searchParams;
+  const cookieStore = await cookies();
+  const decodeCookie = decodeURIComponent(cookieStore.toString());
 
-  return <MePageClient os={os as string} />;
+  const { os } = await searchParams;
+  
+  const user = await myInfo(decodeCookie);
+
+  return <MePageClient os={os as string} user={user} />;
 };
 
 export default MePage;

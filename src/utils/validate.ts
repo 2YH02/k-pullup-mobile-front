@@ -39,7 +39,11 @@ export const validateSigin = (formValue: SigninValue) => {
     errors.email = validateMassage.email;
   }
 
-  if (!validatePassword(formValue.password)) {
+  const { hasLetterAndNumber, isLongEnough } = validatePassword(
+    formValue.password
+  );
+
+  if (!hasLetterAndNumber || !isLongEnough) {
     errors.password = validateMassage.password;
   }
 

@@ -1,9 +1,11 @@
+import myInfo from "@/api/user";
 import AlertProvider from "@/provider/alert-provider";
 import CheckFirstVisitProvider from "@/provider/check-first-visit-provider";
 import MapProvider from "@/provider/map-provider";
 import PageTransitionProvider from "@/provider/page-transition-provider";
 import RQProvider from "@/provider/rq-provider";
 import ThemeProvider from "@/provider/theme-provider";
+import UserProvider from "@/provider/user-provider";
 import cn from "@/utils/cn";
 import getOs from "@/utils/get-os";
 import type { Metadata, Viewport } from "next";
@@ -97,8 +99,12 @@ export default async function RootLayout({
   const os = getOs(userAgent || "");
 
   const cookieStore = cookies();
+  const decodeCookie = decodeURIComponent((await cookieStore).toString());
+
   const theme = (await cookieStore).get("theme")?.value;
   const isDark = theme === "dark";
+
+  const user = await myInfo(decodeCookie);
 
   return (
     <html
@@ -108,17 +114,19 @@ export default async function RootLayout({
       <body>
         <ThemeProvider>
           <RQProvider>
-            <AlertProvider>
-              <MapProvider>
-                <CheckFirstVisitProvider>
-                  <div className="relative h-dvh bg-white max-w-[480px] mx-auto overflow-hidden">
-                    <PageTransitionProvider os={os}>
-                      {children}
-                    </PageTransitionProvider>
-                  </div>
-                </CheckFirstVisitProvider>
-              </MapProvider>
-            </AlertProvider>
+            <UserProvider user={user}>
+              <AlertProvider>
+                <MapProvider>
+                  <CheckFirstVisitProvider>
+                    <div className="relative h-dvh bg-white max-w-[480px] mx-auto overflow-hidden">
+                      <PageTransitionProvider os={os}>
+                        {children}
+                      </PageTransitionProvider>
+                    </div>
+                  </CheckFirstVisitProvider>
+                </MapProvider>
+              </AlertProvider>
+            </UserProvider>
           </RQProvider>
           <ToastContainer
             position="top-center"
