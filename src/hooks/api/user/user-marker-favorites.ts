@@ -5,5 +5,6 @@ export const useMarkerFavorites = () => {
   return useQuery<Favorite[]>({
     queryKey: ["marker-favorites"],
     queryFn: fetchFavoritesMarker,
+    gcTime: 0,
   });
 };

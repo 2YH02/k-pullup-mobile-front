@@ -20,6 +20,7 @@ import BookmarkLocation from "./layout/bookmark-location";
 import Config from "./layout/config";
 import MyInfo from "./layout/my-info";
 import MyLocation from "./layout/my-location";
+import MyReportLocation from "./layout/my-report-location";
 
 const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
   const { setUser, setLoading, loading } = useUserStore();
@@ -31,6 +32,7 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
   const [viewConfig, setViewConfig] = useState(false);
   const [viewBookmark, setViewBookmark] = useState(false);
   const [viewMyLocation, setViewMyLocation] = useState(false);
+  const [viewMyReports, setViewMyReports] = useState(false);
 
   const [viewDetail, setViewDetail] = useState(false);
   const [curDetailId, setCurDetailId] = useState(0);
@@ -73,6 +75,8 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
         <MyInfo os={os} close={() => setViewMyInfo(false)} user={user} />
       )}
       {viewConfig && <Config os={os} close={() => setViewConfig(false)} />}
+
+      {/* 저장한 장소 */}
       {viewBookmark && (
         <BookmarkLocation
           os={os}
@@ -80,10 +84,21 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
           openDetail={openDetail}
         />
       )}
+
+      {/* 등록한 장소 */}
       {viewMyLocation && (
         <MyLocation
           os={os}
           close={() => setViewMyLocation(false)}
+          openDetail={openDetail}
+        />
+      )}
+
+      {/* 내가 요청한 수정 목록 */}
+      {viewMyReports && (
+        <MyReportLocation
+          os={os}
+          close={() => setViewMyReports(false)}
           openDetail={openDetail}
         />
       )}
@@ -186,7 +201,10 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
           >
             등록한 장소
           </IconLinkButton>
-          <IconLinkButton icon={<ProposalIcon size={28} />}>
+          <IconLinkButton
+            icon={<ProposalIcon size={28} />}
+            onClick={() => setViewMyReports(true)}
+          >
             내가 요청한 수정 목록
           </IconLinkButton>
           <IconLinkButton icon={<ReceivedIcon size={30} />}>

@@ -31,6 +31,23 @@ export interface Favorite {
   address?: string;
 }
 
+export type ReportStatus = "APPROVED" | "DENIED" | "PENDING";
+
+export interface ReportsRes {
+  createdAt: Date;
+  description: string;
+  latitude: number;
+  longitude: number;
+  newLatitude: number;
+  newLongitude: number;
+  markerId: number;
+  reportId: number;
+  status: ReportStatus;
+  photoUrls: string[];
+  userId: number;
+  address: string;
+}
+
 export const myInfo = async (cookie?: string): Promise<UserInfo | null> => {
   const url = cookie ? process.env.NEXT_PUBLIC_BASE_URL : "/api/v1";
 
@@ -71,5 +88,13 @@ export const updateUsername = async (name: string) => {
 export const fetchFavoritesMarker = async (): Promise<Favorite[]> => {
   return await apiFetch("/users/favorites", {
     credentials: "include",
+    cache: "no-store",
+  });
+};
+
+export const fetchReport = async (): Promise<ReportsRes[]> => {
+  return await apiFetch(`/users/reports`, {
+    credentials: "include",
+    cache: "no-store",
   });
 };
