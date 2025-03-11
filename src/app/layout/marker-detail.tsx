@@ -13,6 +13,8 @@ import Textarea from "@/components/textarea/textarea";
 import { useAddComment } from "@/hooks/api/comments/use-add-comment";
 import { useDeleteComment } from "@/hooks/api/comments/use-delete-comment";
 import { useInfiniteComments } from "@/hooks/api/comments/use-infinite-comments";
+import { useAddToFavorite } from "@/hooks/api/marker/use-add-to-favorite";
+import { useDeleteFavorite } from "@/hooks/api/marker/use-delete-favorite";
 import { useMarkerDetails } from "@/hooks/api/marker/use-marker-details";
 import { useMarkerFacilities } from "@/hooks/api/marker/use-marker-facilities";
 import { useMarkerWeather } from "@/hooks/api/marker/use-marker-weather";
@@ -29,6 +31,7 @@ import { ChangeEvent, Fragment, useEffect, useRef, useState } from "react";
 import {
   BsArrowLeftShort,
   BsBookmark,
+  BsBookmarkFill,
   BsCloudDownload,
   BsCopy,
   BsFillPinMapFill,
@@ -77,6 +80,11 @@ const MarkerDetail = ({
     error: weatherError,
     isLoading: weatherLoading,
   } = useMarkerWeather(marker?.latitude as number, marker?.longitude as number);
+
+  const { mutate: deleteFavorite, isPending: deleteFavoriteLoading } =
+    useDeleteFavorite(marker?.markerId || 0);
+  const { mutate: addToFavorite, isPending: addToFavoriteLoading } =
+    useAddToFavorite(marker?.markerId || 0);
 
   const titleRef = useRef<HTMLDivElement>(null);
 
@@ -148,6 +156,16 @@ const MarkerDetail = ({
   const onImageClick = (index: number) => {
     setCurImageIndex(index);
     setViewImageDetail(true);
+  };
+
+  const handleFavorite = () => {
+    if (!marker) return;
+
+    if (marker.favorited) {
+      deleteFavorite(marker.markerId);
+    } else {
+      addToFavorite(marker.markerId);
+    }
   };
 
   if (markerError?.message === "404") {
@@ -335,9 +353,16 @@ const MarkerDetail = ({
                 </span>
               </div>
               <div className="flex h-16 border-t border-solid border-[#ccc] py-1">
-                {/* <BsBookmarkFill /> */}
                 <IconButton
-                  icon={<BsBookmark size={20} className="fill-primary" />}
+                  icon={
+                    marker.favorited ? (
+                      <BsBookmarkFill size={20} className="fill-primary" />
+                    ) : (
+                      <BsBookmark size={20} className="fill-primary" />
+                    )
+                  }
+                  disabled={addToFavoriteLoading || deleteFavoriteLoading}
+                  onClick={handleFavorite}
                 >
                   북마크
                 </IconButton>
@@ -363,6 +388,19 @@ const MarkerDetail = ({
                 >
                   공유
                 </IconButton>
+                {marker.isChulbong && (
+                  <>
+                    <div className="h-11 my-auto border-r border-solid border-[#ccc]" />
+                    <IconButton
+                      icon={<BsTrash size={20} className="fill-primary" />}
+                      onClick={() => {
+                        console.log("삭제");
+                      }}
+                    >
+                      삭제
+                    </IconButton>
+                  </>
+                )}
               </div>
             </Section>
 
@@ -915,18 +953,21 @@ const MarkerCommentsOption = ({
 
 const IconButton = ({
   icon,
+  disabled,
   onClick,
   children,
 }: React.PropsWithChildren<{
   icon: React.ReactNode;
+  disabled?: boolean;
   onClick?: VoidFunction;
 }>) => {
   return (
     <Button
-      className="flex flex-col gap-[6px] grow text-xs dark:bg-black dark:text-white"
+      className="flex flex-col gap-[6px] grow text-xs dark:bg-black dark:text-white p-0"
       icon={icon}
       appearance="borderless"
       onClick={onClick}
+      disabled={disabled}
       clickAction
     >
       {children}

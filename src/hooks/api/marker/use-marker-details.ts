@@ -4,7 +4,7 @@ import { MarkerDetail } from "@/types/marker.types";
 
 export const useMarkerDetails = (id: number) => {
   return useQuery<MarkerDetail>({
-    queryKey: ["markerDetails", id],
+    queryKey: ["marker-details", id],
     queryFn: () => fetchMarkerDetails(id),
     enabled: !!id,
   });

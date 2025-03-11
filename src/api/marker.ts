@@ -87,3 +87,21 @@ export const fetchMarkerWeather = async (
 
   return apiFetch(`/markers/weather?${params.toString()}`);
 };
+
+export const deleteFavorite = async (id: number) => {
+  return await apiFetch(
+    `/markers/${id}/favorites`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+    { returnType: "text" }
+  );
+};
+
+export const addToFavorite = async (id: number) => {
+  return await apiFetch(`/markers/${id}/favorites`, {
+    method: "POST",
+    credentials: "include",
+  });
+};

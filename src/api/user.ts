@@ -23,6 +23,14 @@ export interface UserInfo {
   username: string;
 }
 
+export interface Favorite {
+  latitude: number;
+  longitude: number;
+  markerId: number;
+  description: string;
+  address?: string;
+}
+
 export const myInfo = async (cookie?: string): Promise<UserInfo | null> => {
   const url = cookie ? process.env.NEXT_PUBLIC_BASE_URL : "/api/v1";
 
@@ -57,5 +65,11 @@ export const updateUsername = async (name: string) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ username: name }),
+  });
+};
+
+export const fetchFavoritesMarker = async (): Promise<Favorite[]> => {
+  return await apiFetch("/users/favorites", {
+    credentials: "include",
   });
 };

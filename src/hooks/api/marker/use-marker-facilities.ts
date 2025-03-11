@@ -3,7 +3,7 @@ import { fetchMarkerFacilities, Facilities } from "@/api/marker";
 
 export const useMarkerFacilities = (id: number) => {
   return useQuery<Facilities[]>({
-    queryKey: ["markerFacilities", id],
+    queryKey: ["marker-facilities", id],
     queryFn: () => fetchMarkerFacilities(id),
     enabled: !!id,
   });

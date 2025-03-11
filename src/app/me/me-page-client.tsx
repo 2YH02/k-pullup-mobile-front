@@ -17,6 +17,7 @@ import { useSessionStore } from "../../store/use-session-store";
 import Signin from "../layout/signin";
 import Config from "./layout/config";
 import MyInfo from "./layout/my-info";
+import BookmarkLocation from "./layout/bookmark-location";
 
 const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
   const { setUser, setLoading, loading } = useUserStore();
@@ -26,6 +27,7 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
   const [viewSingin, setViewSignin] = useState(false);
   const [viewMyInfo, setViewMyInfo] = useState(false);
   const [viewConfig, setViewConfig] = useState(false);
+  const [viewBookmark, setViewBookmark] = useState(false);
 
   useEffect(() => {
     setUser(user);
@@ -60,6 +62,9 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
         <MyInfo os={os} close={() => setViewMyInfo(false)} user={user} />
       )}
       {viewConfig && <Config os={os} close={() => setViewConfig(false)} />}
+      {viewBookmark && (
+        <BookmarkLocation os={os} close={() => setViewBookmark(false)} />
+      )}
 
       {!user ? (
         <Section className="pb-0">
@@ -136,7 +141,10 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
       {/* 버튼 링크 */}
       {user && (
         <div className="mt-4">
-          <IconLinkButton icon={<BookmarkIcon size={30} />}>
+          <IconLinkButton
+            onClick={() => setViewBookmark(true)}
+            icon={<BookmarkIcon size={30} />}
+          >
             저장한 장소
           </IconLinkButton>
           <IconLinkButton icon={<MylocateIcon size={28} />}>
@@ -158,12 +166,17 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
 
 const IconLinkButton = ({
   icon,
+  onClick,
   children,
-}: React.PropsWithChildren<{ icon: React.ReactElement }>) => {
+}: React.PropsWithChildren<{
+  icon: React.ReactElement;
+  onClick?: VoidFunction;
+}>) => {
   return (
     <Button
       className="px-4 py-2 flex items-center bg-transparent dark:text-white text-black active:scale-95 active:bg-grey-light dark:bg-black"
       fullWidth
+      onClick={onClick}
       clickAction
     >
       <span className="mr-4">{icon}</span>
@@ -196,4 +209,5 @@ const getContributionLevelImage = (level?: ContributionLevel) => {
       return "/ranking1.png";
   }
 };
+
 export default MePageClient;
