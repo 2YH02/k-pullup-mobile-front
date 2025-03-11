@@ -1,14 +1,22 @@
+import cn from "@/utils/cn";
+
 const sizeVariant = {
   sm: "size-5",
   md: "size-7",
   lg: "size-10",
 };
 
-const Loading = ({ size = "md" }: { size?: "sm" | "md" | "lg" }) => {
+const Loading = ({
+  size = "md",
+  className,
+}: {
+  size?: "sm" | "md" | "lg";
+  className?: React.ComponentProps<"svg">["className"];
+}) => {
   const loadingSize = sizeVariant[size];
   return (
     <svg
-      className={`animate-spin text-primary ${loadingSize}`}
+      className={cn(`animate-spin text-primary ${loadingSize}`, className)}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

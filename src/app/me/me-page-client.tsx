@@ -1,6 +1,6 @@
 "use client";
 
-import { type UserInfo } from "@/api/user";
+import type { ContributionLevel, UserInfo } from "@/api/user";
 import { Button } from "@/components/button/button";
 import Main from "@/components/main/main";
 import Section from "@/components/section/section";
@@ -111,7 +111,10 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
           <div className="flex justify-center items-center p-4 bg-white shadow-full rounded dark:border dark:border-solid dark:border-grey-dark dark:bg-black">
             <div className="flex flex-col justify-center items-center relative w-2/5">
               <div className="w-20 mb-2">
-                <img src="/ranking1.png" alt="등급" />
+                <img
+                  src={getContributionLevelImage(user.contributionLevel)}
+                  alt="등급"
+                />
               </div>
               <div className="mb-2 font-bold text-xl">
                 {user.contributionLevel}
@@ -119,7 +122,7 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
               <div>
                 정보 기여 총{" "}
                 <span className="text-primary font-bold">
-                  {user.contributionCount}
+                  {user.contributionCount || 0}
                 </span>
                 회
               </div>
@@ -169,5 +172,26 @@ const IconLinkButton = ({
       </span>
     </Button>
   );
+};
+
+const getContributionLevelImage = (level?: ContributionLevel) => {
+  switch (level) {
+    case "초보 운동자":
+    case "운동 길잡이":
+      return "/ranking1.png";
+    case "철봉 탐험가":
+    case "스트릿 워리어":
+      return "/ranking2.png";
+    case "피트니스 전도사":
+    case "철봉 레인저":
+      return "/ranking3.png";
+    case "철봉 매버릭":
+    case "거장":
+      return "/ranking4.png";
+    case "명인":
+      return "/ranking5.png";
+    default:
+      return "/ranking1.png";
+  }
 };
 export default MePageClient;

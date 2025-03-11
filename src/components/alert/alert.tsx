@@ -2,8 +2,9 @@
 
 import useAlertStore from "@/store/use-alert-store";
 import { useState } from "react";
-import Dimmed from "../dimmed/dimmed";
 import { Button } from "../button/button";
+import Dimmed from "../dimmed/dimmed";
+import Loading from "../loading/loading";
 
 interface Props {
   open?: boolean;
@@ -89,7 +90,7 @@ const Alert = ({
                   disabled={loading}
                   clickAction
                 >
-                  {loading ? "로딩" : buttonLabel}
+                  {loading ? <Loading className="text-white" size="sm"/> : buttonLabel}
                 </Button>
               )}
             </div>

@@ -4,7 +4,9 @@ import ResetPasswordForm from "@/app/layout/reset-password-form";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Switch from "@/components/switch/switch";
 import { useSignout } from "@/hooks/api/auth/use-signout";
+import { useDeleteUser } from "@/hooks/api/user/use-delete-user";
 import useDarkMode from "@/hooks/use-dark-mode";
+import useAlertStore from "@/store/use-alert-store";
 import { useUserStore } from "@/store/use-user-store";
 import { useState } from "react";
 import { BsChevronRight } from "react-icons/bs";
@@ -16,10 +18,25 @@ interface MyInfoProps {
 
 const Config = ({ os = "Windows", close }: MyInfoProps) => {
   const { setLoading, user } = useUserStore();
+  const { openAlert } = useAlertStore();
+
   const { mutateAsync: signout, isPending } = useSignout();
+  const { mutateAsync: deleteUser, isPending: deleteUserLoading } =
+    useDeleteUser();
   const { isDark, toggleTheme } = useDarkMode();
 
   const [viewResetPasswordPage, setViewResetPasswordPage] = useState(false);
+
+  const handleDeleteUser = async () => {
+    try {
+      setLoading(true);
+      await deleteUser();
+    } catch {
+      setLoading(false);
+    } finally {
+      close?.();
+    }
+  };
 
   return (
     <SwipeClosePage
@@ -65,7 +82,20 @@ const Config = ({ os = "Windows", close }: MyInfoProps) => {
             title="비밀번호 초기화"
             onClick={() => setViewResetPasswordPage(true)}
           />
-          <ConfigListItem title="회원 탈퇴" />
+          <ConfigListItem
+            title="회원 탈퇴"
+            onClick={() => {
+              openAlert({
+                title: "정말 탈퇴하시겠습니까?",
+                description:
+                  "추가하신 마커는 유지되고, 작성한 댓글 밑 사진은 모두 삭제됩니다!",
+                onClickAsync: handleDeleteUser,
+                cancel: true,
+                buttonLabel: "탈퇴",
+              });
+            }}
+            disabled={deleteUserLoading}
+          />
         </ConfigList>
       )}
 

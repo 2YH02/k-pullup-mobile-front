@@ -1,9 +1,13 @@
 import BottomFixedButton from "@/components/bottom-fixed-button/bottom-fixed-button";
 import { Button } from "@/components/button/button";
 import Input from "@/components/input/input";
+import Loading from "@/components/loading/loading";
 import Section from "@/components/section/section";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Timer from "@/components/timer/timer";
+import { useSendSignupCode } from "@/hooks/api/auth/use-send-signup-code";
+import { useSignup } from "@/hooks/api/auth/use-signup";
+import { useVarifyCode } from "@/hooks/api/auth/use-varify-code";
 import useImagePreload from "@/hooks/use-image-preload";
 import useInput from "@/hooks/use-input";
 import useAlertStore from "@/store/use-alert-store";
@@ -28,6 +32,7 @@ const Signup = ({
   os?: string;
 }) => {
   const { openAlert } = useAlertStore();
+  const { mutateAsync: signup } = useSignup({});
 
   const [signupValue, setSignupValue] = useState({
     email: "",
@@ -39,6 +44,7 @@ const Signup = ({
   });
 
   const [signupStatus, setSignupStatus] = useState<SignupStatus>("pending");
+  const [signupMessage, setSignupMessage] = useState([""]);
 
   const headerTitle = useMemo(() => {
     if (signupValue.step === 0) return "이메일 확인 (1 / 3)";
@@ -74,7 +80,37 @@ const Signup = ({
       step: prev.step + 1,
     }));
 
-    console.log(signupValue);
+    if (signupValue.step === 2) {
+      try {
+        setSignupMessage(["회원가입 요청 중..."]);
+        await signup({
+          email: signupValue.email,
+          password: signupValue.password,
+          username: signupValue.username,
+        });
+
+        await wait(800);
+        setSignupStatus("complete");
+        setSignupMessage(["회원가입이 완료되었습니다.", "환경합니다!"]);
+      } catch (error) {
+        if (error instanceof Error) {
+          if (error.message === "400") {
+            setSignupMessage([
+              "인증되지 않은 이메일입니다.",
+              "잠시 후 다시 시도해주세요.",
+            ]);
+          } else if (error.message === "409") {
+            setSignupMessage(["이미 등록된 이메일입니다."]);
+          } else {
+            setSignupMessage([
+              "서버가 원활하지 않습니다.",
+              "잠시 후 다시 시도해주세요.",
+            ]);
+          }
+        }
+        setSignupStatus("error");
+      }
+    }
   };
 
   const handleVerified = () => {
@@ -82,9 +118,6 @@ const Signup = ({
   };
   const handleConformed = (confirm: boolean) => {
     setSignupValue((prev) => ({ ...prev, passwordConformed: confirm }));
-  };
-  const handleStatus = (status: SignupStatus) => {
-    setSignupStatus(status);
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,9 +183,9 @@ const Signup = ({
       )}
       {signupValue.step === 3 && (
         <SignupComplete
-          handleStatus={handleStatus}
           close={close}
           status={signupStatus}
+          message={signupMessage}
         />
       )}
 
@@ -178,6 +211,10 @@ const VerifyEmail = ({
   changeEmail: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleVerified: VoidFunction;
 }) => {
+  const { mutateAsync: sendCode, isPending: sendCodeLoading } =
+    useSendSignupCode();
+  const { mutateAsync: varifyCode, isPending: varifyLoading } = useVarifyCode();
+
   const code = useInput("");
 
   const [viewCode, setViewCode] = useState(false);
@@ -192,9 +229,6 @@ const VerifyEmail = ({
       code: false,
     }
   );
-
-  const [emailLoading, setEmailLoading] = useState(false);
-  const [codeLoading, setCodeLoading] = useState(false);
 
   const [timerReset, setTimerReset] = useState(false);
 
@@ -215,34 +249,57 @@ const VerifyEmail = ({
 
   const sendEmail = async () => {
     setTimerReset(false);
-    setEmailLoading(true);
 
-    await wait(400);
+    try {
+      await sendCode(email);
+      setViewCode(true);
+      setCompleted((prev) => ({
+        ...prev,
+        email: true,
+      }));
 
-    setViewCode(true);
-
-    setCompleted((prev) => ({
-      ...prev,
-      email: true,
-    }));
-
-    setEmailLoading(false);
-
-    setTimerReset(true);
+      setTimerReset(true);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === "409") {
+          setErrorMessage((prev) => ({
+            ...prev,
+            email: "이미 등록된 이메일입니다.",
+          }));
+        } else {
+          setErrorMessage((prev) => ({
+            ...prev,
+            email: "잠시 후 다시 시도해주세요.",
+          }));
+        }
+      }
+    }
   };
 
   const verify = async () => {
-    setCodeLoading(true);
+    try {
+      await varifyCode({ email: email, code: code.value });
+      setCompleted((prev) => ({
+        ...prev,
+        code: true,
+      }));
 
-    await wait(500);
-
-    setCompleted((prev) => ({
-      ...prev,
-      code: true,
-    }));
-
-    setCodeLoading(false);
-    handleVerified();
+      handleVerified();
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === "400") {
+          setErrorMessage((prev) => ({
+            ...prev,
+            code: "시간이 만료되었거나 존재하지 않는 코드입니다.",
+          }));
+        } else {
+          setErrorMessage((prev) => ({
+            ...prev,
+            code: "잠시 후 다시 시도해주세요.",
+          }));
+        }
+      }
+    }
   };
 
   return (
@@ -269,12 +326,18 @@ const VerifyEmail = ({
         </div>
         <Button
           onClick={sendEmail}
-          disabled={emailLoading || !!errorMessage.email || completed.code}
-          className="bg-primary disabled:bg-grey mt-4"
+          disabled={sendCodeLoading || !!errorMessage.email || completed.code}
+          className="bg-primary disabled:bg-grey mt-4 h-10 flex items-center justify-center"
           fullWidth
           clickAction
         >
-          {emailLoading ? "로딩" : completed.email ? "다시 요청" : "인증 요청"}
+          {sendCodeLoading ? (
+            <Loading className="text-white" size="sm" />
+          ) : completed.email ? (
+            "다시 요청"
+          ) : (
+            "인증 요청"
+          )}
         </Button>
       </Section>
       <Section>
@@ -310,16 +373,18 @@ const VerifyEmail = ({
             </div>
             <Button
               onClick={verify}
-              disabled={codeLoading || !!errorMessage.code || completed.code}
-              className="bg-primary disabled:bg-grey mt-4"
+              disabled={varifyLoading || !!errorMessage.code || completed.code}
+              className="bg-primary disabled:bg-grey mt-4 h-10 flex items-center justify-center"
               fullWidth
               clickAction
             >
-              {codeLoading
-                ? "로딩"
-                : completed.code
-                ? "인증 완료"
-                : "인증 확인"}
+              {varifyLoading ? (
+                <Loading className="text-white" size="sm" />
+              ) : completed.code ? (
+                "인증 완료"
+              ) : (
+                "인증 확인"
+              )}
             </Button>
           </div>
         )}
@@ -451,25 +516,13 @@ const EnterPassword = ({
 
 const SignupComplete = ({
   status,
+  message,
   close,
-  handleStatus,
 }: {
   status: SignupStatus;
+  message: string[];
   close: VoidFunction;
-  handleStatus: (status: SignupStatus) => void;
 }) => {
-  const message = useMemo(() => {
-    return signupStatusText(status);
-  }, [status]);
-
-  useEffect(() => {
-    const signup = async () => {
-      await wait(1000);
-      handleStatus("complete");
-    };
-    signup();
-  }, []);
-
   return (
     <Section className="w-full h-full flex flex-col items-center justify-center">
       <div className="w-[220px]">
@@ -524,13 +577,6 @@ const validateSignupEmail = (values: {
   }
 
   return errors;
-};
-
-const signupStatusText = (status: SignupStatus) => {
-  if (status === "pending") return ["회원가입 요청 중..."];
-  if (status === "complete")
-    return ["회원가입이 완료되었습니다.", "환영합니다!!"];
-  if (status === "error") return ["잠시 후 다시 시도해주세요..."];
 };
 
 export default Signup;

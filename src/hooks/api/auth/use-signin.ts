@@ -1,4 +1,4 @@
-import { LoginPayload, LoginRes, signin } from "@/api/auth";
+import { type LoginPayload, type LoginRes, signin } from "@/api/auth";
 import { useUserStore } from "@/store/use-user-store";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";

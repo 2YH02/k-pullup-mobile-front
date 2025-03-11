@@ -1,4 +1,4 @@
-import myInfo from "@/api/user";
+import { myInfo } from "@/api/user";
 import AlertProvider from "@/provider/alert-provider";
 import CheckFirstVisitProvider from "@/provider/check-first-visit-provider";
 import MapProvider from "@/provider/map-provider";

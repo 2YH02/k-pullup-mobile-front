@@ -40,6 +40,9 @@ export const fetchComments = async ({
 
 export const addComment = async (body: AddCommentPayload) => {
   return apiFetch(`/comments`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
     method: "POST",
     body: JSON.stringify(body),
   });

@@ -1,3 +1,5 @@
+import { apiFetch } from "./api-fetch";
+
 export type ContributionLevel =
   | "초보 운동자"
   | "운동 길잡이"
@@ -21,7 +23,7 @@ export interface UserInfo {
   username: string;
 }
 
-const myInfo = async (cookie?: string): Promise<UserInfo | null> => {
+export const myInfo = async (cookie?: string): Promise<UserInfo | null> => {
   const url = cookie ? process.env.NEXT_PUBLIC_BASE_URL : "/api/v1";
 
   const response = await fetch(`${url}/users/me`, {
@@ -39,4 +41,11 @@ const myInfo = async (cookie?: string): Promise<UserInfo | null> => {
   return response.json();
 };
 
-export default myInfo;
+export const deleteUser = async () => {
+  const response = await apiFetch(`/users/me`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+
+  return response;
+};
