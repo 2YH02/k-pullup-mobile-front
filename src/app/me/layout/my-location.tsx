@@ -5,32 +5,58 @@ import NotFoundImage from "@/components/not-found-image/not-found-image";
 import Section from "@/components/section/section";
 import Skeleton from "@/components/skeleton/skeleton";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
-import WarningText from "@/components/warning-text/warning-text";
-import { useDeleteFavorite } from "@/hooks/api/marker/use-delete-favorite";
-import { useMarkerFavorites } from "@/hooks/api/user/user-marker-favorites";
+import { useInfiniteMyMarker } from "@/hooks/api/marker/use-infinite-my-marker";
 import PinIcon from "@/icons/pin-icon";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
+import { useEffect, useMemo, useRef } from "react";
 import { BsThreeDots, BsTrash } from "react-icons/bs";
 
-interface BookmarkLocationProps {
+interface MyLocationProps {
   os?: string;
   close?: VoidFunction;
   openDetail: (id: number) => void;
 }
 
-const BookmarkLocation = ({
-  os = "Windows",
-  close,
-  openDetail,
-}: BookmarkLocationProps) => {
-  const { data, isLoading } = useMarkerFavorites();
+const MyLocation = ({ os = "Windows", close, openDetail }: MyLocationProps) => {
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteMyMarker();
+
+  const markers = useMemo(() => {
+    if (!data) return [];
+    return data.pages.flatMap((page) => page.markers);
+  }, [data]);
+
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1 }
+    );
+
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (isLoading) {
     return (
       <SwipeClosePage
         os={os}
         close={close}
-        headerTitle="저장한 장소"
+        headerTitle="등록한 장소"
         slideType="horizontal"
       >
         <Section className="pb-0">
@@ -43,16 +69,16 @@ const BookmarkLocation = ({
     );
   }
 
-  if (!data || data.length <= 0) {
+  if (!data || markers.length === 0) {
     return (
       <SwipeClosePage
         os={os}
         close={close}
-        headerTitle="저장한 장소"
+        headerTitle="등록한 장소"
         slideType="horizontal"
       >
         <div className="mt-12">
-          <NotFoundImage text="저장한 장소가 없습니다." size="lg" />
+          <NotFoundImage text="등록한 장소가 없습니다." size="lg" />
         </div>
       </SwipeClosePage>
     );
@@ -62,27 +88,27 @@ const BookmarkLocation = ({
     <SwipeClosePage
       os={os}
       close={close}
-      headerTitle="저장한 장소"
+      headerTitle="등록한 장소"
       slideType="horizontal"
     >
-      <Section className="pb-0">
-        <WarningText>즐겨찾기는 최대 10개까지 추가할 수 있습니다.</WarningText>
-      </Section>
-
-      {data.map((location) => {
+      <div className="p-2" />
+      {markers.map((marker, index) => {
         return (
           <ListItem
-            key={location.markerId}
-            id={location.markerId}
-            title={location.address || "주소 정보 없음"}
-            subTitle={location.description || "설명 없음"}
+            key={`${marker.markerId} ${index}`}
+            id={marker.markerId}
+            title={marker.address || "주소 정보 없음"}
+            subTitle={marker.description || "설명 없음"}
             leftIcon={<PinIcon size={28} />}
             onClick={() => {
-              openDetail(location.markerId);
+              openDetail(marker.markerId);
             }}
           />
         );
       })}
+      <div ref={loadMoreRef} className="py-4 text-center">
+        {isFetchingNextPage && <Skeleton className="w-[94%] h-14 mx-auto" />}
+      </div>
     </SwipeClosePage>
   );
 };
@@ -100,7 +126,7 @@ const ListItem = ({
   leftIcon?: React.ReactElement;
   onClick?: VoidFunction;
 }) => {
-  const { mutate: deleteFavorite, isPending } = useDeleteFavorite();
+  //   const { mutate: deleteFavorite, isPending } = useDeleteFavorite();
   const { show } = useBottomSheetStore();
 
   return (
@@ -133,8 +159,8 @@ const ListItem = ({
       <BottomSheet title="북마크" id={`bookmark-${id}`} className="pb-10">
         <button
           className="p-3 w-full flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg"
-          onClick={() => deleteFavorite(id)}
-          disabled={isPending}
+          //   onClick={() => deleteFavorite(id)}
+          //   disabled={isPending}
         >
           <span className="mr-4 p-2 rounded-full bg-[rgba(0,0,0,0.2)] dark:bg-[rgba(255,255,255,0.2)] text-white">
             <BsTrash size={22} />
@@ -146,4 +172,4 @@ const ListItem = ({
   );
 };
 
-export default BookmarkLocation;
+export default MyLocation;

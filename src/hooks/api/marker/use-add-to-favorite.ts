@@ -22,7 +22,7 @@ export const useAddToFavorite = (markerId: number) => {
       queryClient.setQueryData(["marker-details", markerId], {
         ...previousMarkerData,
         favorited: true,
-        favCount: (previousMarkerData.favCount || 0) + 1,
+        favCount: (previousMarkerData?.favCount || 0) + 1,
       });
 
       return { previousMarkerData };

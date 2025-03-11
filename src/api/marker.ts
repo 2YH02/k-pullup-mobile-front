@@ -1,5 +1,5 @@
 import type { MarkerDetail } from "@/types/marker.types";
-import { apiFetch } from "./api-fetch";
+import { apiFetch, type InfiniteMarkerRes } from "./api-fetch";
 
 export interface FetchNearbyMarkersParams {
   latitude: number;
@@ -102,6 +102,22 @@ export const deleteFavorite = async (id: number) => {
 export const addToFavorite = async (id: number) => {
   return await apiFetch(`/markers/${id}/favorites`, {
     method: "POST",
+    credentials: "include",
+  });
+};
+
+export interface RegisteredMarker {
+  latitude: number;
+  longitude: number;
+  markerId: number;
+  description: string;
+  address?: string;
+}
+
+export const fetchMyMarkers = async (
+  pageParam: number
+): Promise<InfiniteMarkerRes<RegisteredMarker>> => {
+  return await apiFetch(`/markers/my?page=${pageParam}&pageSize=5`, {
     credentials: "include",
   });
 };

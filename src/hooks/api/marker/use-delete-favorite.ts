@@ -22,7 +22,7 @@ export const useDeleteFavorite = (markerId?: number) => {
       queryClient.setQueryData(["marker-details", markerId], {
         ...previousMarkerData,
         favorited: false,
-        favCount: (previousMarkerData.favCount || 1) - 1,
+        favCount: (previousMarkerData?.favCount || 1) - 1,
       });
 
       return { previousMarkerData };

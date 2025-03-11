@@ -2,6 +2,13 @@ interface ReturnOption {
   returnType: "text" | "json";
 }
 
+export interface InfiniteMarkerRes<T> {
+  currentPage: number;
+  markers: T[];
+  totalMarkers: number;
+  totalPages: number;
+}
+
 export const apiFetch = async (
   endpoint: string,
   options: RequestInit = {},

@@ -14,10 +14,12 @@ import { useUserStore } from "@/store/use-user-store";
 import { useEffect, useState } from "react";
 import { BsChevronRight } from "react-icons/bs";
 import { useSessionStore } from "../../store/use-session-store";
+import MarkerDetail from "../layout/marker-detail";
 import Signin from "../layout/signin";
+import BookmarkLocation from "./layout/bookmark-location";
 import Config from "./layout/config";
 import MyInfo from "./layout/my-info";
-import BookmarkLocation from "./layout/bookmark-location";
+import MyLocation from "./layout/my-location";
 
 const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
   const { setUser, setLoading, loading } = useUserStore();
@@ -28,6 +30,10 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
   const [viewMyInfo, setViewMyInfo] = useState(false);
   const [viewConfig, setViewConfig] = useState(false);
   const [viewBookmark, setViewBookmark] = useState(false);
+  const [viewMyLocation, setViewMyLocation] = useState(false);
+
+  const [viewDetail, setViewDetail] = useState(false);
+  const [curDetailId, setCurDetailId] = useState(0);
 
   useEffect(() => {
     setUser(user);
@@ -38,6 +44,11 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
     if (isFirstVisit) return;
     slideIn();
   }, []);
+
+  const openDetail = (id: number) => {
+    setViewDetail(true);
+    setCurDetailId(id);
+  };
 
   if (loading) {
     return (
@@ -63,7 +74,29 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
       )}
       {viewConfig && <Config os={os} close={() => setViewConfig(false)} />}
       {viewBookmark && (
-        <BookmarkLocation os={os} close={() => setViewBookmark(false)} />
+        <BookmarkLocation
+          os={os}
+          close={() => setViewBookmark(false)}
+          openDetail={openDetail}
+        />
+      )}
+      {viewMyLocation && (
+        <MyLocation
+          os={os}
+          close={() => setViewMyLocation(false)}
+          openDetail={openDetail}
+        />
+      )}
+
+      {(viewDetail || curDetailId !== 0) && (
+        <MarkerDetail
+          markerId={curDetailId}
+          closeDetail={() => {
+            setViewDetail(false);
+            setCurDetailId(0);
+          }}
+          className="z-[33]"
+        />
       )}
 
       {!user ? (
@@ -147,7 +180,10 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
           >
             저장한 장소
           </IconLinkButton>
-          <IconLinkButton icon={<MylocateIcon size={28} />}>
+          <IconLinkButton
+            onClick={() => setViewMyLocation(true)}
+            icon={<MylocateIcon size={28} />}
+          >
             등록한 장소
           </IconLinkButton>
           <IconLinkButton icon={<ProposalIcon size={28} />}>
