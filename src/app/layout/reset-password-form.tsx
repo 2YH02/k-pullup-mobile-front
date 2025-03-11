@@ -5,6 +5,7 @@ import Input from "@/components/input/input";
 import Section from "@/components/section/section";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import { useSendPasswordResetEmail } from "@/hooks/api/auth/use-send-password-reset-email";
+import { validateEmail } from "@/utils/validate";
 import { useEffect, useState } from "react";
 
 const ResetPasswordForm = ({
@@ -56,7 +57,7 @@ const ResetPasswordForm = ({
           onClick={() => {
             mutate(emailValue);
           }}
-          disabled={isPending}
+          disabled={isPending || !validateEmail(emailValue)}
           clickAction
           fullWidth
         >

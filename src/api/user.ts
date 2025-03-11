@@ -49,3 +49,13 @@ export const deleteUser = async () => {
 
   return response;
 };
+
+export const updateUsername = async (name: string) => {
+  return await apiFetch(`/users/me`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ username: name }),
+  });
+};

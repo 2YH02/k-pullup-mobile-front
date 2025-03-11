@@ -1,10 +1,12 @@
 "use client";
 
+import type { UserInfo } from "@/api/user";
 import ResetPasswordForm from "@/app/layout/reset-password-form";
 import { Button } from "@/components/button/button";
 import Input from "@/components/input/input";
 import Section from "@/components/section/section";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
+import { useUpdateUsername } from "@/hooks/api/user/use-update-username";
 import useInput from "@/hooks/use-input";
 import { useState } from "react";
 import { BsPencilSquare } from "react-icons/bs";
@@ -12,22 +14,33 @@ import { BsPencilSquare } from "react-icons/bs";
 interface MyInfoProps {
   os?: string;
   close?: VoidFunction;
+  user?: UserInfo | null;
 }
 
-const MyInfo = ({ os = "Windows", close }: MyInfoProps) => {
-  const user = {
-    username: "도토리",
-    email: "yonghuni484@gmail.com",
-    provider: "kakao",
-    contributionLevel: "초보 운동자",
-    userId: 50,
-    contributionCount: 70,
-  };
+const MyInfo = ({ os = "Windows", close, user }: MyInfoProps) => {
+  if (!user) return null;
+
+  const { mutateAsync: updateUsername, isPending } = useUpdateUsername();
 
   const editNameValue = useInput(user.username);
 
   const [viewResetPasswordPage, setViewResetPasswordPage] = useState(false);
   const [viewEditNameInput, setViewEditNameInput] = useState(false);
+  const [usernameInputMessage, setUsernameInputMessage] = useState("");
+
+  const handleUpdateUsername = async () => {
+    if (
+      editNameValue.value.length <= 0 &&
+      user.username === editNameValue.value
+    )
+      return;
+    try {
+      await updateUsername(editNameValue.value);
+      setViewEditNameInput(false);
+    } catch {
+      setUsernameInputMessage("잠시 후 다시 시도해주세요.");
+    }
+  };
 
   return (
     <SwipeClosePage
@@ -49,8 +62,13 @@ const MyInfo = ({ os = "Windows", close }: MyInfoProps) => {
             <div>
               <Input
                 value={editNameValue.value}
-                onChange={editNameValue.onChange}
+                onChange={(e) => {
+                  editNameValue.onChange(e);
+                  setUsernameInputMessage("");
+                }}
                 className="h-8"
+                status={usernameInputMessage.length > 0 ? "error" : "default"}
+                message={usernameInputMessage}
               />
               <div className="flex justify-center items-center gap-2 mt-2">
                 <Button
@@ -65,7 +83,8 @@ const MyInfo = ({ os = "Windows", close }: MyInfoProps) => {
                 <Button
                   className="w-1/2 bg-primary"
                   size="sm"
-                  onClick={() => setViewEditNameInput(false)}
+                  onClick={handleUpdateUsername}
+                  disabled={isPending}
                   clickAction
                 >
                   확인
