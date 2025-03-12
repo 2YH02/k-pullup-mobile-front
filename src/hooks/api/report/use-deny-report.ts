@@ -1,19 +1,18 @@
-import { deleteReport, type ReportPayload } from "@/api/report";
+import { denyReport } from "@/api/report";
 import useToast from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export const useDeleteReport = () => {
+export const useDenyReport = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (body: ReportPayload) =>
-      deleteReport({ markerId: body.markerId, reportId: body.reportId }),
+    mutationFn: (reportId: number) => denyReport(reportId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["report-marker"] });
       queryClient.invalidateQueries({ queryKey: ["report-for-my-marker"] });
     },
-    onError: () => {
+    onError: (error) => {
+      console.log(error);
       toast("잘못된 요청입니다. 잠시 후 다시 시도해주세요.");
     },
   });

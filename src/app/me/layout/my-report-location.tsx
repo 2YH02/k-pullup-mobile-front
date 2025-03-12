@@ -112,7 +112,7 @@ const ReportItem = ({
       {report.photoUrls && (
         <div>
           <div className="font-bold">추가된 이미지</div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {report.photoUrls.map((url) => {
               return (
                 <div key={url} className="relative w-28 h-28">
@@ -153,7 +153,7 @@ const ReportItem = ({
   );
 };
 
-const getReportStatusText = (status: ReportStatus) => {
+export const getReportStatusText = (status: ReportStatus) => {
   if (status === "APPROVED") {
     return "승인됨";
   } else if (status === "DENIED") {
@@ -163,7 +163,7 @@ const getReportStatusText = (status: ReportStatus) => {
   }
 };
 
-const getReportStatusColor = (status: ReportStatus) => {
+export const getReportStatusColor = (status: ReportStatus) => {
   if (status === "APPROVED") {
     return "bg-green";
   } else if (status === "DENIED") {

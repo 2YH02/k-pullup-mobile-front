@@ -21,6 +21,7 @@ import Config from "./layout/config";
 import MyInfo from "./layout/my-info";
 import MyLocation from "./layout/my-location";
 import MyReportLocation from "./layout/my-report-location";
+import ReportForMyMarker from "./layout/report-for-my-marker";
 
 const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
   const { setUser, setLoading, loading } = useUserStore();
@@ -33,6 +34,7 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
   const [viewBookmark, setViewBookmark] = useState(false);
   const [viewMyLocation, setViewMyLocation] = useState(false);
   const [viewMyReports, setViewMyReports] = useState(false);
+  const [viewReportForMe, setViewReportForMe] = useState(false);
 
   const [viewDetail, setViewDetail] = useState(false);
   const [curDetailId, setCurDetailId] = useState(0);
@@ -99,6 +101,15 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
         <MyReportLocation
           os={os}
           close={() => setViewMyReports(false)}
+          openDetail={openDetail}
+        />
+      )}
+
+      {/* 받은 수정 요청 목록 */}
+      {viewReportForMe && (
+        <ReportForMyMarker
+          os={os}
+          close={() => setViewReportForMe(false)}
           openDetail={openDetail}
         />
       )}
@@ -207,7 +218,10 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
           >
             내가 요청한 수정 목록
           </IconLinkButton>
-          <IconLinkButton icon={<ReceivedIcon size={30} />}>
+          <IconLinkButton
+            icon={<ReceivedIcon size={30} />}
+            onClick={() => setViewReportForMe(true)}
+          >
             받은 수정 요청 목록
           </IconLinkButton>
         </div>
@@ -237,7 +251,7 @@ const IconLinkButton = ({
       <span>{children}</span>
       <div className="grow" />
       <span>
-        <BsChevronRight />
+        <BsChevronRight className="text-grey-dark dark:text-grey"/>
       </span>
     </Button>
   );

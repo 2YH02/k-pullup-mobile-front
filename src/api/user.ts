@@ -98,3 +98,31 @@ export const fetchReport = async (): Promise<ReportsRes[]> => {
     cache: "no-store",
   });
 };
+
+export interface ReportMarker {
+  createdAt: string;
+  description: string;
+  newLatitude: number;
+  newLongitude: number;
+  photos: string[];
+  reportID: number;
+  status: ReportStatus;
+}
+
+export interface MyReportMarker {
+  markerID: number;
+  reports: ReportMarker[];
+  address: string;
+}
+
+export interface MyMarkerReportRes {
+  totalReports: number;
+  markers: MyReportMarker[];
+}
+
+export const reportForMyMarker = async (): Promise<MyMarkerReportRes> => {
+  return await apiFetch(`/users/reports/for-my-markers`, {
+    cache: "no-store",
+    credentials: "include",
+  });
+};

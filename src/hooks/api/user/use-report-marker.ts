@@ -1,4 +1,4 @@
-import { fetchReport, ReportsRes } from "@/api/user";
+import { fetchReport, type ReportsRes } from "@/api/user";
 import { useQuery } from "@tanstack/react-query";
 
 export const useReportMarker = () => {
