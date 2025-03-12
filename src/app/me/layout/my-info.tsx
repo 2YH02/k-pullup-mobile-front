@@ -14,12 +14,10 @@ import { BsPencilSquare } from "react-icons/bs";
 interface MyInfoProps {
   os?: string;
   close?: VoidFunction;
-  user?: UserInfo | null;
+  user: UserInfo;
 }
 
 const MyInfo = ({ os = "Windows", close, user }: MyInfoProps) => {
-  if (!user) return null;
-
   const { mutateAsync: updateUsername, isPending } = useUpdateUsername();
 
   const editNameValue = useInput(user.username);

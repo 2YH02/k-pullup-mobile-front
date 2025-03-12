@@ -60,9 +60,8 @@ const HomePageClient = ({ os }: { os: string }) => {
 
   const [viewSearch, setViewSearch] = useState(false);
 
-  const [markerViewMode, setMarkerViewMode] = useState<"around" | "all">(
-    "around"
-  );
+  // TODO: 이후 set 함수 추가
+  const [markerViewMode] = useState<"around" | "all">("around");
 
   useEffect(() => {
     if (isFirstVisit) return;

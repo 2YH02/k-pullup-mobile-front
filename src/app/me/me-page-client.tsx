@@ -73,7 +73,7 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
       headerTitle={!user ? ["오늘도 와주셔서", "감사해요!"] : undefined}
     >
       {viewSingin && <Signin os={os} close={() => setViewSignin(false)} />}
-      {viewMyInfo && (
+      {viewMyInfo && user && (
         <MyInfo os={os} close={() => setViewMyInfo(false)} user={user} />
       )}
       {viewConfig && <Config os={os} close={() => setViewConfig(false)} />}
@@ -251,7 +251,7 @@ const IconLinkButton = ({
       <span>{children}</span>
       <div className="grow" />
       <span>
-        <BsChevronRight className="text-grey-dark dark:text-grey"/>
+        <BsChevronRight className="text-grey-dark dark:text-grey" />
       </span>
     </Button>
   );
