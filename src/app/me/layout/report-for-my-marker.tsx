@@ -90,7 +90,7 @@ const ReportForMyMarker = ({
               <SlideContainer>
                 {marker.reports.map((report) => {
                   return (
-                    <SlideItem key={report.reportID}>
+                    <SlideItem key={report.reportID} className="bg-white dark:bg-black dark:border-grey-dark">
                       <ListItem data={report} markerId={marker.markerID} />
                     </SlideItem>
                   );

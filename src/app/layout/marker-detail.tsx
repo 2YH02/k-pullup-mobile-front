@@ -230,6 +230,7 @@ const MarkerDetail = ({
           os={os}
           close={() => setViewLocationEditForm(false)}
           markerData={marker}
+          facilitiesData={facilities}
         />
       )}
 

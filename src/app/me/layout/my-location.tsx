@@ -130,7 +130,7 @@ const ListItem = ({
   const { show } = useBottomSheetStore();
 
   return (
-    <div className="px-2 py-2 active:bg-grey-light dark:active:bg-grey-dark flex border-b border-solid border-grey-light ">
+    <div className="px-2 py-2 active:bg-grey-light dark:active:bg-grey-dark flex border-b border-solid border-grey-light dark:border-grey-dark">
       <div className="max-w-[90%] grow">
         <button
           className="flex items-center w-full text-left duration-100"

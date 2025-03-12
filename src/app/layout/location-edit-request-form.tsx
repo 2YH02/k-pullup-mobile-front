@@ -1,3 +1,5 @@
+import type { Facilities } from "@/api/marker";
+import { SubmitReportPayload } from "@/api/report";
 import BottomFixedButton from "@/components/bottom-fixed-button/bottom-fixed-button";
 import { Button } from "@/components/button/button";
 import ModalCloseButton from "@/components/modal-close-button/modal-close-button";
@@ -6,11 +8,14 @@ import Section from "@/components/section/section";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Textarea from "@/components/textarea/textarea";
 import WarningText from "@/components/warning-text/warning-text";
+import { useSetReport } from "@/hooks/api/report/use-set-report";
+import useImagePreload from "@/hooks/use-image-preload";
 import { type KakaoMap } from "@/types/kakao-map.types";
 import type { MarkerDetail } from "@/types/marker.types";
 import cn from "@/utils/cn";
 import { useEffect, useRef, useState } from "react";
 import UploadImageForm, { type FileData } from "./upload-image-form";
+// TODO: 기구 개수 수정 위치 옮기기
 
 type Location = {
   lat: number | null;
@@ -22,21 +27,33 @@ interface Props {
   os?: string;
   close?: VoidFunction;
   markerData: MarkerDetail;
+  facilitiesData?: Facilities[];
   className?: React.ComponentProps<"div">["className"];
 }
 
 const LocationEditRequestForm = ({
   os = "Windows",
+  facilitiesData,
   close,
   markerData,
   className,
 }: Props) => {
-  const [descriptionValue, setDescriptionValue] = useState("");
+  const { mutateAsync: setReport, isPending: setReportLoading } =
+    useSetReport();
+  // const { mutateAsync: setFacilities, isPending: setFacilitiesLoading } =
+  //   useSetNewFacilities();
+
+  const [descriptionValue, setDescriptionValue] = useState(
+    markerData.description || ""
+  );
 
   const [viewChangeLocationMap, setViewChangeLocationMap] = useState(false);
+  const [viewCompleted, setViewCompleted] = useState(false);
 
-  const [pullupBarCount, setPullupBarCount] = useState(0);
-  const [parallelBarCount, setParallelBarCount] = useState(0);
+  const pullup = facilitiesData ? facilitiesData[0].quantity : 0;
+  const parallel = facilitiesData ? facilitiesData[1].quantity : 0;
+  const [pullupBarCount, setPullupBarCount] = useState(pullup);
+  const [parallelBarCount, setParallelBarCount] = useState(parallel);
 
   const [prevLocation, setPrevLocation] = useState<Location>({
     lat: markerData.latitude,
@@ -50,6 +67,10 @@ const LocationEditRequestForm = ({
   });
 
   const [files, setFiles] = useState<FileData[]>([]);
+
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useImagePreload(["/congratulations.gif"]);
 
   const handleDescriptionChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>
@@ -115,6 +136,76 @@ const LocationEditRequestForm = ({
     });
   };
 
+  const handleReport = async (payload: SubmitReportPayload) => {
+    try {
+      setErrorMessage("");
+      await setReport(payload);
+      setViewCompleted(true);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === "400") {
+          setErrorMessage("유효하지 않은 입력 정보입니다.");
+        } else if (error.message === "403") {
+          setErrorMessage("한국 내부에서만 위치를 지정할 수 있습니다.");
+        } else if (error.message === "406") {
+          setErrorMessage(
+            "새로운 위치가 기존 위치와 너무 멀리 떨어져 있습니다."
+          );
+        } else if (error.message === "409") {
+          setErrorMessage("이미지를 등록해주세요.");
+        } else {
+          setErrorMessage(
+            "서버가 원활하지 않습니다. 나중에 다시 시도해주세요."
+          );
+        }
+      }
+    }
+  };
+
+  // const handleSetFacilities = async (payload: SetFacilitiesPayload) => {
+  //   try {
+  //     await setFacilities(payload);
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       if (error.message === "400") {
+  //         addErrorMessage("기구 개수의 입력 정보가 유효하지 않습니다.");
+  //       } else {
+  //         addErrorMessage(
+  //           "서버가 원활하지 않습니다. 나중에 다시 시도해주세요."
+  //         );
+  //       }
+  //     }
+  //   }
+  // };
+
+  const handleSubmit = async () => {
+    const markerPayload: SubmitReportPayload = {
+      markerId: markerData.markerId,
+      description: descriptionValue,
+      photos: files.map((file) => file.file),
+      newLatitude: curLocation.lat || markerData.latitude,
+      newLongitude: curLocation.lng || markerData.longitude,
+      latitude: markerData.latitude,
+      longitude: markerData.longitude,
+    };
+
+    await handleReport(markerPayload);
+
+    // if (pullup !== pullupBarCount || parallel !== parallelBarCount) {
+    //   const facilitiesPayload: SetFacilitiesPayload = {
+    //     markerId: markerData.markerId,
+    //     facilities: [
+    //       { facilityId: 1, quantity: pullupBarCount },
+    //       { facilityId: 2, quantity: parallelBarCount },
+    //     ],
+    //   };
+
+    //   await handleSetFacilities(facilitiesPayload);
+    // }
+  };
+
+  const submitDisabled = files.length <= 0 || setReportLoading;
+
   return (
     <div>
       {/* 위치 수정 지도 */}
@@ -141,6 +232,24 @@ const LocationEditRequestForm = ({
               onDragEnd={changePrevLocation}
               os={os}
             />
+          </div>
+        </SwipeClosePage>
+      )}
+
+      {viewCompleted && (
+        <SwipeClosePage
+          close={() => setViewCompleted(false)}
+          className="z-[34]"
+          slideType="horizontal"
+        >
+          <div className="w-full h-full flex flex-col items-center justify-center pb-28">
+            <img src="/congratulations.gif" alt="정보 제공 완료 축하" />
+            <div className="text-lg font-bold">
+              정보를 제공해주셔서 감사합니다!
+            </div>
+            <div className="text-sm text-grey-dark dark:text-grey">
+              요청하신 내역은 내 정보 페이지에서 확인 가능합니다.
+            </div>
           </div>
         </SwipeClosePage>
       )}
@@ -212,24 +321,23 @@ const LocationEditRequestForm = ({
           </div>
         </Section>
 
-        <BottomFixedButton
-          os={os}
-          onClick={
-            viewChangeLocationMap
-              ? changeCurLocation
-              : () => {
-                  console.log({
-                    decription: descriptionValue,
-                    photos: files,
-                    curLocation: curLocation,
-                    pullupBarCount,
-                    parallelBarCount,
-                  });
-                }
-          }
-        >
-          {viewChangeLocationMap ? "위치 적용" : "수정 요청"}
-        </BottomFixedButton>
+        <Section>
+          <div className="text-xs text-red text-center">{errorMessage}</div>
+        </Section>
+
+        {viewCompleted ? (
+          <BottomFixedButton os={os} onClick={close}>
+            돌아가기
+          </BottomFixedButton>
+        ) : (
+          <BottomFixedButton
+            os={os}
+            onClick={viewChangeLocationMap ? changeCurLocation : handleSubmit}
+            disabled={viewChangeLocationMap ? false : submitDisabled}
+          >
+            {viewChangeLocationMap ? "위치 적용" : "수정 요청"}
+          </BottomFixedButton>
+        )}
       </SwipeClosePage>
     </div>
   );

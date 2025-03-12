@@ -22,7 +22,7 @@ const MyReportLocation = ({
   os = "Windows",
   openDetail,
 }: MyReportLocationProps) => {
-  const { data, isLoading } = useReportMarker();
+  const { data, isLoading, error } = useReportMarker();
 
   if (isLoading) {
     return (
@@ -39,7 +39,7 @@ const MyReportLocation = ({
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!data || data.length === 0 || error?.message === "404") {
     return (
       <SwipeClosePage
         os={os}
@@ -86,7 +86,7 @@ const ReportItem = ({
   const { mutate: deleteReport, isPending } = useDeleteReport();
 
   return (
-    <div className="shadow-full p-4 rounded-md mb-5 flex flex-col gap-3">
+    <div className="shadow-full p-4 rounded-md mb-5 flex flex-col gap-3 dark:border-grey-dark dark:border dark:border-solid">
       <div>
         <div className="flex items-center">
           <span className="font-bold grow">수정 요청 정보</span>

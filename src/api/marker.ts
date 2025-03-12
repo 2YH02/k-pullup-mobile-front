@@ -121,3 +121,19 @@ export const fetchMyMarkers = async (
     credentials: "include",
   });
 };
+
+export interface SetFacilitiesPayload {
+  markerId: number;
+  facilities: Omit<Facilities, "markerId">[];
+}
+
+export const setNewFacilities = async (body: SetFacilitiesPayload) => {
+  return await apiFetch(`/markers/facilities`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(body),
+  });
+};
