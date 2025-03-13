@@ -116,6 +116,7 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
 
       {(viewDetail || curDetailId !== 0) && (
         <MarkerDetail
+          os={os}
           markerId={curDetailId}
           closeDetail={() => {
             setViewDetail(false);

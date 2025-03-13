@@ -118,7 +118,7 @@ const SearchResult = ({
                   className="px-4 bg-primary-light active:bg-opacity-60 dark:active:bg-opacity-40 bg-opacity-20 dark:bg-opacity-10"
                 >
                   <button
-                    className="flex items-center w-full py-2 text-left border-b border-solid border-grey-light duration-100"
+                    className="flex items-center w-full py-2 text-left border-b border-solid border-grey-light dark:border-grey duration-100"
                     onClick={() => {
                       viewMarkerId.current = marker.markerId;
                       setViewDetail(true);
@@ -208,7 +208,7 @@ const ListItem = ({
   return (
     <div className="px-4 active:bg-grey-light dark:active:bg-grey-dark">
       <button
-        className="flex items-center w-full py-1 text-left border-b border-solid border-grey-light duration-100"
+        className="flex items-center w-full py-1 text-left border-b border-solid border-grey-light dark:border-grey-dark duration-100"
         onClick={() => {
           if (addSearch) addSearch();
           moveMap({ lat, lng });
