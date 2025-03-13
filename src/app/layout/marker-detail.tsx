@@ -47,6 +47,7 @@ import Signin from "./signin";
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
+import FacilitiesEditRequestForm from "./facilities-edit-request-form";
 
 interface MarkerDetailProps {
   imageUrl?: string | null;
@@ -98,6 +99,7 @@ const MarkerDetail = ({
   const [viewMoment, setViewMoment] = useState(false);
 
   const [viewLocationEditForm, setViewLocationEditForm] = useState(false);
+  const [viewFacilitiesEditForm, setViewFacilitiesEditForm] = useState(false);
 
   const [viewImageDetail, setViewImageDetail] = useState(false);
   const [curImageIndex, setCurImageIndex] = useState(0);
@@ -230,6 +232,15 @@ const MarkerDetail = ({
           os={os}
           close={() => setViewLocationEditForm(false)}
           markerData={marker}
+        />
+      )}
+
+      {/* 기구 개수 수정 */}
+      {marker && viewFacilitiesEditForm && (
+        <FacilitiesEditRequestForm
+          os={os}
+          close={() => setViewFacilitiesEditForm(false)}
+          markerId={marker.markerId}
           facilitiesData={facilities}
         />
       )}
@@ -340,12 +351,20 @@ const MarkerDetail = ({
                 최종 수정일: {formatDate(marker.updatedAt)}
               </p>
               <div className="flex justify-between text-xs mb-4">
-                <button
-                  className="underline"
-                  onClick={() => setViewLocationEditForm(true)}
-                >
-                  정보 수정 요청
-                </button>
+                <div>
+                  <button
+                    className="underline mr-2"
+                    onClick={() => setViewLocationEditForm(true)}
+                  >
+                    정보 수정 요청
+                  </button>
+                  <button
+                    className="underline"
+                    onClick={() => setViewFacilitiesEditForm(true)}
+                  >
+                    기구 개수 수정
+                  </button>
+                </div>
                 <span className="flex items-center">
                   <span className="mr-1">
                     <StarIcon />

@@ -128,12 +128,16 @@ export interface SetFacilitiesPayload {
 }
 
 export const setNewFacilities = async (body: SetFacilitiesPayload) => {
-  return await apiFetch(`/markers/facilities`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+  return await apiFetch(
+    `/markers/facilities`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(body),
     },
-    credentials: "include",
-    body: JSON.stringify(body),
-  });
+    { returnType: "text" }
+  );
 };

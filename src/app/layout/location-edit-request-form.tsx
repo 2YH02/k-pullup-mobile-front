@@ -1,9 +1,7 @@
-import type { Facilities } from "@/api/marker";
 import { SubmitReportPayload } from "@/api/report";
 import BottomFixedButton from "@/components/bottom-fixed-button/bottom-fixed-button";
 import { Button } from "@/components/button/button";
 import ModalCloseButton from "@/components/modal-close-button/modal-close-button";
-import NumberInput from "@/components/number-input/number-input";
 import Section from "@/components/section/section";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Textarea from "@/components/textarea/textarea";
@@ -15,7 +13,6 @@ import type { MarkerDetail } from "@/types/marker.types";
 import cn from "@/utils/cn";
 import { useEffect, useRef, useState } from "react";
 import UploadImageForm, { type FileData } from "./upload-image-form";
-// TODO: 기구 개수 수정 위치 옮기기
 
 type Location = {
   lat: number | null;
@@ -27,21 +24,17 @@ interface Props {
   os?: string;
   close?: VoidFunction;
   markerData: MarkerDetail;
-  facilitiesData?: Facilities[];
   className?: React.ComponentProps<"div">["className"];
 }
 
 const LocationEditRequestForm = ({
   os = "Windows",
-  facilitiesData,
   close,
   markerData,
   className,
 }: Props) => {
   const { mutateAsync: setReport, isPending: setReportLoading } =
     useSetReport();
-  // const { mutateAsync: setFacilities, isPending: setFacilitiesLoading } =
-  //   useSetNewFacilities();
 
   const [descriptionValue, setDescriptionValue] = useState(
     markerData.description || ""
@@ -49,11 +42,6 @@ const LocationEditRequestForm = ({
 
   const [viewChangeLocationMap, setViewChangeLocationMap] = useState(false);
   const [viewCompleted, setViewCompleted] = useState(false);
-
-  const pullup = facilitiesData ? facilitiesData[0].quantity : 0;
-  const parallel = facilitiesData ? facilitiesData[1].quantity : 0;
-  const [pullupBarCount, setPullupBarCount] = useState(pullup);
-  const [parallelBarCount, setParallelBarCount] = useState(parallel);
 
   const [prevLocation, setPrevLocation] = useState<Location>({
     lat: markerData.latitude,
@@ -76,36 +64,6 @@ const LocationEditRequestForm = ({
     e: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     setDescriptionValue(e.target.value);
-  };
-
-  const handlePullupBarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const number = Number(e.target.value);
-
-    if (number > 100) setPullupBarCount(100);
-    else setPullupBarCount(number);
-  };
-  const handleIncreasePullupBarCount = () => {
-    if (pullupBarCount >= 100) return;
-    setPullupBarCount((prev) => prev + 1);
-  };
-  const handleDecreasePullupBarCount = () => {
-    if (pullupBarCount <= 0) return;
-    setPullupBarCount((prev) => prev - 1);
-  };
-
-  const handleParallelBarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const number = Number(e.target.value);
-
-    if (number > 100) setParallelBarCount(100);
-    else setParallelBarCount(number);
-  };
-  const handleIncreaseParallelBarCount = () => {
-    if (parallelBarCount >= 100) return;
-    setParallelBarCount((prev) => prev + 1);
-  };
-  const handleDecreaseParallelBarCount = () => {
-    if (parallelBarCount <= 0) return;
-    setParallelBarCount((prev) => prev - 1);
   };
 
   const changePrevLocation = ({
@@ -162,22 +120,6 @@ const LocationEditRequestForm = ({
     }
   };
 
-  // const handleSetFacilities = async (payload: SetFacilitiesPayload) => {
-  //   try {
-  //     await setFacilities(payload);
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       if (error.message === "400") {
-  //         addErrorMessage("기구 개수의 입력 정보가 유효하지 않습니다.");
-  //       } else {
-  //         addErrorMessage(
-  //           "서버가 원활하지 않습니다. 나중에 다시 시도해주세요."
-  //         );
-  //       }
-  //     }
-  //   }
-  // };
-
   const handleSubmit = async () => {
     const markerPayload: SubmitReportPayload = {
       markerId: markerData.markerId,
@@ -190,18 +132,6 @@ const LocationEditRequestForm = ({
     };
 
     await handleReport(markerPayload);
-
-    // if (pullup !== pullupBarCount || parallel !== parallelBarCount) {
-    //   const facilitiesPayload: SetFacilitiesPayload = {
-    //     markerId: markerData.markerId,
-    //     facilities: [
-    //       { facilityId: 1, quantity: pullupBarCount },
-    //       { facilityId: 2, quantity: parallelBarCount },
-    //     ],
-    //   };
-
-    //   await handleSetFacilities(facilitiesPayload);
-    // }
   };
 
   const submitDisabled = files.length <= 0 || setReportLoading;
@@ -294,31 +224,6 @@ const LocationEditRequestForm = ({
             지도에서 위치를 수정한 후 꼭{" "}
             <span className="font-bold">위치 적용</span> 버튼을 눌러주세요!
           </WarningText>
-        </Section>
-
-        <Section title="기구 개수 수정">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-lg">철봉:</span>
-            <span>
-              <NumberInput
-                value={pullupBarCount}
-                onChange={handlePullupBarChange}
-                increase={handleIncreasePullupBarCount}
-                decrease={handleDecreasePullupBarCount}
-              />
-            </span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-lg">평행봉:</span>
-            <span>
-              <NumberInput
-                value={parallelBarCount}
-                onChange={handleParallelBarChange}
-                increase={handleIncreaseParallelBarCount}
-                decrease={handleDecreaseParallelBarCount}
-              />
-            </span>
-          </div>
         </Section>
 
         <Section>
