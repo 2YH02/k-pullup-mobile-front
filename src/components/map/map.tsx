@@ -1,10 +1,11 @@
 "use client";
 
+import { useAllMarker } from "@/hooks/api/marker/use-all-marker";
 import useMapControl from "@/hooks/use-map-control";
 import { useGpsStore } from "@/store/use-gps-store";
 import { useMapStore } from "@/store/use-map-store";
+import useMarkerStore from "@/store/use-marker-store";
 import { type CustomOverlay } from "@/types/custom-overlay.types";
-import { type KakaoMarker } from "@/types/kakao-map.types";
 import cn from "@/utils/cn";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -13,15 +14,16 @@ import { createRoot } from "react-dom/client";
 const Map = () => {
   const pathname = usePathname();
 
-  const { map, isView, hide, show, markers, selectedMarkers } = useMapStore();
-  const { addMarker } = useMapControl(map, { enableDrag: false });
+  const { map, isView, hide, show, selectedId } = useMapStore();
+  const { reloadMarkers } = useMapControl(map, { enableDrag: false });
   const { location } = useGpsStore();
+  const { setMarker, markers } = useMarkerStore();
+
+  const { data: allMarker } = useAllMarker();
 
   const [myLocateOverlay, setMyLocateOverlay] = useState<CustomOverlay | null>(
     null
   );
-
-  const [kakaoMarkers, setKakaoMarkers] = useState<KakaoMarker[]>([]);
 
   useEffect(() => {
     if (!map) return;
@@ -35,26 +37,6 @@ const Map = () => {
       hide();
     }
   }, [pathname]);
-
-  useEffect(() => {
-    if (!map || !markers) return;
-
-    kakaoMarkers.forEach((marker) => marker.setMap(null));
-
-    markers.forEach((marker) => {
-      const selected = selectedMarkers?.findIndex(
-        (selectedmarker) => marker.id !== selectedmarker.id
-      );
-
-      const kakaoMarker = addMarker({
-        map,
-        lat: marker.lat,
-        lng: marker.lng,
-        selected: !!selected,
-      });
-      setKakaoMarkers((prev) => [...prev, kakaoMarker]);
-    });
-  }, [markers, selectedMarkers]);
 
   useEffect(() => {
     if (!map || !location) return;
@@ -79,6 +61,31 @@ const Map = () => {
     customOverlay.setMap(map);
     setMyLocateOverlay(customOverlay);
   }, [map, location]);
+
+  useEffect(() => {
+    if (!allMarker || !map) return;
+    setMarker(allMarker);
+  }, [allMarker]);
+
+  useEffect(() => {
+    if (!map) return;
+
+    const handleIdle = () => {
+      if (selectedId) {
+        reloadMarkers({ map, options: { maxLevel: 6, selectId: selectedId } });
+      } else {
+        reloadMarkers({ map, options: { maxLevel: 6 } });
+      }
+    };
+
+    handleIdle();
+
+    window.kakao.maps.event.addListener(map, "idle", handleIdle);
+
+    return () => {
+      window.kakao.maps.event.removeListener(map, "idle", handleIdle);
+    };
+  }, [map, markers, selectedId]);
 
   const mapStyle = isView ? "block" : "hidden";
 

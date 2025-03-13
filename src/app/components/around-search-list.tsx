@@ -24,7 +24,7 @@ const AroundSearchList = ({
   imageCache: (img: string) => void;
   openDetail: (id: number) => void;
 }) => {
-  const { map, selectMarkers } = useMapStore();
+  const { map, selectMarker } = useMapStore();
   const { moveMap } = useMapControl(map, { enableDrag: false });
 
   const isDarkMode = useIsDarkMode();
@@ -95,13 +95,10 @@ const AroundSearchList = ({
   };
 
   const afterSlide = (index: number) => {
-    const selectedMarker = {
-      lat: data[index].latitude,
-      lng: data[index].longitude,
-      id: data[index].markerId,
-    };
+    if (!map) return;
+    const id = data[index].markerId;
 
-    selectMarkers([selectedMarker]);
+    selectMarker(id);
     moveMap({ lat: data[index].latitude, lng: data[index].longitude });
   };
 

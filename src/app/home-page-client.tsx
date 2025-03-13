@@ -29,7 +29,7 @@ export type Marker = {
 };
 
 const HomePageClient = ({ os }: { os: string }) => {
-  const { map, changeMarkers } = useMapStore();
+  const { map } = useMapStore();
   const { center, moveMap } = useMapControl(map);
 
   const { data, isLoading, isFetching, refetch } = useNearbyMarkers({
@@ -60,26 +60,10 @@ const HomePageClient = ({ os }: { os: string }) => {
 
   const [viewSearch, setViewSearch] = useState(false);
 
-  // TODO: 이후 set 함수 추가
-  const [markerViewMode] = useState<"around" | "all">("around");
-
   useEffect(() => {
     if (isFirstVisit) return;
     slideIn();
   }, []);
-
-  useEffect(() => {
-    if (!data || markerViewMode === "all") return;
-
-    const newMarkers = data.markers.map((marker) => {
-      return {
-        lat: marker.latitude,
-        lng: marker.longitude,
-        id: marker.markerId,
-      };
-    });
-    changeMarkers(newMarkers);
-  }, [data]);
 
   const aroundSearch = async () => {
     refetch();

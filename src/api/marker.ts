@@ -41,6 +41,11 @@ export interface Weather {
   iconImage: string;
 }
 
+export type MarkerRes = Pick<
+  MarkerDetail,
+  "markerId" | "latitude" | "longitude" | "address" | "hasPhoto"
+>;
+
 export const fetchNearbyMarkers = async ({
   latitude,
   longitude,
@@ -140,4 +145,8 @@ export const setNewFacilities = async (body: SetFacilitiesPayload) => {
     },
     { returnType: "text" }
   );
+};
+
+export const fetchAllMarker = async (): Promise<MarkerRes[]> => {
+  return await apiFetch(`/markers`);
 };

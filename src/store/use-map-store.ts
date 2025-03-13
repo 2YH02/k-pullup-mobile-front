@@ -1,37 +1,43 @@
-import type { KakaoMap } from "@/types/kakao-map.types";
+import type { KakaoMap, KakaoMarker } from "@/types/kakao-map.types";
 import { create } from "zustand";
 
 export interface MarkerData {
   lat: number;
   lng: number;
   id: number | string;
+  hasPhoto?: boolean;
 }
 
 interface MapState {
   map: KakaoMap | null;
-  markers: MarkerData[] | null;
+  markers: KakaoMarker[] | null;
+  overlays: any[];
   isView: boolean;
-  selectedMarkers: MarkerData[] | null;
+  selectedId: number | null;
   hide: VoidFunction;
   show: VoidFunction;
   setMap: (map: KakaoMap) => void;
   clearMarker: VoidFunction;
-  addMarker: (marker: MarkerData) => void;
+  addMarker: (marker: KakaoMarker) => void;
   removeMarker: (id: number | string) => void;
-  changeMarkers: (markers: MarkerData[]) => void;
-  selectMarkers: (marker: MarkerData[]) => void;
+  setMarkers: (markers: KakaoMarker[]) => void;
+  selectMarker: (selectedId: number) => void;
+  setOverlays: (overlay: any[]) => void;
+  deleteAllMarker: () => void;
+  deleteOverlays: () => void;
 }
 
 export const useMapStore = create<MapState>((set) => ({
   map: null,
   markers: null,
+  overlays: [],
   isView: false,
-  selectedMarkers: null,
+  selectedId: null,
   hide: () => set({ isView: false }),
   show: () => set({ isView: true }),
   setMap: (map) => set({ map }),
   clearMarker: () => set({ markers: null }),
-  addMarker: (marker: MarkerData) =>
+  addMarker: (marker: KakaoMarker) =>
     set((state) => {
       if (state.markers) {
         return { ...state, marker: [...state.markers, marker] };
@@ -41,9 +47,34 @@ export const useMapStore = create<MapState>((set) => ({
     }),
   removeMarker: (id: number | string) =>
     set((state) => {
-      const removedMarker = state.markers?.filter((marker) => marker.id !== id);
+      const removedMarker = state.markers?.filter((marker) => marker.Gb !== id);
       return { ...state, marker: removedMarker };
     }),
-  changeMarkers: (markers: MarkerData[]) => set({ markers }),
-  selectMarkers: (markers: MarkerData[]) => set({ selectedMarkers: markers }),
+  setMarkers: (markers: KakaoMarker[]) =>
+    set((state) => {
+      if (state.markers) {
+        return { markers: [...state.markers, ...markers] };
+      }
+      return { markers: [...markers] };
+    }),
+  selectMarker: (selectedId: number) => set({ selectedId }),
+  setOverlays: (overlay: any) =>
+    set((state) => ({ overlays: [...state.overlays, overlay] })),
+  deleteAllMarker: () =>
+    set((state) => {
+      if (!state.markers) return { ...state };
+      state.markers.forEach((marker) => {
+        marker.setMap(null);
+      });
+
+      return { ...state, markers: null };
+    }),
+  deleteOverlays: () =>
+    set((prev) => {
+      prev.overlays.forEach((overlay) => {
+        overlay.setMap(null);
+      });
+
+      return { ...prev };
+    }),
 }));
