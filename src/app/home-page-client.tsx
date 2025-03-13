@@ -8,6 +8,7 @@ import usePageTransition from "@/hooks/use-page-transition";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
 import { useMapStore } from "@/store/use-map-store";
 import { useSessionStore } from "@/store/use-session-store";
+import { useViewDetailStore } from "@/store/use-view-detail-store";
 import useViewRegisterStore from "@/store/use-view-register-store";
 import cn from "@/utils/cn";
 import { useEffect, useRef, useState } from "react";
@@ -35,12 +36,18 @@ const HomePageClient = ({ os }: { os: string }) => {
   const { data, isLoading, isFetching, refetch } = useNearbyMarkers({
     latitude: center.lat,
     longitude: center.lng,
-    distance: 1000,
+    distance: 2000,
     pageSize: 10,
     page: 1,
   });
 
   const { isView } = useViewRegisterStore();
+  const {
+    isView: isViewDetail,
+    id: curMarkerId,
+    show: viewDetail,
+    hide: hideDetail,
+  } = useViewDetailStore();
 
   const { show, hide } = useBottomSheetStore();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -55,8 +62,6 @@ const HomePageClient = ({ os }: { os: string }) => {
   const [viewAroundSearchList, setViewAroundSearchList] = useState(false);
 
   const [cachedImage, setCachedImage] = useState<string | null>(null);
-  const [viewMarkerDetail, setViewMarkerDetail] = useState(false);
-  const [curMarkerId, setCurMarkerId] = useState<number | null>(null);
 
   const [viewSearch, setViewSearch] = useState(false);
 
@@ -74,13 +79,8 @@ const HomePageClient = ({ os }: { os: string }) => {
     setCachedImage(img);
   };
 
-  const openDetail = (id: number) => {
-    setViewMarkerDetail(true);
-    setCurMarkerId(id);
-  };
-
   const closeDetail = () => {
-    setViewMarkerDetail(false);
+    hideDetail();
   };
 
   const handleSearchModal = () => {
@@ -104,7 +104,7 @@ const HomePageClient = ({ os }: { os: string }) => {
       )}
     >
       {/* 위치 상세 모달 */}
-      {viewMarkerDetail && curMarkerId && (
+      {isViewDetail && curMarkerId && (
         <MarkerDetail
           os={os}
           markerId={curMarkerId}
@@ -194,7 +194,7 @@ const HomePageClient = ({ os }: { os: string }) => {
             isLoading={isLoading || isFetching}
             closeSlide={() => setViewAroundSearchList(false)}
             imageCache={handleImageCache}
-            openDetail={openDetail}
+            openDetail={viewDetail}
           />
         </div>
       )}

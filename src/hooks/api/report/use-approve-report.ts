@@ -14,7 +14,7 @@ export const useApproveReport = (markerId: number) => {
         queryKey: ["marker-details", markerId],
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast("잘못된 요청입니다. 잠시 후 다시 시도해주세요.");
     },
   });

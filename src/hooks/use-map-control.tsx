@@ -1,6 +1,7 @@
 import Overlay from "@/components/overlay/overlay";
 import { useMapStore } from "@/store/use-map-store";
 import useMarkerStore from "@/store/use-marker-store";
+import { useViewDetailStore } from "@/store/use-view-detail-store";
 import { type KakaoMap } from "@/types/kakao-map.types";
 import { clusterMarkers, findNearbyMarkers } from "@/utils/cluster-markers";
 import { useEffect, useState } from "react";
@@ -43,8 +44,9 @@ const useMapControl = (
     deleteOverlays,
     selectMarker,
   } = useMapStore();
-
   const { markers } = useMarkerStore();
+
+  const { show } = useViewDetailStore();
 
   const enableDrag = option?.enableDrag ?? true;
   const [center, setCenter] = useState<MapCenterData>({
@@ -151,6 +153,8 @@ const useMapControl = (
     setMarkers([marker]);
 
     window.kakao.maps.event.addListener(marker, "click", () => {
+      moveMap({ lat, lng });
+      show(id);
       selectMarker(id);
     });
   };
