@@ -71,6 +71,8 @@ const HomePageClient = ({ os }: { os: string }) => {
   }, []);
 
   const aroundSearch = async () => {
+    if (!map) return;
+    map.setLevel(4);
     refetch();
     setViewAroundSearchList(true);
   };
