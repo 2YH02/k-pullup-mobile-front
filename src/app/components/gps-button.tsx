@@ -9,14 +9,17 @@ import { BsCrosshair } from "react-icons/bs";
 const GpsButton = () => {
   const { map } = useMapStore();
   const { moveMap } = useMapControl(map, { enableDrag: false });
-  const { location } = useGpsStore();
+  const { location, requestLocation } = useGpsStore();
 
   return (
     <Button
       className="bg-white text-primary-dark border border-solid border-[#eee] dark:border-grey-dark dark:bg-black dark:text-primary-dark"
       icon={<BsCrosshair />}
       onClick={() => {
-        if (!location) return;
+        if (!location) {
+          requestLocation();
+          return;
+        }
         moveMap({ lat: location.lat, lng: location.lng });
       }}
       clickAction
