@@ -33,7 +33,7 @@ const ReportForMyMarker = ({
   openDetail,
 }: ReportForMyMarkerProps) => {
   const { data, isLoading, error } = useReportForMyMarker();
-  
+
   if (isLoading) {
     return (
       <SwipeClosePage
@@ -86,17 +86,36 @@ const ReportForMyMarker = ({
                 <BsChevronRight className="text-grey-dark dark:text-grey" />
               </span>
             </button>
-            <Carousel className="py-3">
-              <SlideContainer>
+
+            {marker.reports.length === 1 ? (
+              <div>
                 {marker.reports.map((report) => {
                   return (
-                    <SlideItem key={report.reportID} className="bg-white dark:bg-black dark:border-grey-dark">
-                      <ListItem data={report} markerId={marker.markerID} />
-                    </SlideItem>
+                    <ListItem
+                      key={report.reportID}
+                      data={report}
+                      markerId={marker.markerID}
+                      className="p-3 shadow-full rounded-lg mt-2"
+                    />
                   );
                 })}
-              </SlideContainer>
-            </Carousel>
+              </div>
+            ) : (
+              <Carousel className="py-3">
+                <SlideContainer>
+                  {marker.reports.map((report) => {
+                    return (
+                      <SlideItem
+                        key={report.reportID}
+                        className="bg-white dark:bg-black dark:border-grey-dark"
+                      >
+                        <ListItem data={report} markerId={marker.markerID} />
+                      </SlideItem>
+                    );
+                  })}
+                </SlideContainer>
+              </Carousel>
+            )}
           </Section>
         );
       })}
@@ -107,9 +126,11 @@ const ReportForMyMarker = ({
 const ListItem = ({
   data,
   markerId,
+  className,
 }: {
   data: ReportMarker;
   markerId: number;
+  className?: React.ComponentProps<"div">["className"];
 }) => {
   const { mutate: approve, isPending: approveLoading } =
     useApproveReport(markerId);
@@ -117,7 +138,7 @@ const ListItem = ({
   const { mutate: deleteReport, isPending: deleteLoading } = useDeleteReport();
 
   return (
-    <div className="w-full h-full">
+    <div className={cn("w-full h-full", className)}>
       <div className="mb-3">
         <div className="flex items-center">
           <span className="font-bold grow">설명</span>
