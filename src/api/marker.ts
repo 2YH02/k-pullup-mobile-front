@@ -150,3 +150,62 @@ export const setNewFacilities = async (body: SetFacilitiesPayload) => {
 export const fetchAllMarker = async (): Promise<MarkerRes[]> => {
   return await apiFetch(`/markers`);
 };
+
+export interface AddMarkerPayload {
+  photos: File[];
+  latitude: number;
+  longitude: number;
+  description: string;
+}
+
+export interface AddMarkerRes
+  extends Omit<MarkerDetail, "photos" | "createdAt" | "updatedAt"> {
+  photoUrls?: string[];
+}
+
+export const verifyMarkerLocation = async ({
+  latitude,
+  longitude,
+}: {
+  latitude: number;
+  longitude: number;
+}) => {
+  return await apiFetch(
+    `/markers/verify?latitude=${latitude}&longitude=${longitude}`,
+    {
+      credentials: "include",
+    },
+    { returnType: "text" }
+  );
+};
+
+export const addMarker = async (
+  multipart: AddMarkerPayload
+): Promise<MarkerRes> => {
+  const formData = new FormData();
+
+  for (let i = 0; i < multipart.photos.length; i++) {
+    formData.append("photos", multipart.photos[i]);
+  }
+
+  formData.append("latitude", multipart.latitude.toString());
+  formData.append("longitude", multipart.longitude.toString());
+  formData.append("description", multipart.description);
+
+  return await apiFetch(`/markers/new`, {
+    method: "POST",
+    body: formData,
+    credentials: "include",
+  });
+};
+
+export const deleteMarker = async (id: number) => {
+  await apiFetch(
+    `/markers/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+    { returnType: "text" }
+  );
+};

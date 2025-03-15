@@ -15,11 +15,14 @@ import { useDeleteComment } from "@/hooks/api/comments/use-delete-comment";
 import { useInfiniteComments } from "@/hooks/api/comments/use-infinite-comments";
 import { useAddToFavorite } from "@/hooks/api/marker/use-add-to-favorite";
 import { useDeleteFavorite } from "@/hooks/api/marker/use-delete-favorite";
+import { useDeleteMarker } from "@/hooks/api/marker/use-delete-marker";
 import { useMarkerDetails } from "@/hooks/api/marker/use-marker-details";
 import { useMarkerFacilities } from "@/hooks/api/marker/use-marker-facilities";
 import { useMarkerWeather } from "@/hooks/api/marker/use-marker-weather";
 import useToast from "@/hooks/use-toast";
+import useAlertStore from "@/store/use-alert-store";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
+import useMarkerStore from "@/store/use-marker-store";
 import { useUserStore } from "@/store/use-user-store";
 import { type KakaoMap } from "@/types/kakao-map.types";
 import type { MarkerDetail, Photo } from "@/types/marker.types";
@@ -41,13 +44,13 @@ import {
   BsTrash,
 } from "react-icons/bs";
 import Slider from "react-slick";
+import FacilitiesEditRequestForm from "./facilities-edit-request-form";
 import LocationEditRequestForm from "./location-edit-request-form";
 import Moment from "./moment";
 import Signin from "./signin";
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
-import FacilitiesEditRequestForm from "./facilities-edit-request-form";
 
 interface MarkerDetailProps {
   imageUrl?: string | null;
@@ -66,8 +69,11 @@ const MarkerDetail = ({
   closeDetail,
   imageCache,
 }: MarkerDetailProps) => {
+  const { deleteMarker: deleteCurMarker } = useMarkerStore();
   const { user } = useUserStore();
   const { show, hide } = useBottomSheetStore();
+  const { toast } = useToast();
+  const { openAlert } = useAlertStore();
 
   const {
     data: marker,
@@ -86,6 +92,9 @@ const MarkerDetail = ({
     useDeleteFavorite(marker?.markerId || 0);
   const { mutate: addToFavorite, isPending: addToFavoriteLoading } =
     useAddToFavorite(marker?.markerId || 0);
+
+  const { mutateAsync: deleteMarker, isPending: deleteLoading } =
+    useDeleteMarker();
 
   const titleRef = useRef<HTMLDivElement>(null);
 
@@ -167,6 +176,24 @@ const MarkerDetail = ({
       deleteFavorite(marker.markerId);
     } else {
       addToFavorite(marker.markerId);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteMarker(markerId);
+      if (closeDetail) closeDetail();
+      deleteCurMarker(markerId);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === "403") {
+          toast("삭제 권한이 없습니다.");
+        } else if (error.message === "400") {
+          toast("존재하지 않거나 이미 삭제된 위치입니다.");
+        } else {
+          toast("서버가 원할하지 않습니다 잠시 후 다시 시도해주세요.");
+        }
+      }
     }
   };
 
@@ -414,8 +441,15 @@ const MarkerDetail = ({
                     <IconButton
                       icon={<BsTrash size={20} className="fill-primary" />}
                       onClick={() => {
-                        console.log("삭제");
+                        openAlert({
+                          title: "정말 삭제하시겠습니까?",
+                          description:
+                            "해당 위치에 대한 정보가 모두 삭제됩니다.",
+                          cancel: true,
+                          onClickAsync: handleDelete,
+                        });
                       }}
+                      disabled={deleteLoading}
                     >
                       삭제
                     </IconButton>

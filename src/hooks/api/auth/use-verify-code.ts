@@ -6,7 +6,7 @@ interface VarifyCodePayload {
   code: string;
 }
 
-export const useVarifyCode = () => {
+export const useVerifyCode = () => {
   return useMutation({
     mutationFn: (payload: VarifyCodePayload) => verifyCode(payload),
   });

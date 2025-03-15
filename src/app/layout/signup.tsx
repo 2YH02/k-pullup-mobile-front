@@ -7,7 +7,7 @@ import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import Timer from "@/components/timer/timer";
 import { useSendSignupCode } from "@/hooks/api/auth/use-send-signup-code";
 import { useSignup } from "@/hooks/api/auth/use-signup";
-import { useVarifyCode } from "@/hooks/api/auth/use-varify-code";
+import { useVerifyCode } from "@/hooks/api/auth/use-verify-code";
 import useImagePreload from "@/hooks/use-image-preload";
 import useInput from "@/hooks/use-input";
 import useAlertStore from "@/store/use-alert-store";
@@ -213,7 +213,7 @@ const VerifyEmail = ({
 }) => {
   const { mutateAsync: sendCode, isPending: sendCodeLoading } =
     useSendSignupCode();
-  const { mutateAsync: varifyCode, isPending: varifyLoading } = useVarifyCode();
+  const { mutateAsync: varifyCode, isPending: varifyLoading } = useVerifyCode();
 
   const code = useInput("");
 

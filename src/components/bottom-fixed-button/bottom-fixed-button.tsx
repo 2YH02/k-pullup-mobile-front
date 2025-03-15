@@ -32,7 +32,7 @@ const BottomFixedButton = ({
     >
       {withSecondButton && (
         <Button
-          className="border-primary active:scale-95 disabled:bg-grey dark:disabled:bg-grey-dark"
+          className="border-primary active:scale-95 disabled:bg-grey dark:disabled:bg-grey-dark disabled:border-none"
           onClick={secondButtonClick}
           appearance="outlined"
           disabled={disabled}
