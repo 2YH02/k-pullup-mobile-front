@@ -18,7 +18,7 @@ export const useAddToFavorite = (markerId: number) => {
         "marker-details",
         markerId,
       ]) as MarkerDetail;
-      
+
       queryClient.setQueryData(["marker-details", markerId], {
         ...previousMarkerData,
         favorited: true,

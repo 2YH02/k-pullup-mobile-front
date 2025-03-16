@@ -1,7 +1,10 @@
 "use client";
 
 import usePageTransition from "@/hooks/use-page-transition";
+import useAlertStore from "@/store/use-alert-store";
+import { useUserStore } from "@/store/use-user-store";
 import useViewRegisterStore from "@/store/use-view-register-store";
+import useViewSigninStore from "@/store/use-view-signin-store";
 import cn from "@/utils/cn";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -17,14 +20,33 @@ import { Button } from "../button/button";
 const LINK_LIST = ["/", "/social", "/challenge", "/me"];
 
 const BottomNavigation = ({ os }: { os: string }) => {
-  const { openRegister } = useViewRegisterStore();
   const router = useRouter();
+  const { user } = useUserStore();
+  const { openAlert } = useAlertStore();
+  const { openRegister } = useViewRegisterStore();
+  const { openSignin } = useViewSigninStore();
 
   useEffect(() => {
     LINK_LIST.map((link) => {
       router.prefetch(link);
     });
   }, []);
+
+  const handleClickRegister = () => {
+    router.push("/");
+    if (!user) {
+      openAlert({
+        title: "로그인이 필요합니다.",
+        description: "로그인 페이지로 이동하시겠습니까?",
+        cancel: true,
+        onClick: () => {
+          openSignin();
+        },
+      });
+    } else {
+      openRegister();
+    }
+  };
 
   return (
     <div
@@ -46,7 +68,7 @@ const BottomNavigation = ({ os }: { os: string }) => {
       <div className="flex items-center justify-center">
         <Button
           className="rounded-full p-2 bg-primary dark:bg-primary"
-          onClick={openRegister}
+          onClick={handleClickRegister}
           clickAction
         >
           <BsPlus size={30} />

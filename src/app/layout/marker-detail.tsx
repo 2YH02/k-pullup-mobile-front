@@ -29,6 +29,7 @@ import type { MarkerDetail, Photo } from "@/types/marker.types";
 import cn from "@/utils/cn";
 import { formatDate } from "@/utils/format-date";
 import MapWalker from "@/utils/map-walker";
+import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { ChangeEvent, Fragment, useEffect, useRef, useState } from "react";
 import {
@@ -69,6 +70,7 @@ const MarkerDetail = ({
   closeDetail,
   imageCache,
 }: MarkerDetailProps) => {
+  const queryClient = useQueryClient();
   const { deleteMarker: deleteCurMarker } = useMarkerStore();
   const { user } = useUserStore();
   const { show, hide } = useBottomSheetStore();
@@ -148,6 +150,10 @@ const MarkerDetail = ({
     map.setCenter(position);
   }, [activeRoadview]);
 
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ["marker-details", markerId] });
+  }, [user]);
+
   const openRoadview = () => {
     setRoadviewMap(true);
     setActiveRoadview(true);
@@ -171,6 +177,19 @@ const MarkerDetail = ({
 
   const handleFavorite = () => {
     if (!marker) return;
+
+    if (!user) {
+      openAlert({
+        title: "로그인이 필요합니다.",
+        description: "로그인 페이지로 이동하시겠습니까?",
+        cancel: true,
+        onClick: () => {
+          setViewSignin(true);
+        },
+      });
+
+      return;
+    }
 
     if (marker.favorited) {
       deleteFavorite(marker.markerId);
