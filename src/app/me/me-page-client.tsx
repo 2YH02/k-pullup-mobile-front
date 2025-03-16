@@ -176,7 +176,7 @@ const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
       {user && (
         <Section>
           <div className="flex justify-center items-center p-4 bg-white shadow-full rounded dark:border dark:border-solid dark:border-grey-dark dark:bg-black">
-            <div className="flex flex-col justify-center items-center relative w-2/5">
+            <div className="flex flex-col justify-center items-center relative">
               <div className="w-20 mb-2">
                 <img
                   src={getContributionLevelImage(user.contributionLevel)}
