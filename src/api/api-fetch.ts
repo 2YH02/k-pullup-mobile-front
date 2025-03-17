@@ -1,5 +1,5 @@
 interface ReturnOption {
-  returnType: "text" | "json";
+  returnType: "text" | "json" | "blob";
 }
 
 export interface InfiniteMarkerRes<T> {
@@ -27,6 +27,8 @@ export const apiFetch = async (
   if (returnOption) {
     if (returnOption.returnType === "text") {
       return response.text();
+    } else if (returnOption.returnType === "blob") {
+      return response.blob();
     }
   }
   return response.json();

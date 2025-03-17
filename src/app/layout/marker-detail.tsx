@@ -16,9 +16,11 @@ import { useInfiniteComments } from "@/hooks/api/comments/use-infinite-comments"
 import { useAddToFavorite } from "@/hooks/api/marker/use-add-to-favorite";
 import { useDeleteFavorite } from "@/hooks/api/marker/use-delete-favorite";
 import { useDeleteMarker } from "@/hooks/api/marker/use-delete-marker";
+import { useDownloadPdf } from "@/hooks/api/marker/use-download-pdf";
 import { useMarkerDetails } from "@/hooks/api/marker/use-marker-details";
 import { useMarkerFacilities } from "@/hooks/api/marker/use-marker-facilities";
 import { useMarkerWeather } from "@/hooks/api/marker/use-marker-weather";
+import { useClipboard } from "@/hooks/use-clipboard";
 import useToast from "@/hooks/use-toast";
 import useAlertStore from "@/store/use-alert-store";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
@@ -71,6 +73,7 @@ const MarkerDetail = ({
   imageCache,
 }: MarkerDetailProps) => {
   const queryClient = useQueryClient();
+
   const { deleteMarker: deleteCurMarker } = useMarkerStore();
   const { user } = useUserStore();
   const { show, hide } = useBottomSheetStore();
@@ -530,7 +533,11 @@ const MarkerDetail = ({
             />
 
             {/* 공유 모달 */}
-            <ShareModal />
+            <ShareModal
+              address={marker.address || "주소 정보 제공 안됨"}
+              id={marker.markerId}
+              location={{ lat: marker.latitude, lng: marker.longitude }}
+            />
           </>
         )}
       </SwipeClosePage>
@@ -684,12 +691,24 @@ const MarkerDetailImages = ({
   );
 };
 
-const ShareModal = () => {
+const ShareModal = ({
+  location,
+  address,
+  id,
+}: {
+  address: string;
+  id: number;
+  location: { lat: number; lng: number };
+}) => {
+  const { mutate: downloadPdf, isPending } = useDownloadPdf();
+  const { copyToClipboard } = useClipboard();
+
   return (
     <BottomSheet title="공유" id="share" className="pb-10">
       <div
         role="button"
         className="p-3 flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg"
+        onClick={() => copyToClipboard(address)}
       >
         <span className="mr-4 p-2 rounded-full bg-[rgba(0,0,0,0.2)] dark:bg-[rgba(255,255,255,0.2)] text-white">
           <BsCopy size={22} />
@@ -699,6 +718,7 @@ const ShareModal = () => {
       <div
         role="button"
         className="p-3 flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg"
+        onClick={() => copyToClipboard(`https://m.k-pullup.com/pullup${id}`)}
       >
         <span className="mr-4 p-2 rounded-full bg-[rgba(0,0,0,0.2)] dark:bg-[rgba(255,255,255,0.2)] text-white">
           <BsCopy size={22} />
@@ -708,11 +728,20 @@ const ShareModal = () => {
       <div
         role="button"
         className="p-3 flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg"
+        onClick={() => {
+          if (isPending) return;
+          downloadPdf(location);
+        }}
       >
         <span className="mr-4 p-2 rounded-full bg-[rgba(0,0,0,0.2)] dark:bg-[rgba(255,255,255,0.2)] text-white">
           <BsCloudDownload size={22} />
         </span>
         <span>PDF 저장</span>
+        {isPending && (
+          <span className="ml-3">
+            <Loading size="sm" />
+          </span>
+        )}
       </div>
     </BottomSheet>
   );

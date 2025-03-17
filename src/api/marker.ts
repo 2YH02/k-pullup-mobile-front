@@ -209,3 +209,16 @@ export const deleteMarker = async (id: number) => {
     { returnType: "text" }
   );
 };
+
+export type DownloadPdf = {
+  lat: number;
+  lng: number;
+};
+
+export const downloadPdf = async ({ lat, lng }: DownloadPdf) => {
+  return await apiFetch(
+    `/markers/save-offline?latitude=${lat}&longitude=${lng}`,
+    {},
+    { returnType: "blob" }
+  );
+};
