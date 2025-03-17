@@ -289,7 +289,15 @@ const MarkerDetail = ({
       )}
 
       {/*  모먼트 페이지 모달 */}
-      {viewMoment && <Moment os={os} close={closeMoment} className="z-[33]" />}
+      {viewMoment && (
+        <Moment
+          os={os}
+          close={closeMoment}
+          openSignin={() => setViewSignin(true)}
+          className="z-[33]"
+          markerId={markerId}
+        />
+      )}
 
       {/* 정보 수정 요청 */}
       {viewLocationEditForm && marker && (
@@ -323,7 +331,7 @@ const MarkerDetail = ({
 
       {/* 로그인 모달 */}
       {viewSignin && (
-        <Signin os={os} close={() => setViewSignin(false)} className="z-[33]" />
+        <Signin os={os} close={() => setViewSignin(false)} className="z-[34]" />
       )}
 
       {/* 헤더 */}
