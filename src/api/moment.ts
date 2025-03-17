@@ -53,3 +53,27 @@ export const deleteMoment = async (markerId: number, momentId: number) => {
     { returnType: "text" }
   );
 };
+
+export const addToMomentFavorite = async (storyId: number) => {
+  return await apiFetch(`/markers/stories/${storyId}/reactions`, {
+    method: "POST",
+    credentials: "include",
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ reactionType: "thumbsup" }),
+  });
+};
+
+export const removeMomentFavorite = async (storyId: number) => {
+  return await apiFetch(
+    `/markers/stories/${storyId}/reactions`,
+    {
+      method: "DELETE",
+      credentials: "include",
+      cache: "no-store",
+    },
+    { returnType: "text" }
+  );
+};

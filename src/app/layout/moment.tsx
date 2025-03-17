@@ -9,9 +9,11 @@ import NotFoundImage from "@/components/not-found-image/not-found-image";
 import Section from "@/components/section/section";
 import Skeleton from "@/components/skeleton/skeleton";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
+import { useAddToMomentFavorite } from "@/hooks/api/moment/use-add-to-moment-favorite";
 import { useDeleteMoment } from "@/hooks/api/moment/use-delete-moment";
 import { useMomentForMarker } from "@/hooks/api/moment/use-moment-for-marker";
 import { usePostMoment } from "@/hooks/api/moment/use-post-moment";
+import { useRemoveMomentFavorite } from "@/hooks/api/moment/use-remove-moment-favorite";
 import useImageLoading from "@/hooks/use-image-loading";
 import useAlertStore from "@/store/use-alert-store";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
@@ -141,7 +143,11 @@ const Moment = ({
                 {moments.map((moment, i) => {
                   return (
                     <div key={moment.storyID}>
-                      <MomentItem data={moment} isOwner={true} />
+                      <MomentItem
+                        data={moment}
+                        isOwner={true}
+                        markerId={markerId}
+                      />
                       {i !== moments.length - 1 && <Divider />}
                     </div>
                   );
@@ -155,8 +161,33 @@ const Moment = ({
   );
 };
 
-const MomentItem = ({ data, isOwner }: { data: Moment; isOwner: boolean }) => {
+const MomentItem = ({
+  data,
+  isOwner,
+  markerId,
+}: {
+  data: Moment;
+  isOwner: boolean;
+  markerId: number;
+}) => {
   const { show } = useBottomSheetStore();
+
+  const { mutate: addToFavorite, isPending: addLoading } =
+    useAddToMomentFavorite(markerId, data.storyID);
+
+  const { mutate: removeFavorite, isPending: deleteLoading } =
+    useRemoveMomentFavorite(markerId, data.storyID);
+
+  const handleFavorite = () => {
+    if (data.userLiked) {
+      removeFavorite(data.storyID);
+    } else {
+      addToFavorite(data.storyID);
+    }
+  };
+
+  const isLoading = addLoading || deleteLoading;
+
   return (
     <div className="mb-2">
       <div className="px-4 py-2 flex items-center justify-between">
@@ -184,7 +215,11 @@ const MomentItem = ({ data, isOwner }: { data: Moment; isOwner: boolean }) => {
           fill
         />
       </div>
-      <button className="px-4 py-2 flex items-center text-sm">
+      <button
+        className="px-4 py-2 flex items-center text-sm"
+        onClick={handleFavorite}
+        disabled={isLoading}
+      >
         <span className="mr-2">
           {!data.userLiked ? (
             <BsHeart size={12} fill="#ee2f2f" />
