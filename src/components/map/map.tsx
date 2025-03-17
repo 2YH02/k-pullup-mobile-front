@@ -68,7 +68,7 @@ const Map = () => {
   }, [allMarker]);
 
   useEffect(() => {
-    if (!map) return;
+    if (!map || markers.length <= 0) return;
 
     const handleIdle = () => {
       if (selectedId) {
