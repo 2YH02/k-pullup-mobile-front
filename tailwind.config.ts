@@ -34,6 +34,9 @@ export default {
         yellow: "#E5B700",
         "yellow-dark": "#FFF200",
       },
+      backgroundImage: {
+        "rainbow-gradient": "linear-gradient(30deg, #FFD200, #FF7E00, #D60000)",
+      },
       animation: {
         "slide-left-out": "0.1s ease-in forwards slide-left-out",
         "slide-left-in": "0.1s ease-out slide-left-in",
@@ -42,6 +45,7 @@ export default {
         "slide-bottom-out": "0.1s ease-in forwards slide-bottom-out",
         "slide-bottom-in": "0.1s ease-out slide-bottom-in",
         "scale-up": "scale-up 0.5s ease-out forwards",
+        "gradient-animate": "gradient-animate 5s ease infinite",
       },
       keyframes: {
         "slide-left-out": {
@@ -71,6 +75,11 @@ export default {
         "scale-up": {
           "0%": { transform: "scale(0)" },
           "100%": { transform: "scale(1)" },
+        },
+        "gradient-animate": {
+          "0%": { "background-position": "0% 50%" },
+          "50%": { "background-position": "100% 50%" },
+          "100%": { "background-position": "0% 50%" },
         },
       },
     },

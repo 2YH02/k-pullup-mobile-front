@@ -57,7 +57,7 @@ const Moment = ({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleUploadMoment = () => {
+  const handleAuth = () => {
     if (!user) {
       openAlert({
         title: "로그인이 필요합니다.",
@@ -68,8 +68,16 @@ const Moment = ({
         },
       });
 
-      return;
+      return false;
     }
+
+    return true;
+  };
+
+  const handleUploadMoment = () => {
+    const auth = handleAuth();
+    if (!auth) return;
+
     fileInputRef.current?.click();
   };
 
@@ -147,6 +155,7 @@ const Moment = ({
                         data={moment}
                         isOwner={true}
                         markerId={markerId}
+                        handleAuth={handleAuth}
                       />
                       {i !== moments.length - 1 && <Divider />}
                     </div>
@@ -165,10 +174,12 @@ const MomentItem = ({
   data,
   isOwner,
   markerId,
+  handleAuth,
 }: {
   data: Moment;
   isOwner: boolean;
   markerId: number;
+  handleAuth: () => boolean;
 }) => {
   const { show } = useBottomSheetStore();
 
@@ -179,6 +190,9 @@ const MomentItem = ({
     useRemoveMomentFavorite(markerId, data.storyID);
 
   const handleFavorite = () => {
+    const auth = handleAuth();
+    if (!auth) return;
+
     if (data.userLiked) {
       removeFavorite(data.storyID);
     } else {

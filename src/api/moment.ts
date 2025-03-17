@@ -77,3 +77,9 @@ export const removeMomentFavorite = async (storyId: number) => {
     { returnType: "text" }
   );
 };
+
+export const getAllMoment = async (): Promise<Moment[]> => {
+  return await apiFetch(`/markers/stories`, {
+    cache: "no-store",
+  });
+};

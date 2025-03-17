@@ -13,6 +13,9 @@ export const useDeleteMoment = (markerId: number) => {
       queryClient.invalidateQueries({
         queryKey: ["moment-for-marker", markerId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["all-moment"],
+      });
     },
     onError: (error) => {
       if (error.message === "400") {

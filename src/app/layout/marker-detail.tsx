@@ -229,7 +229,7 @@ const MarkerDetail = ({
     const dst = await convertWgs(marker.latitude, marker.longitude);
 
     if (sp && dst) {
-      let url = `https://map.kakao.com/?map_type=TYPE_MAP&target=walk&rt=${sp.X},${sp.Y},${dst.X},${dst.Y}&rt1=내 위치&rt2=${marker.address}`;
+      const url = `https://map.kakao.com/?map_type=TYPE_MAP&target=walk&rt=${sp.X},${sp.Y},${dst.X},${dst.Y}&rt1=내 위치&rt2=${marker.address}`;
 
       window.open(url, "_blank");
     }
@@ -358,7 +358,7 @@ const MarkerDetail = ({
         )}
       </div>
 
-      <SwipeClosePage close={closeDetail}>
+      <SwipeClosePage close={closeDetail} className="z-[31]">
         {markerLoading || !marker ? (
           <>
             {imageUrl && (

@@ -7,5 +7,6 @@ export const useMarkerDetails = (id: number) => {
     queryKey: ["marker-details", id],
     queryFn: () => fetchMarkerDetails(id),
     enabled: !!id,
+    gcTime: 0,
   });
 };

@@ -1,6 +1,5 @@
 "use client";
 
-import MarkerDetail from "@/app/layout/marker-detail";
 import Input from "@/components/input/input";
 import { useNearbyMarkers } from "@/hooks/api/marker/use-nearby-markers";
 import useMapControl from "@/hooks/use-map-control";
@@ -18,6 +17,7 @@ import AroundSearchList from "./components/around-search-list";
 import GpsButton from "./components/gps-button";
 import RegisterForm from "./layout/register-form";
 import SearchResult from "./layout/search-result";
+import { MomentList } from "./social/social-client";
 
 export type Marker = {
   latitude: number;
@@ -29,7 +29,7 @@ export type Marker = {
   thumbnail: string;
 };
 
-const HomePageClient = ({ os }: { os: string }) => {
+const HomePageClient = ({ os = "Windows" }: { os: string }) => {
   const { map } = useMapStore();
   const { center, moveMap } = useMapControl(map);
 
@@ -42,12 +42,7 @@ const HomePageClient = ({ os }: { os: string }) => {
   });
 
   const { isView } = useViewRegisterStore();
-  const {
-    isView: isViewDetail,
-    id: curMarkerId,
-    show: viewDetail,
-    hide: hideDetail,
-  } = useViewDetailStore();
+  const { show: viewDetail, imageCache } = useViewDetailStore();
 
   const { show, hide } = useBottomSheetStore();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -61,8 +56,6 @@ const HomePageClient = ({ os }: { os: string }) => {
 
   const [viewAroundSearchList, setViewAroundSearchList] = useState(false);
 
-  const [cachedImage, setCachedImage] = useState<string | null>(null);
-
   const [viewSearch, setViewSearch] = useState(false);
 
   useEffect(() => {
@@ -75,14 +68,6 @@ const HomePageClient = ({ os }: { os: string }) => {
     map.setLevel(4);
     refetch();
     setViewAroundSearchList(true);
-  };
-
-  const handleImageCache = (img: string | null) => {
-    setCachedImage(img);
-  };
-
-  const closeDetail = () => {
-    hideDetail();
   };
 
   const handleSearchModal = () => {
@@ -105,17 +90,6 @@ const HomePageClient = ({ os }: { os: string }) => {
         viewSearch ? "" : "p-4"
       )}
     >
-      {/* 위치 상세 모달 */}
-      {isViewDetail && curMarkerId && (
-        <MarkerDetail
-          os={os}
-          markerId={curMarkerId}
-          imageUrl={cachedImage}
-          imageCache={handleImageCache}
-          closeDetail={closeDetail}
-        />
-      )}
-
       {/* 검색 버튼 */}
       <div
         className={cn(
@@ -170,6 +144,15 @@ const HomePageClient = ({ os }: { os: string }) => {
         />
       </div>
 
+      <div
+        className={cn(
+          "px-4 absolute left-0 max-w-full z-10",
+          os === "iOS" ? "top-[104px]" : "top-16"
+        )}
+      >
+        <MomentList />
+      </div>
+
       {/* 주변 검색, GPS 버튼 */}
       <div
         className={cn(
@@ -195,7 +178,7 @@ const HomePageClient = ({ os }: { os: string }) => {
             data={data?.markers || []}
             isLoading={isLoading || isFetching}
             closeSlide={() => setViewAroundSearchList(false)}
-            imageCache={handleImageCache}
+            imageCache={imageCache}
             openDetail={viewDetail}
           />
         </div>

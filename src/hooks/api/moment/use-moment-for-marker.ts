@@ -5,5 +5,6 @@ export const useMomentForMarker = (markerId: number) => {
   return useQuery<Moment[]>({
     queryKey: ["moment-for-marker", markerId],
     queryFn: () => fetchMomentForMarker(markerId),
+    gcTime: 0,
   });
 };
