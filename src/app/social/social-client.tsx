@@ -36,7 +36,6 @@ export const MomentList = () => {
   const { data, isLoading } = useAllMoment();
 
   const [imageSrc, setImageSrc] = useState<string[]>([]);
-  console.log(data);
 
   useEffect(() => {
     if (!data) return;
@@ -89,7 +88,9 @@ export const MomentList = () => {
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11 h-11 bg-white rounded-full
                 border-2 border-solid border-white dark:border-black"
                 style={{
-                  backgroundImage: `url(${imageSrc[index]})`,
+                  backgroundImage: imageSrc[index]
+                    ? `url(${imageSrc[index]})`
+                    : undefined,
                   backgroundSize: "cover",
                   backgroundPosition: "",
                 }}
