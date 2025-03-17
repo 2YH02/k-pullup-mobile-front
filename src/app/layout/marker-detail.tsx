@@ -1,3 +1,4 @@
+import { convertWgs } from "@/api/marker";
 import { type UserInfo } from "@/api/user";
 import { Badge } from "@/components/badge/badge";
 import BottomSheet from "@/components/bottom-sheet/bottom-sheet";
@@ -24,6 +25,7 @@ import { useClipboard } from "@/hooks/use-clipboard";
 import useToast from "@/hooks/use-toast";
 import useAlertStore from "@/store/use-alert-store";
 import { useBottomSheetStore } from "@/store/use-bottom-sheet-store";
+import { useGpsStore } from "@/store/use-gps-store";
 import useMarkerStore from "@/store/use-marker-store";
 import { useUserStore } from "@/store/use-user-store";
 import { type KakaoMap } from "@/types/kakao-map.types";
@@ -74,6 +76,7 @@ const MarkerDetail = ({
 }: MarkerDetailProps) => {
   const queryClient = useQueryClient();
 
+  const { location } = useGpsStore();
   const { deleteMarker: deleteCurMarker } = useMarkerStore();
   const { user } = useUserStore();
   const { show, hide } = useBottomSheetStore();
@@ -216,6 +219,19 @@ const MarkerDetail = ({
           toast("서버가 원할하지 않습니다 잠시 후 다시 시도해주세요.");
         }
       }
+    }
+  };
+
+  const openLocation = async () => {
+    if (!location || !marker) return;
+
+    const sp = await convertWgs(location.lat, location.lng);
+    const dst = await convertWgs(marker.latitude, marker.longitude);
+
+    if (sp && dst) {
+      let url = `https://map.kakao.com/?map_type=TYPE_MAP&target=walk&rt=${sp.X},${sp.Y},${dst.X},${dst.Y}&rt1=내 위치&rt2=${marker.address}`;
+
+      window.open(url, "_blank");
     }
   };
 
@@ -438,6 +454,7 @@ const MarkerDetail = ({
                 <div className="h-11 my-auto border-r border-solid border-[#ccc]" />
                 <IconButton
                   icon={<BsFillPinMapFill size={20} className="fill-primary" />}
+                  onClick={openLocation}
                 >
                   길찾기
                 </IconButton>
@@ -754,6 +771,7 @@ const MarkerComments = ({
   markerId: number;
   user: UserInfo | null;
 }) => {
+  const { copyToClipboard } = useClipboard();
   const { show } = useBottomSheetStore();
   const { toast } = useToast();
 
@@ -857,6 +875,7 @@ const MarkerComments = ({
                       deleteComment={() => {
                         deleteComment(comment.commentId);
                       }}
+                      copyComment={() => copyToClipboard(comment.commentText)}
                       isLoading={isPending}
                     />
                   </div>
@@ -906,6 +925,7 @@ const MarkerComments = ({
                         deleteComment(comment.commentId);
                       }}
                       isLoading={isPending}
+                      copyComment={() => copyToClipboard(comment.commentText)}
                     />
                   </div>
                 );
@@ -1022,16 +1042,21 @@ const MarkerCommentsOption = ({
   id,
   isOwner,
   deleteComment,
+  copyComment,
   isLoading,
 }: {
   id: number;
   isOwner: boolean;
   deleteComment: VoidFunction;
+  copyComment: VoidFunction;
   isLoading: boolean;
 }) => {
   return (
     <BottomSheet title="공유" id={`option-${id}`} className="pb-10">
-      <button className="p-3 w-full flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg">
+      <button
+        className="p-3 w-full flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg"
+        onClick={copyComment}
+      >
         <span className="mr-4 p-2 rounded-full bg-[rgba(0,0,0,0.2)] dark:bg-[rgba(255,255,255,0.2)] text-white">
           <BsCopy size={22} />
         </span>

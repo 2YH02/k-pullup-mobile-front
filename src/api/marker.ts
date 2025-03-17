@@ -222,3 +222,7 @@ export const downloadPdf = async ({ lat, lng }: DownloadPdf) => {
     { returnType: "blob" }
   );
 };
+
+export const convertWgs = async (lat: number, lng: number) => {
+  return await apiFetch(`/markers/convert?latitude=${lat}&longitude=${lng}`);
+};
