@@ -2,6 +2,7 @@ import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import { useMomentStore } from "@/store/use-moment-store";
 import { useViewDetailStore } from "@/store/use-view-detail-store";
 import cn from "@/utils/cn";
+import minutesAgo from "@/utils/minutes-ago";
 import { BsX } from "react-icons/bs";
 
 interface MomentDetailProps {
@@ -43,6 +44,8 @@ const MomentDetail = ({ os = "Windows", close }: MomentDetailProps) => {
 
   if (!moments || !curMoment) return null;
 
+  const { hours, minutes } = minutesAgo(curMoment.createdAt);
+
   return (
     <SwipeClosePage
       os={os}
@@ -74,7 +77,13 @@ const MomentDetail = ({ os = "Windows", close }: MomentDetailProps) => {
         </div>
 
         <div className="flex justify-between items-center text-lg font-bold p-2">
-          <div>{curMoment.username}</div>
+          <div>
+            {curMoment.username}
+            <span className="ml-4 text-xs text-grey">
+              {hours > 0 && `${hours}시간`}
+              {`${minutes}분 전`}
+            </span>
+          </div>
           <button onClick={close}>
             <BsX size={26} />
           </button>

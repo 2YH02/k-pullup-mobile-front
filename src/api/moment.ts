@@ -4,8 +4,8 @@ export interface Moment {
   address: string;
   blurhash: string;
   caption: string;
-  createdAt: Date;
-  expiresAt: Date;
+  createdAt: string;
+  expiresAt: string;
   markerID: number;
   photoURL: string;
   storyID: number;
