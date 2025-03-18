@@ -47,13 +47,10 @@ const MomentDetail = ({ os = "Windows", close }: MomentDetailProps) => {
     <SwipeClosePage
       os={os}
       close={close}
-      className="z-[30] bg-black flex flex-col text-white"
+      className="z-[30] bg-black text-white"
     >
       <div
-        className={cn(
-          "flex flex-col w-full h-full",
-          os === "iOS" ? "pt-14" : ""
-        )}
+        className={cn("w-full h-full", os === "iOS" ? "pt-14" : "")}
         onClick={handleClickNext}
       >
         <div className="flex gap-1 p-1">
@@ -83,10 +80,12 @@ const MomentDetail = ({ os = "Windows", close }: MomentDetailProps) => {
           </button>
         </div>
 
-        <div className="flex flex-col grow">
-          <div className="text-center">{curMoment.address}</div>
+        <div
+          className={cn("text-center", os === "iOS" ? "h-[60%]" : "h-[70%]")}
+        >
+          <div>{curMoment.address}</div>
           <button
-            className="underline text-center text-sm text-grey active:text-primary"
+            className="underline text-center text-xs mb-8 text-grey active:text-primary"
             onClick={(e) => {
               e.stopPropagation();
               show(curMoment.markerID);
@@ -95,11 +94,11 @@ const MomentDetail = ({ os = "Windows", close }: MomentDetailProps) => {
             위치 자세히보기
           </button>
 
-          <div className="grow flex items-center justify-center">
+          <div className="h-full w-full flex items-center justify-center">
             <img
               src={curMoment.photoURL}
               alt={curMoment.caption}
-              className="w-full object-cover"
+              className="w-full h-full object-contain"
               draggable={false}
             />
           </div>
