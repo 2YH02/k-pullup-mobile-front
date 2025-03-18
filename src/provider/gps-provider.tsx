@@ -35,13 +35,12 @@ const GPSProvider = ({ children }: React.PropsWithChildren) => {
   }, [location, requestLocation]);
 
   useEffect(() => {
-    if (!error) return;
+    if (!error || hasReactNativeWebView) return;
     if (error.code === 1) {
       openAlert({
         title: "위치 서비스 사용",
         description:
           "위치 서비스를 사용할 수 없습니다. 브라우저 설정에서 위치 서비스를 켜주세요.",
-        cancel: true,
         onClick: () => {},
       });
     } else {

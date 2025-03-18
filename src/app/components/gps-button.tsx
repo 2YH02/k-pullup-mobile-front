@@ -11,11 +11,19 @@ const GpsButton = () => {
   const { moveMap } = useMapControl(map, { enableDrag: false });
   const { location, requestLocation } = useGpsStore();
 
+  const hasReactNativeWebView =
+    typeof window != "undefined" && window.ReactNativeWebView != null;
+
   return (
     <Button
       className="bg-white text-primary-dark border border-solid border-[#eee] dark:border-grey-dark dark:bg-black dark:text-primary-dark"
       icon={<BsCrosshair />}
       onClick={() => {
+        if (hasReactNativeWebView) {
+          postMessage({ type: "GPS_PERMISSIONS" });
+          return;
+        }
+
         if (!location) {
           requestLocation();
           return;

@@ -77,7 +77,7 @@ const Alert = ({
                 <Button
                   onClick={closeAlert}
                   appearance="outlined"
-                  className="flex items-center justify-center w-16 h-8 p-0 border-primary"
+                  className="flex items-center justify-center w-16 h-8 p-0 border-primary dark:bg-grey dark:border-none"
                   clickAction
                 >
                   취소
@@ -86,11 +86,15 @@ const Alert = ({
               {(onClick || onClickAsync) && (
                 <Button
                   onClick={handleClick}
-                  className="ml-2 flex items-center justify-center w-16 h-8 p-0 bg-primary"
+                  className="ml-2 flex items-center justify-center w-16 h-8 p-0 bg-primary dark:bg-primary"
                   disabled={loading}
                   clickAction
                 >
-                  {loading ? <Loading className="text-white" size="sm"/> : buttonLabel}
+                  {loading ? (
+                    <Loading className="text-white" size="sm" />
+                  ) : (
+                    buttonLabel
+                  )}
                 </Button>
               )}
             </div>
