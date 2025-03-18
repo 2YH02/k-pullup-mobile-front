@@ -16,9 +16,10 @@ const ChallengeClient = ({ os }: { os: string }) => {
   }, []);
 
   return (
-    <Main os={os}>
+    <Main os={os} headerTitle={["챌린지"]}>
       <Section>
-        <p>챌린지 페이지</p>
+        <h1 className="text-lg font-bold">현재 서비스 준비중입니다.</h1>
+        <p>빠른 시일 내에 더욱 향상된 서비스를 제공할 예정입니다.</p>
       </Section>
     </Main>
   );

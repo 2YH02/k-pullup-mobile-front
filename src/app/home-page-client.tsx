@@ -17,7 +17,7 @@ import AroundSearchList from "./components/around-search-list";
 import GpsButton from "./components/gps-button";
 import RegisterForm from "./layout/register-form";
 import SearchResult from "./layout/search-result";
-import { MomentList } from "./social/social-client";
+import { MomentList } from "./social/layout/moment-list";
 
 export type Marker = {
   latitude: number;

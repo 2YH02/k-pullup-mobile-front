@@ -2,6 +2,7 @@
 
 import MarkerDetail from "@/app/layout/marker-detail";
 import Signin from "@/app/layout/signin";
+import Chatting from "@/app/social/layout/chatting";
 import MomentDetail from "@/app/social/layout/moment-detail";
 import BottomNavigation from "@/components/bottom-navigation/bottom-navigation";
 import Map from "@/components/map/map";
@@ -9,6 +10,7 @@ import {
   PageAnimation,
   PageTransitionContext,
 } from "@/context/page-transition-context";
+import { useChatStore } from "@/store/use-chat-store";
 import { useMomentStore } from "@/store/use-moment-store";
 import { useViewDetailStore } from "@/store/use-view-detail-store";
 import useViewSigninStore from "@/store/use-view-signin-store";
@@ -32,6 +34,8 @@ const PageTransitionProvider = ({
     imageCache,
     imageUrl,
   } = useViewDetailStore();
+
+  const { isView: isViewChat, hide: closeChat } = useChatStore();
 
   const [animationClass, setAnimationClass] = useState("");
 
@@ -65,6 +69,7 @@ const PageTransitionProvider = ({
             />
           )}
           {isViewMoment && <MomentDetail os={os} close={closeMoment} />}
+          {isViewChat && <Chatting os={os} close={closeChat} />}
         </div>
         <BottomNavigation os={os} />
       </div>

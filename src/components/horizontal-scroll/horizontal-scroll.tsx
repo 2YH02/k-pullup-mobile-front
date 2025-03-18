@@ -39,7 +39,7 @@ const HorizontalScroll = ({
     <div
       ref={scrollRef}
       className={cn(
-        "w-full overflow-x-scroll scrollbar-hide",
+        "flex w-full overflow-x-scroll scrollbar-hide",
         className
       )}
       onMouseDown={handleMouseDown}
