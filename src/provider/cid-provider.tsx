@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useId } from "react";
+import { gid } from "@/utils/gid";
+import { useEffect } from "react";
 
 const CidProvider = ({ children }: { children: React.ReactNode }) => {
-  const id = useId();
-
   useEffect(() => {
     const setCid = () => {
-      localStorage.setItem("cid", JSON.stringify({ cid: id }));
+      localStorage.setItem("cid", JSON.stringify({ cid: gid() }));
     };
 
     const handleStorage = (e: StorageEvent) => {

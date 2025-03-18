@@ -1,7 +1,7 @@
 import cn from "@/utils/cn";
 import { useRef, useState } from "react";
 
-const DRAG_THRESHOLD = 5;
+const DRAG_THRESHOLD = 2;
 
 const HorizontalScroll = ({
   className,
