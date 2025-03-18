@@ -14,13 +14,17 @@ const MomentDetail = ({ os = "Windows", close }: MomentDetailProps) => {
 
   const nextMoment = () => {
     if (!curMoment || !moments) return;
-    const i = moments.findIndex((moment) => curMoment.storyID === moment.storyID);
+    const i = moments.findIndex(
+      (moment) => curMoment.storyID === moment.storyID
+    );
     if (i === moments.length - 1) setCurMoment(moments[0]);
     else setCurMoment(moments[i + 1]);
   };
   const prevMoment = () => {
     if (!curMoment || !moments) return;
-    const i = moments.findIndex((moment) => curMoment.storyID === moment.storyID);
+    const i = moments.findIndex(
+      (moment) => curMoment.storyID === moment.storyID
+    );
     if (i === 0) setCurMoment(moments[moments.length - 1]);
     else setCurMoment(moments[i - 1]);
   };
@@ -100,7 +104,9 @@ const MomentDetail = ({ os = "Windows", close }: MomentDetailProps) => {
             />
           </div>
 
-          <div className="p-2 break-all">{curMoment.caption}</div>
+          <div className={cn("p-2 break-all", os === "iOS" ? "pb-10" : "")}>
+            {curMoment.caption}
+          </div>
         </div>
       </div>
     </SwipeClosePage>

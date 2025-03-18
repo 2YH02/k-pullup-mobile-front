@@ -153,7 +153,9 @@ const Moment = ({
                     <div key={moment.storyID}>
                       <MomentItem
                         data={moment}
-                        isOwner={true}
+                        isOwner={
+                          user?.chulbong || user?.username === moment.username
+                        }
                         markerId={markerId}
                         handleAuth={handleAuth}
                       />

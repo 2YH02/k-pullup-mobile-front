@@ -85,7 +85,7 @@ export const MomentList = () => {
               onClick={() => handleClick(moment)}
             >
               <div
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11 h-11 bg-white rounded-full
+                className="flex items-center justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11 h-11 bg-white rounded-full
                 border-2 border-solid border-white dark:border-black"
                 style={{
                   backgroundImage: imageSrc[index]
@@ -94,9 +94,12 @@ export const MomentList = () => {
                   backgroundSize: "cover",
                   backgroundPosition: "",
                 }}
-              ></div>
+              >
+                <div className="text-xs truncate p-1">
+                  {getCity(moment.address)}
+                </div>
+              </div>
             </button>
-            <div className="text-xs">{getCity(moment.address)}</div>
           </div>
         );
       })}
