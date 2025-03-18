@@ -1,6 +1,7 @@
 import { myInfo } from "@/api/user";
 import AlertProvider from "@/provider/alert-provider";
 import CheckFirstVisitProvider from "@/provider/check-first-visit-provider";
+import CidProvider from "@/provider/cid-provider";
 import GPSProvider from "@/provider/gps-provider";
 import MapProvider from "@/provider/map-provider";
 import PageTransitionProvider from "@/provider/page-transition-provider";
@@ -117,17 +118,19 @@ export default async function RootLayout({
           <RQProvider>
             <GPSProvider>
               <UserProvider user={user}>
-                <AlertProvider>
-                  <MapProvider>
-                    <CheckFirstVisitProvider>
-                      <div className="relative h-dvh bg-white max-w-[480px] mx-auto overflow-hidden">
-                        <PageTransitionProvider os={os}>
-                          {children}
-                        </PageTransitionProvider>
-                      </div>
-                    </CheckFirstVisitProvider>
-                  </MapProvider>
-                </AlertProvider>
+                <CidProvider>
+                  <AlertProvider>
+                    <MapProvider>
+                      <CheckFirstVisitProvider>
+                        <div className="relative h-dvh bg-white max-w-[480px] mx-auto overflow-hidden">
+                          <PageTransitionProvider os={os}>
+                            {children}
+                          </PageTransitionProvider>
+                        </div>
+                      </CheckFirstVisitProvider>
+                    </MapProvider>
+                  </AlertProvider>
+                </CidProvider>
               </UserProvider>
             </GPSProvider>
           </RQProvider>
