@@ -2,10 +2,10 @@
 
 import useMapControl from "@/hooks/use-map-control";
 import useToast from "@/hooks/use-toast";
+import { usePostMessage } from "@/provider/use-post-message";
 import useAlertStore from "@/store/use-alert-store";
 import { useGpsStore } from "@/store/use-gps-store";
 import { useMapStore } from "@/store/use-map-store";
-import { UsePostMessage } from "@/store/use-post-message";
 import { useEffect, useRef } from "react";
 
 const GPSProvider = ({ children }: React.PropsWithChildren) => {
@@ -17,7 +17,7 @@ const GPSProvider = ({ children }: React.PropsWithChildren) => {
   const { moveMap } = useMapControl(map, { enableDrag: false });
   const { toast } = useToast();
 
-  const { postMessage } = UsePostMessage();
+  const { postMessage } = usePostMessage();
   const { location, requestLocation, error } = useGpsStore();
 
   const hasReactNativeWebView =

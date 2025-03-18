@@ -5,7 +5,7 @@ export type WebViewMessage = {
   payload?: Record<string, any>;
 };
 
-export const UsePostMessage = () => {
+export const usePostMessage = () => {
   const [message, setMessage] = useState<any>(null);
 
   const hasReactNativeWebView =
