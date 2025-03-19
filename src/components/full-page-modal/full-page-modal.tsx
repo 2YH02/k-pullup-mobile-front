@@ -1,6 +1,7 @@
 import useIsMounted from "@/hooks/use-is-mounted";
 import { useFullPageModalStore } from "@/store/use-full-page-modal.store";
 import cn from "@/utils/cn";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { BsArrowLeftShort } from "react-icons/bs";
@@ -11,6 +12,7 @@ interface FullPageModalProps {
   className?: React.ComponentProps<"div">["className"];
   withDimmed?: boolean;
   os?: string;
+  back?: boolean;
 }
 
 const FullPageModal = ({
@@ -18,8 +20,10 @@ const FullPageModal = ({
   id,
   className,
   os = "Windows",
+  back = false,
   children,
 }: React.PropsWithChildren<FullPageModalProps>) => {
+  const router = useRouter();
   const isMounted = useIsMounted();
   const { isView, hide, id: modalId } = useFullPageModalStore();
 
@@ -63,7 +67,7 @@ const FullPageModal = ({
             os === "iOS" ? "pt-12" : ""
           )}
         >
-          <button className="mr-4" onClick={hide}>
+          <button className="mr-4" onClick={back ? () => router.back() : hide}>
             <BsArrowLeftShort size={26} />
           </button>
           <span className="truncate grow">{title}</span>
