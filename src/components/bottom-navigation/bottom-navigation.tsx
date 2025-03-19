@@ -1,6 +1,7 @@
 "use client";
 
 import usePageTransition from "@/hooks/use-page-transition";
+import { usePostMessage } from "@/provider/use-post-message";
 import useAlertStore from "@/store/use-alert-store";
 import { useUserStore } from "@/store/use-user-store";
 import useViewRegisterStore from "@/store/use-view-register-store";
@@ -26,6 +27,8 @@ const BottomNavigation = ({ os }: { os: string }) => {
   const { openRegister } = useViewRegisterStore();
   const { openSignin } = useViewSigninStore();
 
+  const { postMessage } = usePostMessage();
+
   useEffect(() => {
     LINK_LIST.map((link) => {
       router.prefetch(link);
@@ -34,6 +37,7 @@ const BottomNavigation = ({ os }: { os: string }) => {
 
   const handleClickRegister = () => {
     router.push("/");
+    postMessage({ type: "NAVIGATION_TAB" });
     if (!user) {
       openAlert({
         title: "로그인이 필요합니다.",
@@ -101,6 +105,7 @@ const NavigationButton = ({
   const pathname = usePathname();
 
   const { slideLeft, slideRight } = usePageTransition();
+  const { postMessage } = usePostMessage();
 
   const [loading, setLoading] = useState(false);
 
@@ -128,6 +133,8 @@ const NavigationButton = ({
     const clickIndex = LINK_LIST.findIndex((link) => link === url);
 
     if (clickIndex === curIndex) return;
+
+    postMessage({ type: "NAVIGATION_TAB" });
 
     if (curIndex > clickIndex) {
       onBack();
