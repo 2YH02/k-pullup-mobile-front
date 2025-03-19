@@ -49,7 +49,8 @@ export interface ReportsRes {
 }
 
 export const myInfo = async (cookie?: string): Promise<UserInfo | null> => {
-  const url = cookie ? process.env.NEXT_PUBLIC_BASE_URL : "/api/v1";
+  const url =
+    process.env.NEXT_PUBLIC_BASE_URL || "https://api.k-pullup.com/api/v1";
 
   const response = await fetch(`${url}/users/me`, {
     headers: {
