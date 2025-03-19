@@ -23,21 +23,21 @@ export const useGpsStore = create<gpsState>((set) => ({
     }
     const options = { enableHighAccuracy: false, maximumAge: 0 };
 
-    navigator.geolocation.getCurrentPosition(
-      (position: GeolocationPosition) => {
-        set({
-          location: {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          },
-          error: null,
-        });
-      },
-      (err: { code: number; message: string }) => {
-        console.error(err);
-        set({ error: err });
-      },
-      options
-    );
+    const success = (position: GeolocationPosition) => {
+      set({
+        location: {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        },
+        error: null,
+      });
+    };
+
+    const error = (error: { code: number; message: string }) => {
+      console.error(error);
+      set({ error: error });
+    };
+
+    navigator.geolocation.getCurrentPosition(success, error, options);
   },
 }));

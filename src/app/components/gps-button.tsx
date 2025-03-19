@@ -21,14 +21,14 @@ const GpsButton = () => {
       className="bg-white text-primary-dark border border-solid border-[#eee] dark:border-grey-dark dark:bg-black dark:text-primary-dark"
       icon={<BsCrosshair />}
       onClick={() => {
-        if (hasReactNativeWebView) {
-          postMessage({ type: "GPS_PERMISSIONS" });
-          return;
-        }
-
         if (!location) {
-          requestLocation();
-          return;
+          if (hasReactNativeWebView) {
+            postMessage({ type: "GPS_PERMISSIONS" });
+            return;
+          } else {
+            requestLocation();
+            return;
+          }
         }
         moveMap({ lat: location.lat, lng: location.lng });
       }}
