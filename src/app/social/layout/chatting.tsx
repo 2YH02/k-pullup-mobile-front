@@ -123,7 +123,11 @@ const Chatting = ({ os = "Windows", close }: ChattingProps) => {
             ref={chatBox}
             className={cn(
               "p-4 overflow-auto overflow-x-hidden",
-              os === "iOS" ? "h-[calc(90%-86px)]" : "h-[calc(92%-50px)]"
+              os === "iOS"
+                ? "h-[calc(90%-86px)]"
+                : os === "Android"
+                ? "h-[calc(92%-82px)]"
+                : "h-[calc(92%-50px)]"
             )}
             onMouseDown={(e) => e.stopPropagation()}
             onMouseMove={(e) => e.stopPropagation()}
@@ -135,7 +139,7 @@ const Chatting = ({ os = "Windows", close }: ChattingProps) => {
             {messages.map((message) => {
               return (
                 <MessageBubble
-                  key={`${message.timestamp} ${message.message}`}
+                  key={`${message.timestamp} ${message.message} ${message.userNickname}`}
                   message={message}
                   cid={cid}
                 />
@@ -146,7 +150,11 @@ const Chatting = ({ os = "Windows", close }: ChattingProps) => {
           <div
             className={cn(
               "shrink-0 px-4 flex gap-4 items-center",
-              os === "iOS" ? "pb-6 h-[10%]" : "h-[8%]"
+              os === "iOS"
+                ? "pb-6 h-[10%]"
+                : os === "Android"
+                ? "h-[8%]"
+                : "h-[8%]"
             )}
           >
             <div className="grow">

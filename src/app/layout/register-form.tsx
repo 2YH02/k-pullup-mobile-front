@@ -213,7 +213,7 @@ const RegisterForm = ({ initPosition, os = "Windows" }: RegisterFormProps) => {
             step !== 0
               ? os === "iOS"
                 ? "h-full rounded-none pt-16 shadow-none"
-                : "h-full rounded-none pt-4 shadow-none"
+                : "h-full rounded-none pt-8 shadow-none"
               : "h-auto rounded-t-3xl pt-4 shadow-full"
           )}
         >

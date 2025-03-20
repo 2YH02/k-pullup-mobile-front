@@ -319,7 +319,7 @@ export const ChangeLocationMap = ({
       <div
         className={cn(
           "absolute left-3 z-[34] w-3/4 shadow-md bg-white dark:bg-black rounded-md p-2",
-          os === "iOS" ? "top-[52px]" : "top-4"
+          os === "iOS" ? "top-[52px]" : os === "Android" ? "top-10" : "top-4"
         )}
       >
         {location.addr}

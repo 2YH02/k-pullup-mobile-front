@@ -53,28 +53,33 @@ const MomentDetail = ({ os = "Windows", close }: MomentDetailProps) => {
       className="z-[30] bg-black text-white"
     >
       <div
-        className={cn("w-full h-full", os === "iOS" ? "pt-14" : "")}
+        className={cn(
+          "w-full h-full",
+          os === "iOS" ? "pt-14" : os === "Android" ? "pt-6" : ""
+        )}
         onClick={handleClickNext}
       >
-        <div className="flex gap-1 p-1">
-          {moments.map((moment) => {
-            if (curMoment.storyID === moment.storyID) {
-              return (
-                <span
-                  key={moment.storyID}
-                  className="grow bg-grey-light h-[2px] rounded-lg"
-                />
-              );
-            } else {
-              return (
-                <span
-                  key={moment.storyID}
-                  className="grow bg-grey h-[2px] rounded-lg"
-                />
-              );
-            }
-          })}
-        </div>
+        {moments.length > 1 && (
+          <div className="flex gap-1 p-1">
+            {moments.map((moment) => {
+              if (curMoment.storyID === moment.storyID) {
+                return (
+                  <span
+                    key={moment.storyID}
+                    className="grow bg-grey-light h-[2px] rounded-lg"
+                  />
+                );
+              } else {
+                return (
+                  <span
+                    key={moment.storyID}
+                    className="grow bg-grey h-[2px] rounded-lg"
+                  />
+                );
+              }
+            })}
+          </div>
+        )}
 
         <div className="flex justify-between items-center text-lg font-bold p-2">
           <div>

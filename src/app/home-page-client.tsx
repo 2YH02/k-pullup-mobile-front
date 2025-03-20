@@ -95,7 +95,15 @@ const HomePageClient = ({ os = "Windows" }: { os: string }) => {
         className={cn(
           "relative",
           viewSearch ? "w-full z-30" : "z-20",
-          os === "iOS" && !viewSearch ? "pt-10" : ""
+          os === "iOS"
+            ? !viewSearch
+              ? "pt-10"
+              : ""
+            : os === "Android"
+            ? !viewSearch
+              ? "pt-6"
+              : ""
+            : ""
         )}
       >
         {!viewSearch && (
@@ -129,6 +137,8 @@ const HomePageClient = ({ os = "Windows" }: { os: string }) => {
             viewSearch
               ? os === "iOS"
                 ? "pt-12 border-none rounded-none"
+                : os === "Android"
+                ? "pt-8 border-none rounded-none"
                 : "rounded-none"
               : "",
             isFocused ? "shadow-full" : "shadow-sm"
@@ -147,7 +157,7 @@ const HomePageClient = ({ os = "Windows" }: { os: string }) => {
       <div
         className={cn(
           "px-4 absolute left-0 max-w-full z-10",
-          os === "iOS" ? "top-[104px]" : "top-16"
+          os === "iOS" ? "top-[104px]" : os === "Android" ? "top-[88px]" : "top-16"
         )}
       >
         <MomentList />

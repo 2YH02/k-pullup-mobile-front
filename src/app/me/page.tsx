@@ -10,7 +10,12 @@ const MePage = async ({
   const cookieStore = await cookies();
   const decodeCookie = decodeURIComponent(cookieStore.toString());
 
-  const { os } = await searchParams;
+  const { os: deviceType } = await searchParams;
+
+  const hasReactNativeWebView =
+    typeof window != "undefined" && window.ReactNativeWebView != null;
+
+  const os = hasReactNativeWebView ? deviceType : "Windows";
 
   const user = await myInfo(decodeCookie);
 

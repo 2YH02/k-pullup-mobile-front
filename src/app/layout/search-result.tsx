@@ -68,7 +68,10 @@ const SearchResult = ({
   return (
     <div>
       <SwipeClosePage
-        className={cn("pb-10 z-20", os === "iOS" ? "pt-[88px]" : "pt-12")}
+        className={cn(
+          "pb-10 z-20",
+          os === "iOS" ? "pt-[88px]" : os === "Android" ? "pt-16" : "pt-12"
+        )}
         close={close}
       >
         {value.length === 0 && searches.length > 0 && (

@@ -17,7 +17,7 @@ const ModalCloseButton = ({
       className={cn(
         `absolute right-4 rounded-full z-30 dark:bg-[rgba(255,255,255,0.7)] bg-[rgba(35,35,35,0.7)] 
           dark:text-black text-white p-1 mr-2`,
-        os === "iOS" ? "top-14" : "top-4"
+        os === "iOS" ? "top-14" : os === "Android" ? "top-10" : "top-4"
       )}
       onClick={onClick}
     />

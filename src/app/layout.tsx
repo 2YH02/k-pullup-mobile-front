@@ -95,10 +95,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const hasReactNativeWebView =
+    typeof window != "undefined" && window.ReactNativeWebView != null;
+
   const headersList = headers();
   const userAgent = (await headersList).get("user-agent");
 
-  const os = getOs(userAgent || "");
+  const os = hasReactNativeWebView ? getOs(userAgent || "Windows") : "Windows";
 
   const cookieStore = cookies();
   const decodeCookie = decodeURIComponent((await cookieStore).toString());
@@ -147,7 +150,7 @@ export default async function RootLayout({
             transition={Zoom}
             className={cn(
               "sm:left-1/2 sm:-translate-x-1/2 sm:w-[90%]",
-              os === "iOS" ? "top-14" : ""
+              os === "iOS" ? "top-14" : os === "Android" ? "top-8" : ""
             )}
           />
         </ThemeProvider>

@@ -338,7 +338,11 @@ const MarkerDetail = ({
       <div
         className={cn(
           "fixed top-0 left-1/2 -translate-x-1/2 w-full z-[32] flex items-center px-2 duration-300 max-w-[480px]",
-          os === "iOS" ? "h-24 pt-8" : "h-12",
+          os === "iOS"
+            ? "h-24 pt-8"
+            : os === "Android"
+            ? "pt-4 h-[70px]"
+            : "h-12",
           viewHeader
             ? "bg-white dark:bg-black"
             : "bg-transparent dark:bg-transparent"
@@ -381,7 +385,7 @@ const MarkerDetail = ({
               <div
                 className={cn(
                   "w-full h-10 bg-transparent",
-                  os === "iOS" ? "h-20" : "h-12"
+                  os === "iOS" ? "h-20" : os === "Android" ? "h-16" : "h-12"
                 )}
               />
             )}

@@ -19,11 +19,21 @@ const Main = ({
   const iOSBodyHeight = "h-[calc(100dvh-80px)] pt-12";
 
   // 64 = nav height
+  const androidBodyHeight = "h-[calc(100dvh-64)] pt-6";
+
+  // 64 = nav height
   const bodyHeight = "h-[calc(100dvh-64px)]";
 
   return (
     <div
-      className={cn("overflow-auto dark:bg-black", os === "iOS" ? iOSBodyHeight : bodyHeight)}
+      className={cn(
+        "overflow-auto dark:bg-black",
+        os === "iOS"
+          ? iOSBodyHeight
+          : os === "Android"
+          ? androidBodyHeight
+          : bodyHeight
+      )}
     >
       {headerTitle ? (
         typeof headerTitle === "string" ? (
