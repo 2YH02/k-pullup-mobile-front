@@ -9,10 +9,9 @@ import RQProvider from "@/provider/rq-provider";
 import ThemeProvider from "@/provider/theme-provider";
 import UserProvider from "@/provider/user-provider";
 import cn from "@/utils/cn";
-import getOs from "@/utils/get-os";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { ToastContainer, Zoom } from "react-toastify";
 
 import "./globals.css";
@@ -95,14 +94,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const hasReactNativeWebView =
-    typeof window != "undefined" && window.ReactNativeWebView != null;
-
-  const headersList = headers();
-  const userAgent = (await headersList).get("user-agent");
-
-  const os = hasReactNativeWebView ? getOs(userAgent || "Windows") : "Windows";
-
   const cookieStore = cookies();
   const decodeCookie = decodeURIComponent((await cookieStore).toString());
 
@@ -126,7 +117,7 @@ export default async function RootLayout({
                     <MapProvider>
                       <CheckFirstVisitProvider>
                         <div className="relative h-dvh bg-white max-w-[480px] mx-auto overflow-hidden">
-                          <PageTransitionProvider os={os}>
+                          <PageTransitionProvider>
                             {children}
                           </PageTransitionProvider>
                         </div>
@@ -148,10 +139,7 @@ export default async function RootLayout({
             draggable
             pauseOnHover={false}
             transition={Zoom}
-            className={cn(
-              "sm:left-1/2 sm:-translate-x-1/2 sm:w-[90%]",
-              os === "iOS" ? "top-14" : os === "Android" ? "top-8" : ""
-            )}
+            className={cn("sm:left-1/2 sm:-translate-x-1/2 sm:w-[90%]")}
           />
         </ThemeProvider>
       </body>

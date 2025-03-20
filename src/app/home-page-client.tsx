@@ -29,7 +29,7 @@ export type Marker = {
   thumbnail: string;
 };
 
-const HomePageClient = ({ os = "Windows" }: { os: string }) => {
+const HomePageClient = ({ os = "Windows" }: { os?: string }) => {
   const { map } = useMapStore();
   const { center, moveMap } = useMapControl(map);
 
@@ -157,7 +157,11 @@ const HomePageClient = ({ os = "Windows" }: { os: string }) => {
       <div
         className={cn(
           "px-4 absolute left-0 max-w-full z-10",
-          os === "iOS" ? "top-[104px]" : os === "Android" ? "top-[88px]" : "top-16"
+          os === "iOS"
+            ? "top-[104px]"
+            : os === "Android"
+            ? "top-[88px]"
+            : "top-16"
         )}
       >
         <MomentList />

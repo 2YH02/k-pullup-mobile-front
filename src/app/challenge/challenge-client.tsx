@@ -6,7 +6,7 @@ import usePageTransition from "@/hooks/use-page-transition";
 import { useSessionStore } from "@/store/use-session-store";
 import { useEffect } from "react";
 
-const ChallengeClient = ({ os }: { os: string }) => {
+const ChallengeClient = ({ os = "Windows" }: { os?: string }) => {
   const { isFirstVisit } = useSessionStore();
   const { slideIn } = usePageTransition();
 

@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import LocalChatList from "./layout/local-chat-list";
 import { MomentList } from "./layout/moment-list";
 
-const SocialClient = ({ os }: { os: string }) => {
+const SocialClient = ({ os = "Windows" }: { os?: string }) => {
   const { isFirstVisit } = useSessionStore();
   const { slideIn } = usePageTransition();
 

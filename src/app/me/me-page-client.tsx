@@ -23,7 +23,13 @@ import MyLocation from "./layout/my-location";
 import MyReportLocation from "./layout/my-report-location";
 import ReportForMyMarker from "./layout/report-for-my-marker";
 
-const MePageClient = ({ os, user }: { os: string; user: UserInfo | null }) => {
+const MePageClient = ({
+  os = "Windows",
+  user,
+}: {
+  os?: string;
+  user: UserInfo | null;
+}) => {
   const { setUser, setLoading, loading } = useUserStore();
   const { isFirstVisit } = useSessionStore();
   const { slideIn } = usePageTransition();

@@ -18,11 +18,11 @@ import cn from "@/utils/cn";
 import { useRef, useState } from "react";
 
 const PageTransitionProvider = ({
-  os,
+  os = "Windows",
   className,
   children,
 }: React.PropsWithChildren<{
-  os: string;
+  os?: string;
   className?: React.ComponentProps<"div">["className"];
 }>) => {
   const { isView, closeSignin } = useViewSigninStore();
