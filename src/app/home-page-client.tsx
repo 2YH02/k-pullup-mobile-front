@@ -157,6 +157,7 @@ const HomePageClient = ({ os = "Windows" }: { os?: string }) => {
         />
       </div>
 
+      {/* 모먼트 리스트 */}
       <div
         className={cn(
           "px-4 absolute left-0 max-w-full z-10",

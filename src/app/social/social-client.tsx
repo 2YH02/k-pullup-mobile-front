@@ -25,8 +25,8 @@ const SocialClient = ({ os = "Windows" }: { os?: string }) => {
       <Section title="지역 채팅">
         <LocalChatList />
       </Section>
-      <Section title="모먼트">
-        <MomentList />
+      <Section>
+        <MomentList withTitle />
       </Section>
     </Main>
   );
