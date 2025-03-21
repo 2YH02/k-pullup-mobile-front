@@ -7,12 +7,15 @@ import { useSessionStore } from "@/store/use-session-store";
 import { useEffect } from "react";
 import LocalChatList from "./layout/local-chat-list";
 import { MomentList } from "./layout/moment-list";
+import { usePageLoadedStore } from "@/store/use-page-loaded-store";
 
 const SocialClient = ({ os = "Windows" }: { os?: string }) => {
   const { isFirstVisit } = useSessionStore();
   const { slideIn } = usePageTransition();
+  const { setPageLoaded } = usePageLoadedStore();
 
   useEffect(() => {
+    setPageLoaded(true);
     if (isFirstVisit) return;
     slideIn("/social");
   }, []);

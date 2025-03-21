@@ -3,12 +3,13 @@
 import usePageTransition from "@/hooks/use-page-transition";
 import { usePostMessage } from "@/provider/use-post-message";
 import useAlertStore from "@/store/use-alert-store";
+import { usePageLoadedStore } from "@/store/use-page-loaded-store";
 import { useUserStore } from "@/store/use-user-store";
 import useViewRegisterStore from "@/store/use-view-register-store";
 import useViewSigninStore from "@/store/use-view-signin-store";
 import cn from "@/utils/cn";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import {
   BsBarChartLine,
   BsBuilding,
@@ -106,30 +107,28 @@ const NavigationButton = ({
 
   const { slideLeft, slideRight } = usePageTransition();
   const { postMessage } = usePostMessage();
-
-  const [loading, setLoading] = useState(false);
+  const { isPageLoaded, setPageLoaded } = usePageLoadedStore();
 
   const curIndex = useMemo(() => {
     return LINK_LIST.findIndex((link) => link === pathname);
   }, [pathname]);
 
   const onBack = () => {
-    setLoading(true);
+    setPageLoaded(false);
     slideRight().then(() => {
       router.push(url);
-      setLoading(false);
     });
   };
 
   const onNext = () => {
-    setLoading(true);
+    setPageLoaded(false);
     slideLeft().then(() => {
       router.push(url);
-      setLoading(false);
     });
   };
 
   const handleClick = () => {
+    if (!isPageLoaded) return;
     const clickIndex = LINK_LIST.findIndex((link) => link === url);
 
     if (clickIndex === curIndex) return;
@@ -152,7 +151,6 @@ const NavigationButton = ({
           : "text-[#aaa] dark:text-[#aaa]"
       )}
       onClick={() => {
-        if (loading) return;
         handleClick();
       }}
     >

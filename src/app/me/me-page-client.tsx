@@ -22,6 +22,7 @@ import MyInfo from "./layout/my-info";
 import MyLocation from "./layout/my-location";
 import MyReportLocation from "./layout/my-report-location";
 import ReportForMyMarker from "./layout/report-for-my-marker";
+import { usePageLoadedStore } from "@/store/use-page-loaded-store";
 
 const MePageClient = ({
   os = "Windows",
@@ -45,12 +46,15 @@ const MePageClient = ({
   const [viewDetail, setViewDetail] = useState(false);
   const [curDetailId, setCurDetailId] = useState(0);
 
+  const { setPageLoaded } = usePageLoadedStore();
+
   useEffect(() => {
     setUser(user);
     setLoading(false);
   }, [user]);
 
   useEffect(() => {
+    setPageLoaded(true);
     if (isFirstVisit) return;
     slideIn("/me");
   }, []);

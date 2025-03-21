@@ -18,6 +18,7 @@ import GpsButton from "./components/gps-button";
 import RegisterForm from "./layout/register-form";
 import SearchResult from "./layout/search-result";
 import { MomentList } from "./social/layout/moment-list";
+import { usePageLoadedStore } from "@/store/use-page-loaded-store";
 
 export type Marker = {
   latitude: number;
@@ -32,6 +33,7 @@ export type Marker = {
 const HomePageClient = ({ os = "Windows" }: { os?: string }) => {
   const { map } = useMapStore();
   const { center, moveMap } = useMapControl(map);
+  const { setPageLoaded } = usePageLoadedStore();
 
   const { data, isLoading, isFetching, refetch } = useNearbyMarkers({
     latitude: center.lat,
@@ -59,6 +61,7 @@ const HomePageClient = ({ os = "Windows" }: { os?: string }) => {
   const [viewSearch, setViewSearch] = useState(false);
 
   useEffect(() => {
+    setPageLoaded(true);
     if (isFirstVisit) return;
     slideIn("/");
   }, []);

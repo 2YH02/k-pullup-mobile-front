@@ -3,14 +3,17 @@
 import Main from "@/components/main/main";
 import Section from "@/components/section/section";
 import usePageTransition from "@/hooks/use-page-transition";
+import { usePageLoadedStore } from "@/store/use-page-loaded-store";
 import { useSessionStore } from "@/store/use-session-store";
 import { useEffect } from "react";
 
 const ChallengeClient = ({ os = "Windows" }: { os?: string }) => {
   const { isFirstVisit } = useSessionStore();
   const { slideIn } = usePageTransition();
+  const { setPageLoaded } = usePageLoadedStore();
 
   useEffect(() => {
+    setPageLoaded(true);
     if (isFirstVisit) return;
     slideIn("/challenge");
   }, []);

@@ -6,6 +6,6 @@ interface PageLoadedState {
 }
 
 export const usePageLoadedStore = create<PageLoadedState>((set) => ({
-  isPageLoaded: false,
+  isPageLoaded: true,
   setPageLoaded: (loaded: boolean) => set({ isPageLoaded: loaded }),
 }));
