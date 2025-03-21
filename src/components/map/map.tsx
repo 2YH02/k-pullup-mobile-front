@@ -65,7 +65,7 @@ const Map = () => {
   useEffect(() => {
     if (!allMarker || !map) return;
     setMarker(allMarker);
-  }, [allMarker]);
+  }, [allMarker, map]);
 
   useEffect(() => {
     if (!map || markers.length <= 0) return;
