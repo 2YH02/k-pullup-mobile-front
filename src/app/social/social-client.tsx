@@ -14,7 +14,7 @@ const SocialClient = ({ os = "Windows" }: { os?: string }) => {
 
   useEffect(() => {
     if (isFirstVisit) return;
-    slideIn();
+    slideIn("/social");
   }, []);
 
   return (

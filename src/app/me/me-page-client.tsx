@@ -52,7 +52,7 @@ const MePageClient = ({
 
   useEffect(() => {
     if (isFirstVisit) return;
-    slideIn();
+    slideIn("/me");
   }, []);
 
   const openDetail = (id: number) => {

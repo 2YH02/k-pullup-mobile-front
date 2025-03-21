@@ -12,7 +12,7 @@ const ChallengeClient = ({ os = "Windows" }: { os?: string }) => {
 
   useEffect(() => {
     if (isFirstVisit) return;
-    slideIn();
+    slideIn("/challenge");
   }, []);
 
   return (

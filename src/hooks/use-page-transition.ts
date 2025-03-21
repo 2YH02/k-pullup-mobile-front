@@ -2,11 +2,13 @@ import {
   PageAnimation,
   PageTransitionContext,
 } from "@/context/page-transition-context";
+import { usePathname } from "next/navigation";
 import { useContext } from "react";
 
 export const SLIDE_ANIMATION_DURATION = 100;
 
 const usePageTransition = () => {
+  const pathname = usePathname();
   const pageTransitionContext = useContext(PageTransitionContext);
 
   if (!pageTransitionContext) {
@@ -25,7 +27,8 @@ const usePageTransition = () => {
     return animate("right", context);
   };
 
-  const slideIn = () => {
+  const slideIn = (url: string) => {
+    if (pathname !== url) return;
     if (context.animation.current) {
       const animation = getInAnimation(context.animation.current);
       context.setClassName(animation);

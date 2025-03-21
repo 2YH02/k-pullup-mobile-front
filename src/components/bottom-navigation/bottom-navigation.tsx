@@ -8,7 +8,7 @@ import useViewRegisterStore from "@/store/use-view-register-store";
 import useViewSigninStore from "@/store/use-view-signin-store";
 import cn from "@/utils/cn";
 import { usePathname, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BsBarChartLine,
   BsBuilding,
@@ -28,6 +28,12 @@ const BottomNavigation = ({ os }: { os: string }) => {
   const { openSignin } = useViewSigninStore();
 
   const { postMessage } = usePostMessage();
+
+  useEffect(() => {
+    LINK_LIST.map((link) => {
+      router.prefetch(link);
+    });
+  }, []);
 
   const handleClickRegister = () => {
     router.push("/");

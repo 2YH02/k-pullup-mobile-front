@@ -60,7 +60,7 @@ const HomePageClient = ({ os = "Windows" }: { os?: string }) => {
 
   useEffect(() => {
     if (isFirstVisit) return;
-    slideIn();
+    slideIn("/");
   }, []);
 
   const aroundSearch = async () => {
