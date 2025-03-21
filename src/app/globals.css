@@ -10,15 +10,14 @@
   --toastify-color-dark: #121212;
 }
 
-html,
-body {
-  overscroll-behavior-x: none;
-}
-
 body {
   @apply bg-gray-300 text-gray-800 dark:bg-gray-800 dark:text-white;
   user-select: none;
   -webkit-user-select: none;
+
+  width: 600px;
+  margin: auto;
+  position: relative;
 }
 
 input[type="number"] {

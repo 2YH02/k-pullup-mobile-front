@@ -76,7 +76,7 @@ const OauthSignin = () => {
 
       <Link
         href={`${process.env.NEXT_PUBLIC_BASE_URL}/auth/kakao`}
-        className="w-[90%] min-w-[300px] h-12 rounded-lg bg-[#FFDB6D] flex items-center justify-center
+        className="w-full min-w-[300px] h-12 rounded-lg bg-[#FFDB6D] flex items-center justify-center
           web:text-lg mb-4"
       >
         <div className="absolute left-10 flex items-center justify-center w-12 h-12 shrink-0">
@@ -87,7 +87,7 @@ const OauthSignin = () => {
 
       <Link
         href={`${process.env.NEXT_PUBLIC_BASE_URL}/auth/naver`}
-        className="w-[90%] min-w-[300px] h-12 rounded-lg bg-[#1FBB64] flex items-center justify-center
+        className="w-full min-w-[300px] h-12 rounded-lg bg-[#1FBB64] flex items-center justify-center
           web:text-lg text-white mb-4"
       >
         <div className="absolute left-10 flex items-center justify-center w-12 h-12 shrink-0">
@@ -98,7 +98,7 @@ const OauthSignin = () => {
 
       <Link
         href={`${process.env.NEXT_PUBLIC_BASE_URL}/auth/google`}
-        className="w-[90%] min-w-[300px] h-12 rounded-lg bg-white flex items-center justify-center
+        className="w-full min-w-[300px] h-12 rounded-lg bg-white flex items-center justify-center
           web:text-lg border border-solid border-grey"
         replace
       >

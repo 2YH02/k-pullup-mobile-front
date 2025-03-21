@@ -24,7 +24,7 @@ const BottomFixedButton = ({
   return createPortal(
     <div
       className={cn(
-        `fixed bottom-0 left-1/2 -translate-x-1/2 bg-white w-full max-w-[480px] px-4 p-3 z-40 flex gap-3
+        `fixed bottom-0 left-1/2 -translate-x-1/2 bg-white w-full max-w-[600px] px-4 p-3 z-40 flex gap-3
        dark:bg-black dark:border-b dark:border-solid dark:border-grey-dark`,
         os === "iOS" ? "pb-6" : "pb-3",
         className

@@ -11,6 +11,16 @@ const AroundSearchButton = ({
   viewAroundSearchList?: boolean;
   onClick?: VoidFunction;
 }) => {
+  const addressArr = address.split(" ");
+  const addressText =
+    addressArr[addressArr.length - 4] +
+    " " +
+    addressArr[addressArr.length - 3] +
+    " " +
+    addressArr[addressArr.length - 2] +
+    " " +
+    addressArr[addressArr.length - 1];
+
   return (
     <Button
       className={`text-xs text-black rounded-full bg-white shadow-sm border border-solid border-[#eee] h-8 p-0 px-3 flex-row-reverse
@@ -29,7 +39,7 @@ const AroundSearchButton = ({
       }
     >
       <div className="flex flex-wrap justify-center items-center">
-        <span className="text-primary-dark mr-1">{address}</span>
+        <span className="text-primary-dark mr-1">{addressText}</span>
         <span> 주변 검색</span>
       </div>
     </Button>

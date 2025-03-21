@@ -9,6 +9,7 @@ import { useChatStore } from "@/store/use-chat-store";
 import cn from "@/utils/cn";
 import { useEffect, useRef, useState } from "react";
 import { BsArrowUp } from "react-icons/bs";
+// TODO: 로딩
 
 interface Message {
   uid: string;

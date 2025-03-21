@@ -19,6 +19,7 @@ import RegisterForm from "./layout/register-form";
 import SearchResult from "./layout/search-result";
 import { MomentList } from "./social/layout/moment-list";
 import { usePageLoadedStore } from "@/store/use-page-loaded-store";
+import useImagePreload from "@/hooks/use-image-preload";
 
 export type Marker = {
   latitude: number;
@@ -65,6 +66,14 @@ const HomePageClient = ({ os = "Windows" }: { os?: string }) => {
     if (isFirstVisit) return;
     slideIn("/");
   }, []);
+
+  useImagePreload([
+    "/ranking1.png",
+    "/ranking2.png",
+    "/ranking3.png",
+    "/ranking4.png",
+    "/ranking5.png",
+  ]);
 
   const aroundSearch = async () => {
     if (!map) return;

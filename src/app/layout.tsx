@@ -116,7 +116,7 @@ export default async function RootLayout({
                   <AlertProvider>
                     <MapProvider>
                       <CheckFirstVisitProvider>
-                        <div className="relative h-dvh bg-white max-w-[480px] mx-auto overflow-hidden">
+                        <div className="relative h-dvh bg-white max-w-[600px] mx-auto overflow-hidden">
                           <PageTransitionProvider>
                             {children}
                           </PageTransitionProvider>

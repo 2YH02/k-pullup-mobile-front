@@ -337,7 +337,7 @@ const MarkerDetail = ({
       {/* 헤더 */}
       <div
         className={cn(
-          "fixed top-0 left-1/2 -translate-x-1/2 w-full z-[32] flex items-center px-2 duration-300 max-w-[480px]",
+          "fixed top-0 left-1/2 -translate-x-1/2 w-full z-[32] flex items-center px-2 duration-300 max-w-[600px]",
           os === "iOS"
             ? "h-24 pt-8"
             : os === "Android"
@@ -687,8 +687,8 @@ const MarkerDetailImages = ({
             >
               <Image
                 src={image.photoUrl}
-                width={230}
-                height={230}
+                width={300}
+                height={300}
                 alt="상세"
                 className="rounded-md object-cover"
               />

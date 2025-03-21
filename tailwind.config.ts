@@ -7,6 +7,7 @@ export default {
     extend: {
       screens: {
         sm: { max: "390px" },
+        md: { min: "500px" },
       },
       boxShadow: {
         full: "rgba(67, 71, 85, 0.27) 0px 0px 0.25em, rgba(90, 125, 188, 0.05) 0px 0.25em 1em",
