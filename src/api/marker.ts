@@ -226,3 +226,28 @@ export const downloadPdf = async ({ lat, lng }: DownloadPdf) => {
 export const convertWgs = async (lat: number, lng: number) => {
   return await apiFetch(`/markers/convert?latitude=${lat}&longitude=${lng}`);
 };
+
+export interface RankingMarker {
+  address: string;
+  latitude: number;
+  longitude: number;
+  markerId: number;
+}
+
+export const fetchMarkerRanking = async (): Promise<RankingMarker[]> => {
+  return await apiFetch("/markers/ranking");
+};
+
+export interface AreaRankingPayload {
+  latitude: number;
+  longitude: number;
+}
+
+export const fetchAroundMarkerRanking = async ({
+  latitude,
+  longitude,
+}: AreaRankingPayload): Promise<RankingMarker[]> => {
+  return await apiFetch(
+    `/markers/area-ranking?latitude=${latitude}&longitude=${longitude}&limit=10`
+  );
+};
