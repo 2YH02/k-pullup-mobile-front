@@ -29,12 +29,6 @@ const BottomNavigation = ({ os }: { os: string }) => {
 
   const { postMessage } = usePostMessage();
 
-  useEffect(() => {
-    LINK_LIST.map((link) => {
-      router.prefetch(link);
-    });
-  }, []);
-
   const handleClickRegister = () => {
     router.push("/");
     postMessage({ type: "NAVIGATION_TAB" });
