@@ -8,7 +8,7 @@ import useViewRegisterStore from "@/store/use-view-register-store";
 import useViewSigninStore from "@/store/use-view-signin-store";
 import cn from "@/utils/cn";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   BsBarChartLine,
   BsBuilding,
