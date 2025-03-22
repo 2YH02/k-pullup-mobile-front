@@ -15,7 +15,7 @@ body {
   user-select: none;
   -webkit-user-select: none;
 
-  width: 600px;
+  max-width: 600px;
   margin: auto;
   position: relative;
 }
