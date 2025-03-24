@@ -193,9 +193,8 @@ const SwipeClosePage = ({
     <div
       ref={containerRef}
       className={cn(
-        "absolute top-0 w-full h-full left-1/2 bg-white z-30 max-w-[600px] dark:bg-black overflow-auto overflow-x-hidden",
+        "fixed top-0 w-full h-full left-1/2 bg-white z-30 max-w-[600px] dark:bg-black overflow-auto overflow-x-hidden",
         active ? "translate-y-0" : "translate-y-full",
-        slideType === "none" ? "left-0" : "left-1/2",
         !isDragging.current ? "duration-150" : "duration-0",
         scrollTop < OVERSCROLL_LIMIT ? "overscroll-none" : "",
         className
@@ -203,7 +202,7 @@ const SwipeClosePage = ({
       style={{
         transform:
           slideType === "none"
-            ? "translateX(0)"
+            ? "translateX(-50%)"
             : slideType === "vertical"
             ? computedTransformY
             : computedTransformX,
