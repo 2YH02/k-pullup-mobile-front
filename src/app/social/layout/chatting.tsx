@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/button/button";
 import Input from "@/components/input/input";
+import Loading from "@/components/loading/loading";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import WarningText from "@/components/warning-text/warning-text";
 import useInput from "@/hooks/use-input";
@@ -9,7 +10,6 @@ import { useChatStore } from "@/store/use-chat-store";
 import cn from "@/utils/cn";
 import { useEffect, useRef, useState } from "react";
 import { BsArrowUp } from "react-icons/bs";
-// TODO: 로딩
 
 interface Message {
   uid: string;
@@ -40,6 +40,8 @@ const Chatting = ({ os = "Windows", close }: ChattingProps) => {
 
   const [subTitle, setSubTitle] = useState("");
 
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     ws.current?.close();
 
@@ -50,6 +52,7 @@ const Chatting = ({ os = "Windows", close }: ChattingProps) => {
     );
 
     ws.current.onopen = () => {
+      setIsLoading(false);
       setMessages([]);
     };
 
@@ -70,10 +73,12 @@ const Chatting = ({ os = "Windows", close }: ChattingProps) => {
     };
 
     ws.current.onerror = () => {
+      setIsLoading(false);
       setIsConnectionError(true);
     };
 
     ws.current.onclose = () => {
+      setIsLoading(false);
       setIsConnectionError(true);
     };
 
@@ -112,6 +117,11 @@ const Chatting = ({ os = "Windows", close }: ChattingProps) => {
 
   return (
     <SwipeClosePage os={os} close={close} headerTitle={`${title} ${subTitle}`}>
+      {isLoading && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <Loading size="lg" />
+        </div>
+      )}
       {isConnectionError ? (
         <div className="mt-14 text-center">
           <div className="text-2xl font-bold mb-1">연결 실패</div>
