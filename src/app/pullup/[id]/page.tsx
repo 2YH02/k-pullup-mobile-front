@@ -1,7 +1,9 @@
-import PullupPageClient from "./pullup-page-client";
+import MarkerDetail from "@/app/layout/marker-detail";
 
-const PullupPage = () => {
-  return <PullupPageClient />;
+const PullupPage = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
+
+  return <MarkerDetail markerId={~~id} slideType="none" />;
 };
 
 export default PullupPage;

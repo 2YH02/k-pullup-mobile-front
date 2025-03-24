@@ -1,3 +1,5 @@
+"use client";
+
 import { convertWgs } from "@/api/marker";
 import { type UserInfo } from "@/api/user";
 import { Badge } from "@/components/badge/badge";
@@ -35,6 +37,7 @@ import { formatDate } from "@/utils/format-date";
 import MapWalker from "@/utils/map-walker";
 import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, Fragment, useEffect, useRef, useState } from "react";
 import {
   BsArrowLeftShort,
@@ -63,6 +66,7 @@ interface MarkerDetailProps {
   os?: string;
   closeDetail?: VoidFunction;
   imageCache?: (img: string | null) => void;
+  slideType?: "vertical" | "horizontal" | "none";
   className?: React.ComponentProps<"div">["className"];
 }
 
@@ -71,9 +75,11 @@ const MarkerDetail = ({
   imageUrl,
   os = "Windows",
   className,
+  slideType = "vertical",
   closeDetail,
   imageCache,
 }: MarkerDetailProps) => {
+  const router = useRouter();
   const queryClient = useQueryClient();
 
   const { location } = useGpsStore();
@@ -353,7 +359,8 @@ const MarkerDetail = ({
           clickAction
           className="rounded-full bg-[rgba(255,255,255,0.7)] dark:bg-[rgba(35,35,35,0.7)] text-black dark:text-white p-1 mr-2"
           onClick={() => {
-            closeDetail?.();
+            if (closeDetail) closeDetail();
+            else router.back();
             imageCache?.(null);
           }}
         />
@@ -362,7 +369,11 @@ const MarkerDetail = ({
         )}
       </div>
 
-      <SwipeClosePage close={closeDetail} className="z-[31]">
+      <SwipeClosePage
+        close={closeDetail}
+        className="z-[31]"
+        slideType={slideType}
+      >
         {markerLoading || !marker ? (
           <>
             {imageUrl && (
@@ -747,7 +758,7 @@ const ShareModal = ({
       <div
         role="button"
         className="p-3 flex items-center active:bg-[rgba(0,0,0,0.1)] rounded-lg"
-        onClick={() => copyToClipboard(`https://m.k-pullup.com/pullup${id}`)}
+        onClick={() => copyToClipboard(`https://m.k-pullup.com/pullup/${id}`)}
       >
         <span className="mr-4 p-2 rounded-full bg-[rgba(0,0,0,0.2)] dark:bg-[rgba(255,255,255,0.2)] text-white">
           <BsCopy size={22} />
