@@ -59,7 +59,9 @@ export const MomentList = ({ withTitle }: MomentListProps) => {
 
   return (
     <div>
-      {withTitle && <div className="mb-2 font-bold text-lg">모먼트</div>}
+      {withTitle && data.length > 0 && (
+        <div className="mb-2 font-bold text-lg">모먼트</div>
+      )}
 
       <HorizontalScroll className="gap-3">
         {data.map((moment, index) => {
