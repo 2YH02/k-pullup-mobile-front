@@ -165,7 +165,10 @@ const AroundSearchList = ({
         >
           <div className="relative w-full h-24">
             <Image
-              src={data[0].thumbnail || "/metaimg.webp"}
+              src={
+                `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${data[0].thumbnail}` ||
+                "/metaimg.webp"
+              }
               fill
               alt={data[0].description}
               className="object-cover"

@@ -1,8 +1,10 @@
+import Loading from "@/components/loading/loading";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
 import { useMomentStore } from "@/store/use-moment-store";
 import { useViewDetailStore } from "@/store/use-view-detail-store";
 import cn from "@/utils/cn";
 import minutesAgo from "@/utils/minutes-ago";
+import { useState } from "react";
 import { BsX } from "react-icons/bs";
 
 interface MomentDetailProps {
@@ -12,6 +14,8 @@ interface MomentDetailProps {
 const MomentDetail = ({ os = "Windows", close }: MomentDetailProps) => {
   const { moments, curMoment, setCurMoment } = useMomentStore();
   const { show } = useViewDetailStore();
+
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const nextMoment = () => {
     if (!curMoment || !moments) return;
@@ -109,10 +113,15 @@ const MomentDetail = ({ os = "Windows", close }: MomentDetailProps) => {
           </button>
 
           <div className="h-full w-full flex items-center justify-center">
+            {!imageLoaded && <Loading />}
             <img
-              src={curMoment.photoURL}
+              src={`${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${curMoment.photoURL}`}
               alt={curMoment.caption}
-              className="w-full h-full object-contain"
+              className={cn(
+                "w-full h-full object-contain",
+                imageLoaded ? "block" : "hidden"
+              )}
+              onLoad={() => setImageLoaded(true)}
               draggable={false}
             />
           </div>

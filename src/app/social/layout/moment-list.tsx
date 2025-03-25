@@ -85,7 +85,7 @@ export const MomentList = ({ withTitle }: MomentListProps) => {
                     backgroundPosition: "",
                   }}
                 >
-                  <div className="text-xs truncate p-1">
+                  <div className="text-[10px] truncate p-1">
                     {getCity(moment.address)}
                   </div>
                 </div>

@@ -391,7 +391,7 @@ const MarkerDetail = ({
         ) : (
           <>
             {/* 이미지 슬라이드 */}
-            <ImageSlide photos={marker.photos} />
+            <ImageSlide photos={marker.photos} loadingImage={imageUrl} />
             {!marker.photos && (
               <div
                 className={cn(
@@ -400,7 +400,6 @@ const MarkerDetail = ({
                 )}
               />
             )}
-
             {/* 기구 개수 정보 */}
             <Section className="flex flex-wrap gap-2 pt-2 pb-0">
               {facilities && !facilitiesError && facilities.length > 0 && (
@@ -586,8 +585,15 @@ const MarkerDetail = ({
 };
 
 // TODO: 메모이제이션 성능 비교 필요
-const ImageSlide = ({ photos }: { photos?: Photo[] }) => {
+const ImageSlide = ({
+  photos,
+  loadingImage,
+}: {
+  photos?: Photo[];
+  loadingImage?: string | null;
+}) => {
   const [curImageIndex, setCurImageIndex] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const slideSettings = {
     accessibility: false,
@@ -609,13 +615,19 @@ const ImageSlide = ({ photos }: { photos?: Photo[] }) => {
   return (
     <div>
       <div className="relative w-full h-72 overflow-hidden">
+        {!imageLoaded && <Skeleton className="w-full h-72" />}
         <Slider {...slideSettings}>
           {photos.map((item, index) => (
             <div key={item.photoId} className="w-full h-72 focus:outline-none">
               <img
-                src={item.photoUrl}
+                src={
+                  !imageLoaded && loadingImage
+                    ? loadingImage
+                    : `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${item.photoUrl}`
+                }
                 alt={`Slide ${index + 1}`}
                 className="w-full h-full object-cover block"
+                onLoad={() => setImageLoaded(true)}
               />
             </div>
           ))}
@@ -697,7 +709,7 @@ const MarkerDetailImages = ({
               onClick={() => onImageClick(index)}
             >
               <Image
-                src={image.photoUrl}
+                src={`${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${image.photoUrl}`}
                 width={300}
                 height={300}
                 alt="상세"
@@ -717,7 +729,7 @@ const MarkerDetailImages = ({
               onClick={() => onImageClick(index)}
             >
               <Image
-                src={image.photoUrl}
+                src={`${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${image.photoUrl}`}
                 width={300}
                 height={300}
                 alt="상세"
@@ -1489,7 +1501,7 @@ const ImageDetail = ({
                   className="w-full h-[calc(100dvh-50px)] focus:outline-none"
                 >
                   <img
-                    src={item.photoUrl}
+                    src={`${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${item.photoUrl}`}
                     alt={`Slide ${index + 1}`}
                     className="w-full h-full object-contain block"
                   />
