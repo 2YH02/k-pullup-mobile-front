@@ -13,6 +13,9 @@ import type { MarkerDetail } from "@/types/marker.types";
 import cn from "@/utils/cn";
 import { useEffect, useRef, useState } from "react";
 import UploadImageForm, { type FileData } from "./upload-image-form";
+import { useGpsStore } from "@/store/use-gps-store";
+import { MyLocateOverlay } from "@/components/map/map";
+import { createRoot } from "react-dom/client";
 
 type Location = {
   lat: number | null;
@@ -261,6 +264,8 @@ export const ChangeLocationMap = ({
   os?: string;
   onDragEnd?: (data: { lat: number; lng: number; addr: string }) => void;
 }) => {
+  const { location: myLocation } = useGpsStore();
+
   const [location, setLocation] = useState({ lat, lng, addr });
   const mapRef = useRef<KakaoMap>(null);
 
@@ -279,6 +284,26 @@ export const ChangeLocationMap = ({
     const geocoder = new window.kakao.maps.services.Geocoder();
 
     mapRef.current = map;
+
+    if (myLocation) {
+      const moveLatLon = new window.kakao.maps.LatLng(
+        myLocation.lat,
+        myLocation.lng
+      );
+
+      const overlayDiv = document.createElement("div");
+      const root = createRoot(overlayDiv);
+
+      root.render(<MyLocateOverlay />);
+
+      const customOverlay = new window.kakao.maps.CustomOverlay({
+        position: moveLatLon,
+        content: overlayDiv,
+        zIndex: 10,
+      });
+
+      customOverlay.setMap(map);
+    }
 
     if (!onDragEnd) return;
 
