@@ -69,7 +69,7 @@ const SearchResult = ({
     <div>
       <SwipeClosePage
         className={cn(
-          "pb-10 z-20",
+          "pb-24 z-20",
           os === "iOS" ? "pt-[88px]" : os === "Android" ? "pt-16" : "pt-12"
         )}
         close={close}
@@ -78,27 +78,63 @@ const SearchResult = ({
           <>
             <Section
               className="pb-0"
-              title="지도 이동 기록"
+              title="검색 기록"
               subTitle="목록 전체 삭제"
               subTitleClick={clearSearches}
             />
             <div>
               {searches.map((item) => {
-                return (
-                  <ListItem
-                    key={`${item.lat} ${item.lat} ${item.address_name}`}
-                    address={item.address_name}
-                    place={item.place_name}
-                    lat={item.lat}
-                    lng={item.lng}
-                    close={close}
-                    moveMap={moveMap}
-                    icon={<BsXLg color="#777" />}
-                    iconClick={() => {
-                      removeItem(item.address_name);
-                    }}
-                  />
-                );
+                if (item.markerId) {
+                  return (
+                    <div
+                      key={item.markerId}
+                      className="px-4 bg-primary-light active:bg-opacity-60 dark:active:bg-opacity-40 bg-opacity-20 dark:bg-opacity-10"
+                    >
+                      <button
+                        className="flex items-center w-full py-2 text-left border-b border-solid border-grey-light dark:border-grey duration-100"
+                        onClick={() => {
+                          viewMarkerId.current = item.markerId as number;
+                          setViewDetail(true);
+                        }}
+                      >
+                        <div className="shrink-0 max-w-[90%]">
+                          <div className="font-bold break-words">
+                            {highlightText(
+                              removeMarkTags(item.address_name),
+                              extractMarkedText(item.address_name).marked
+                            )}
+                          </div>
+                        </div>
+                        <div className="grow" />
+                        <div
+                          className="shrink-0 w-[10%] flex justify-center items-center"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeItem(item.address_name);
+                          }}
+                        >
+                          <BsXLg color="#777" />
+                        </div>
+                      </button>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <ListItem
+                      key={`${item.lat} ${item.lat} ${item.address_name}`}
+                      address={item.address_name}
+                      place={item.place_name as string}
+                      lat={item.lat as number}
+                      lng={item.lng as number}
+                      close={close}
+                      moveMap={moveMap}
+                      icon={<BsXLg color="#777" />}
+                      iconClick={() => {
+                        removeItem(item.address_name);
+                      }}
+                    />
+                  );
+                }
               })}
             </div>
           </>
@@ -125,6 +161,11 @@ const SearchResult = ({
                     onClick={() => {
                       viewMarkerId.current = marker.markerId;
                       setViewDetail(true);
+
+                      addSearch({
+                        address_name: marker.address,
+                        markerId: marker.markerId,
+                      });
                     }}
                   >
                     <div className="shrink-0 max-w-[90%]">

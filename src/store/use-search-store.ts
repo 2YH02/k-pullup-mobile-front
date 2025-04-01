@@ -2,10 +2,11 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface SearchData {
+  markerId?: number | null;
   address_name: string;
-  place_name: string;
-  lat: number;
-  lng: number;
+  place_name?: string;
+  lat?: number;
+  lng?: number;
 }
 
 interface SearchState {
