@@ -23,15 +23,16 @@ const SocialClient = ({ os = "Windows" }: { os?: string }) => {
 
   return (
     <Main os={os} headerTitle={["소셜"]}>
+      <Section title="모먼트" titleRight="지금 이 순간을 기록해보세요.">
+        <MomentList withAddButton />
+      </Section>
       <Section title="지역 채팅">
         <LocalChatList />
       </Section>
       <Section title="인기 많은 철봉">
         <MarkerRankingList />
       </Section>
-      <Section>
-        <MomentList withTitle />
-      </Section>
+
       <div className="p-4" />
     </Main>
   );

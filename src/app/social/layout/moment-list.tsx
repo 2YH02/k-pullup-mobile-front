@@ -7,17 +7,21 @@ import { useAllMoment } from "@/hooks/api/moment/use-all-moment";
 import { useMomentStore } from "@/store/use-moment-store";
 import { decodeBlurhash, pixelsToDataUrl } from "@/utils/decode-hash";
 import { useEffect, useState } from "react";
+import { BsPlusLg } from "react-icons/bs";
+import Moments from "./moments";
 
 interface MomentListProps {
   withTitle?: boolean;
+  withAddButton?: boolean;
 }
 
-export const MomentList = ({ withTitle }: MomentListProps) => {
+export const MomentList = ({ withTitle, withAddButton }: MomentListProps) => {
   const { setMoments, show: openMomentDetail, setCurMoment } = useMomentStore();
 
   const { data, isLoading } = useAllMoment();
 
   const [imageSrc, setImageSrc] = useState<string[]>([]);
+  const [viewMoments, setViewMoments] = useState(false);
 
   useEffect(() => {
     if (!data) return;
@@ -63,7 +67,25 @@ export const MomentList = ({ withTitle }: MomentListProps) => {
         <div className="mb-2 font-bold text-lg">모먼트</div>
       )}
 
+      {viewMoments && <Moments close={() => setViewMoments(false)} />}
+
       <HorizontalScroll className="gap-3">
+        {withAddButton && (
+          <div className="flex flex-col justify-start">
+            <button
+              className="relative shrink-0 bg-rainbow-gradient rounded-full w-12 h-12 bg-[length:200%_200%] animate-gradient-animate"
+              onClick={() => setViewMoments(true)}
+            >
+              <div
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11 h-11 bg-white dark:bg-black rounded-full
+              border-2 border-solid border-white dark:border-black flex items-center justify-center"
+              >
+                <BsPlusLg size={22} className="text-grey-dark dark:text-grey" />
+              </div>
+            </button>
+          </div>
+        )}
+
         {data.map((moment, index) => {
           return (
             <div

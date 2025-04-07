@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import FullPageModal from "@/components/full-page-modal/full-page-modal";
 import { Section } from "./terms";
@@ -16,6 +16,7 @@ const PrivacyPolicy = ({
       os={os}
       title="개인정보처리방침"
       back={back}
+      className="z-[301]"
     >
       <div className="max-w-3xl mx-auto bg-white dark:bg-black shadow-full rounded-lg p-6">
         <h1 className="text-2xl font-bold mb-6 text-center">

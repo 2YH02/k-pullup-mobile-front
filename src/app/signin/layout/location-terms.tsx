@@ -3,7 +3,7 @@ import { Section } from "./terms";
 
 const LocationTerms = ({ os = "Windows" }: { os?: string }) => {
   return (
-    <FullPageModal id="location-terms" os={os} title="위치정보 이용약관">
+    <FullPageModal id="location-terms" os={os} title="위치정보 이용약관" className="z-[301]">
       <div className="max-w-3xl mx-auto bg-white dark:bg-black shadow-full rounded-lg p-6">
         <h1 className="text-2xl font-bold mb-6 text-center">
           위치정보 이용약관

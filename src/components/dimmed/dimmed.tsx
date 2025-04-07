@@ -11,7 +11,7 @@ const Dimmed = ({
   return (
     <div
       className={cn(
-        "absolute top-0 left-0 bg-[rgba(0,0,0,0.4)] w-full h-dvh z-50",
+        "absolute top-0 left-0 bg-[rgba(0,0,0,0.4)] w-full h-dvh z-[300]",
         className
       )}
       onClick={onClick}

@@ -144,6 +144,19 @@ const Moment = ({
             {!moments || moments?.length <= 0 ? (
               <div className="mt-12">
                 <NotFoundImage text="등록된 모먼트가 없습니다." size="lg" />
+                <div className="text-center text-sm">
+                  다른 사람들과 당신의 순간을 공유해보세요!
+                </div>
+                <div className="px-10 mt-4">
+                  <Button
+                    fullWidth
+                    clickAction
+                    className="bg-primary"
+                    onClick={handleUploadMoment}
+                  >
+                    등록하기
+                  </Button>
+                </div>
               </div>
             ) : (
               <>

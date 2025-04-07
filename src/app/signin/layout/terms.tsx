@@ -2,7 +2,7 @@ import FullPageModal from "@/components/full-page-modal/full-page-modal";
 
 const Terms = ({ os = "Windows" }: { os?: string }) => {
   return (
-    <FullPageModal id="term" os={os} title="이용약관 동의">
+    <FullPageModal id="term" os={os} title="이용약관 동의" className="z-[301]">
       <div>
         <div className="max-w-3xl mx-auto bg-white dark:bg-black shadow-full rounded-lg p-6">
           <h1 className="text-2xl font-bold mb-6 text-center">이용약관</h1>

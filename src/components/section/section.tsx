@@ -2,6 +2,7 @@ import cn from "@/utils/cn";
 
 interface SectionProps {
   title?: string;
+  titleRight?: string;
   subTitle?: string;
   subTitleClick?: VoidFunction;
   className?: React.ComponentProps<"section">["className"];
@@ -10,6 +11,7 @@ interface SectionProps {
 const Section = ({
   title,
   subTitle,
+  titleRight,
   subTitleClick,
   className,
   children,
@@ -20,7 +22,10 @@ const Section = ({
     <section className={cn("p-4", className)}>
       {title && (
         <div className="mb-2 select-none flex items-center justify-between">
-          <p className="font-bold text-lg">{title}</p>
+          <div className="flex items-center">
+            <p className="font-bold text-lg">{title}</p>
+            {titleRight && <p className="ml-3 text-sm text-grey">{titleRight}</p>}
+          </div>
           {subTitle && (
             <Subtitle
               className={cn(
