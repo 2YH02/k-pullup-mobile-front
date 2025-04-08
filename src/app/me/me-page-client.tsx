@@ -197,11 +197,11 @@ const MePageClient = ({
                 {user.contributionLevel}
               </div>
               <div>
-                정보 기여 총{" "}
+                정보 기여 점수{" "}
                 <span className="text-primary font-bold">
                   {user.contributionCount || 0}
                 </span>
-                회
+                점
               </div>
             </div>
           </div>
