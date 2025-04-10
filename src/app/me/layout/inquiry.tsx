@@ -1,12 +1,20 @@
+"use client";
+
 import Section from "@/components/section/section";
+import Skeleton from "@/components/skeleton/skeleton";
 import SwipeClosePage from "@/components/swipe-close-page/swipe-close-page";
+import { useState } from "react";
 
 const Inquiry = ({ close }: { close: VoidFunction }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   return (
     <SwipeClosePage slideType="horizontal" headerTitle="문의" close={close}>
       <Section>
         <div className="p-6 bg-white dark:bg-black-light rounded-lg shadow-full space-y-4">
-          <div className="text-2xl font-bold text-center">대한민국 철봉 지도</div>
+          <div className="text-2xl font-bold text-center">
+            대한민국 철봉 지도
+          </div>
           <div>
             안녕하세요. 운동을 좋아해 만들게 된 대한민국 철봉 지도입니다.
           </div>
@@ -37,8 +45,16 @@ const Inquiry = ({ close }: { close: VoidFunction }) => {
           </div>
 
           <div className="text-center">
-            <div className="w-full">
-              <img src="/hand.gif" alt="운동" className="m-0 h-full mx-auto" />
+            <div className="w-full relative">
+              {!imageLoaded && <Skeleton className="w-full h-96 " />}
+              <img
+                src="/hand.gif"
+                alt="운동"
+                className={`m-0 h-full mx-auto ${
+                  imageLoaded ? "block" : "hidden"
+                }`}
+                onLoad={() => setImageLoaded(true)}
+              />
             </div>
             <div className="text-sm text-grey">제작자 입니다</div>
           </div>
