@@ -10,6 +10,7 @@ import useAlertStore from "@/store/use-alert-store";
 import { useUserStore } from "@/store/use-user-store";
 import { useState } from "react";
 import { BsChevronRight } from "react-icons/bs";
+import Inquiry from "./inquiry";
 
 interface MyInfoProps {
   os?: string;
@@ -26,6 +27,7 @@ const Config = ({ os = "Windows", close }: MyInfoProps) => {
   const { isDark, toggleTheme } = useDarkMode();
 
   const [viewResetPasswordPage, setViewResetPasswordPage] = useState(false);
+  const [viewInquiry, setViewInquiry] = useState(false);
 
   const handleDeleteUser = async () => {
     try {
@@ -52,6 +54,7 @@ const Config = ({ os = "Windows", close }: MyInfoProps) => {
           close={() => setViewResetPasswordPage(false)}
         />
       )}
+      {viewInquiry && <Inquiry close={() => setViewInquiry(false)} />}
 
       <ConfigList title="앱 설정">
         <ConfigListItem
@@ -100,7 +103,7 @@ const Config = ({ os = "Windows", close }: MyInfoProps) => {
       )}
 
       <ConfigList title="기타">
-        <ConfigListItem title="문의" />
+        <ConfigListItem title="문의" onClick={() => setViewInquiry(true)} />
       </ConfigList>
     </SwipeClosePage>
   );
