@@ -30,6 +30,7 @@ const Ads = ({
         (window.adsbygoogle = window.adsbygoogle || []).push({});
       } catch (error) {
         insRef.current?.setAttribute("data-ad-status", "unfilled");
+        console.error(error);
       }
     };
 
