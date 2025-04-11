@@ -1,7 +1,7 @@
 "use client";
 
 import cn from "@/utils/cn";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 type Ads = "square" | "horizon" | "feed";
 
@@ -12,6 +12,7 @@ const Ads = ({
   type?: Ads;
   className?: React.ComponentProps<"ins">["className"];
 }) => {
+  const insRef = useRef<HTMLModElement | null>(null);
   const AdSlot = useMemo(() => {
     switch (type) {
       case "horizon":
@@ -28,7 +29,7 @@ const Ads = ({
       try {
         (window.adsbygoogle = window.adsbygoogle || []).push({});
       } catch (error) {
-        console.error(error);
+        insRef.current?.setAttribute("data-ad-status", "unfilled");
       }
     };
 
@@ -40,6 +41,7 @@ const Ads = ({
   if (type === "feed") {
     return (
       <ins
+        ref={insRef}
         className={cn("adsbygoogle w-full block h-28", className)}
         data-ad-format="fluid"
         data-ad-layout-key="-fb+5w+4e-db+86"
@@ -52,6 +54,7 @@ const Ads = ({
   return (
     <>
       <ins
+        ref={insRef}
         className={cn("adsbygoogle w-full block", className)}
         data-ad-client="ca-pub-7114697513685043"
         data-ad-slot={AdSlot}
