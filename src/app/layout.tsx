@@ -14,8 +14,9 @@ import localFont from "next/font/local";
 import { cookies } from "next/headers";
 import { ToastContainer, Zoom } from "react-toastify";
 
-import "./globals.css";
 import GoogleAdsense from "@/provider/google-adsense";
+import GoogleAnalytics from "@/provider/google-analytics";
+import "./globals.css";
 
 declare global {
   interface Window {
@@ -110,6 +111,9 @@ export default async function RootLayout({
       className={`${pretendard.className} ${isDark ? "dark" : ""}`}
     >
       <body>
+        {process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS ? (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS} />
+        ) : null}
         <GoogleAdsense />
         <ThemeProvider>
           <RQProvider>
