@@ -15,10 +15,12 @@ import { cookies } from "next/headers";
 import { ToastContainer, Zoom } from "react-toastify";
 
 import "./globals.css";
+import GoogleAdsense from "@/provider/google-adsense";
 
 declare global {
   interface Window {
     kakao: any;
+    adsbygoogle: any;
     ReactNativeWebView?: {
       postMessage: (message: string) => void;
     };
@@ -108,6 +110,7 @@ export default async function RootLayout({
       className={`${pretendard.className} ${isDark ? "dark" : ""}`}
     >
       <body>
+        <GoogleAdsense />
         <ThemeProvider>
           <RQProvider>
             <GPSProvider>

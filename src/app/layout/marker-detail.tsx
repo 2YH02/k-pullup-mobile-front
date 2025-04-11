@@ -59,6 +59,7 @@ import Signin from "./signin";
 
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
+import Ads from "@/components/ads/ads";
 
 interface MarkerDetailProps {
   imageUrl?: string | null;
@@ -520,6 +521,7 @@ const MarkerDetail = ({
             </Section>
 
             <Divider />
+            <Ads type="feed" />
 
             {/* 지도 및 길찾기 */}
             <Section>
